@@ -3,8 +3,8 @@
 </script>
 
 <template>
-    <div>
-        <nav>
+    <div class="layout">
+        <nav class="navbar">
             <NuxtLink to="/home">
                 <svg class="logo" width="148" height="75" viewBox="0 0 148 75" fill="none"
                     xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -20,31 +20,38 @@
                 </svg>
             </NuxtLink>
             <div class="btn-group">
-                <button class="ham btn dropdown" type="button" data-bs-toggle="dropdown"
-                    aria-expanded="false">
-                    <svg width="30" height="23" viewBox="0 0 30 23" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <line y1="1.5" x2="30" y2="1.5" stroke="black" stroke-width="3" />
-                        <line y1="11.5" x2="30" y2="11.5" stroke="black" stroke-width="3" />
-                        <line y1="21.5" x2="30" y2="21.5" stroke="black" stroke-width="3" />
-                    </svg>
+                <button class="ham btn dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="../public/assets/ham.png" alt="">
                 </button>
                 <ul class="dropdown-menu">
-                    <NuxtLink to="/home" class="menu"><li class="list home">Home</li></NuxtLink>
+                    <NuxtLink to="/home" class="menu">
+                        <li class="list home">Home</li>
+                    </NuxtLink>
                     <hr>
-                    <NuxtLink to="/history" class="menu"><li class="list history">History</li></NuxtLink>
+                    <NuxtLink to="/history" class="menu">
+                        <li class="list history">History</li>
+                    </NuxtLink>
                     <hr>
-                    <NuxtLink to="/" class="menu"><li class="list logout btn btn-danger">Log Out</li></NuxtLink>
+                    <NuxtLink to="/" class="menu">
+                        <li class="list logout btn btn-danger">Log Out</li>
+                    </NuxtLink>
                 </ul>
             </div>
         </nav>
-        <div>
+        <main class="content">
             <slot />
-        </div>
+        </main>
     </div>
 </template>
 
 <style scoped>
-nav {
+.layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.navbar {
     height: 100px;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     display: flex;
@@ -53,15 +60,23 @@ nav {
 }
 
 .logo {
-    height: 100%;
-    margin-left: 15px;
+    display: block;
+    margin: auto;
+}
+
+.content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 1rem;
+
 }
 
 .dropdown-menu {
     padding: 5px;
+    background: wheat;
 }
 
-.menu{
+.menu {
     color: black;
     text-decoration: none;
 }
@@ -72,21 +87,28 @@ nav {
     font-size: larger;
 }
 
-.list:hover{
-    background-color:rgb(184, 184, 184);
+.list:hover {
+    background-color: rgb(184, 184, 184);
 }
 
-hr{
+hr {
     margin: 5px;
 }
+
 .ham {
     border: none;
-    margin-right: 15px;
+    margin-right: 20px;
 }
 
-.logout{
+.logout {
     width: 100%;
     border: none;
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        height: auto; 
+    }
 }
 
 </style>

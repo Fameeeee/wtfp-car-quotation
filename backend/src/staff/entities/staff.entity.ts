@@ -5,11 +5,26 @@ export class Staff {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column({unique: true})
+    email: string;
+
+    @Column()
+    password: string;
+
     @Column()
     firstName: string;
 
-    @Column()
+    @Column({unique: true})
     lastName: string;
+
+    @Column()
+    gender: string;
+
+    @Column()
+    age: number;
+
+    @Column({unique: true})
+    phoneNumber: string;
 }
 
 

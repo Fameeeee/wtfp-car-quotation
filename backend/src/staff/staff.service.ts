@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateStaffDto } from './dto/create-staff.dto';
 import { UpdateStaffDto } from './dto/update-staff.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,14 +10,28 @@ export class StaffService {
   constructor(
     @InjectRepository(Staff)
     private staffRepository: Repository<Staff>,
-  ) { }
+  ) {}
 
-  create(createStaffDto: CreateStaffDto) {
-    return 'This action adds a new staff';
+  async create(createStaffDto: CreateStaffDto): Promise<Staff> {
+    try {
+      const newStaff = this.staffRepository.create(createStaffDto);
+      return await this.staffRepository.save(newStaff);
+    } catch (error) {
+      if (error.code === 'ER_DUP_ENTRY') {
+        const duplicateField = this.getDuplicateField(error.message);
+        throw new ConflictException(`${duplicateField} already exists`);
+      }
+    }
+  }
+  private getDuplicateField(errorMessage: string): string {
+    if (errorMessage.includes('lastName')) return 'Last name';
+    if (errorMessage.includes('email')) return 'Email';
+    if (errorMessage.includes('phoneNumber')) return 'Phone number';
+    return 'Field';
   }
 
   findAll() {
-    return this.staffRepository.find()
+    return this.staffRepository.find();
   }
 
   findOne(id: number) {
