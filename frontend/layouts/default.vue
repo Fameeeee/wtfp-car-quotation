@@ -53,10 +53,12 @@
 
 .navbar {
     height: 100px;
+    width: auto;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     display: flex;
     justify-content: space-between;
-    align-items: center
+    align-items: center;
+    padding:8px 10px;
 }
 
 .logo {
@@ -68,12 +70,15 @@
     flex-grow: 1;
     overflow-y: auto;
     padding: 1rem;
-
 }
 
 .dropdown-menu {
     padding: 5px;
-    background: wheat;
+    background: white;
+    left: auto;
+    right: 0;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    margin: 10px;
 }
 
 .menu {
@@ -97,7 +102,7 @@ hr {
 
 .ham {
     border: none;
-    margin-right: 20px;
+    margin-right: 5px;
 }
 
 .logout {
@@ -107,8 +112,7 @@ hr {
 
 @media (max-width: 768px) {
     .navbar {
-        height: auto; 
+        height: auto;
     }
 }
-
 </style>

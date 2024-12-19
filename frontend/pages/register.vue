@@ -1,5 +1,5 @@
 <template>
-    <div class="flex justify-content-center align-items-center mt-5">
+    <div class="flex justify-content-center align-items-center mt-2">
         <div class="card shadow-sm w-100" style="max-width: 400px; height: auto; overflow-y: auto;">
             <div class="card-body">
                 <h1 class="card-title text-center mb-4">สมัครสมาชิก</h1>
