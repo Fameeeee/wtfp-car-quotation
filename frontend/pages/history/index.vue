@@ -1,10 +1,12 @@
 <template>
     <div class="container">
         <div class="header">
-            <div class="topic">ประวัติ</div>
-            <div class="search"><img src="../public/assets/search.png" alt=""></div>
+            <div class="topic-container">
+                <div class="topic">ประวัติ</div>
+            </div>
+            <div class="search"><img src="../../public/assets/search.png" alt=""></div>
         </div>
-        <div class="content">
+        <NuxtLink to='/history/{{ $id }}' class="content">
             <div class="rectangle">
                 <div class="title">
                     <div class="quote-title">ใบเสนอราคา</div>
@@ -17,8 +19,7 @@
                     <div class="customer-name">คุณ ธีธัช ธีรวโรภาส</div>
                 </div>
             </div>
-            
-        </div>
+        </NuxtLink>
     </div>
 </template>
 
@@ -30,23 +31,38 @@ html {
     box-sizing: border-box;
 }
 
+.container{
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    padding: 16px;
+}
+
 .header {
     display: flex;
-    justify-content: space-between;
+    justify-content: end;
     align-items: center;
-    margin: 10px;
+    position: relative;
+}
+
+.topic-container{
+    position:absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
 }
 
 .topic {
     font-family: 'Roboto', sans-serif;
-    font-weight: 600;
-    font-size: 24px;
-    text-align: center;
-    color: #000000;
+    font-style: normal;
+    font-weight: 800;
+    font-size: 32px;
+    color: #696969;
 }
 
 .search img {
     width: 45px;
+    color: #696969;
 }
 
 .content {
@@ -56,6 +72,7 @@ html {
     align-items: center;
     flex-direction: column;
     gap: 10px;
+    text-decoration: none;
 }
 
 .rectangle {
@@ -112,7 +129,7 @@ hr {
     color: #000000;
 }
 
-.details{
+.details {
     font-weight: 500;
 }
 </style>

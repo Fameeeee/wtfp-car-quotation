@@ -2,15 +2,7 @@
     <div class="container">
         <div class="topic">หน้าหลัก</div>
 
-        <!-- <div v-if="error">Error : {{ error.message }}</div>
-    <div v-if="data && data.length > 0">
-        <div v-for="(staff, index) in data" :key="index">
-            <p>Name: {{ staff.firstName }}</p>
-            <p>Lastname: {{ staff.lastName }}</p>
-            <p>Email : {{ staff.email }}</p>
-        </div>
-    </div> -->
-        <NuxtLink to="create" class="link">
+        <NuxtLink to="/select" class="link">
             <button class="group-button">
                 <span class="button-title">สร้างใบเสนอราคา</span>
             </button>
@@ -50,25 +42,17 @@ html {
     box-sizing: border-box;
     width: 100%;
     height: 100%;
-    font-family: 'Roboto', sans-serif;
 }
 
 .container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 40px;
     padding: 16px;
     gap: 20px;
 }
 
-
 .topic {
-    position: absolute;
-    width: 200px;
-    height: 40px;
-    left: 15px;
-    top: 105px;
     font-family: 'Roboto', sans-serif;
     font-style: normal;
     font-weight: 800;
@@ -77,18 +61,16 @@ html {
 }
 
 .group-button {
-    width: 360px;
-    height: 100px;
-    left: 16px;
-    top: 181px;
-    background: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 90vw;
+    height: 10vh;
+    padding: 10px 20px;
+    background: #FFFFFF;
     border: 1px solid rgba(0, 0, 0, 0.5);
     border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .button-title {
@@ -96,7 +78,6 @@ html {
     font-style: normal;
     font-weight: 600;
     font-size: 32px;
-    line-height: 40px;
     color: #696969;
     text-align: center;
 }
@@ -110,8 +91,8 @@ html {
 }
 
 @media (min-width: 768px) {
-    .group-button{
-        width:95vw;
+    .group-button {
+        width: 95vw;
     }
 }
 </style>
