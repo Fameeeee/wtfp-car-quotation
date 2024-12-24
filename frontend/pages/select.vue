@@ -6,16 +6,16 @@
                 <div class="rectangle">
                     <div class="model">
                         <div class="model-name">วี-ครอส 4x4</div>
-                        <div><img src="../public/assets/car-model/vcross/vcross4x4.png" alt="วี-ครอส 4x4"
-                                class="model-img"></div>
+                        <img src="../public/assets/car-model/vcross/vcross4x4.png" alt="วี-ครอส 4x4" class="model-img">
                     </div>
                 </div>
             </NuxtLink>
+
             <NuxtLink :to="getModelLink('ปิกอัพ 4 ประตู')" class="link">
                 <div class="rectangle">
                     <div class="model">
-                        <div class="model-name" id="modelName">ปิกอัพ 4 ประตู</div>
-                        <div><img src="../public/assets/car-model/4door/4door.png" alt="" class="model-img"></div>
+                        <div class="model-name">ปิกอัพ 4 ประตู</div>
+                        <img src="../public/assets/car-model/4door/4door.png" alt="ปิกอัพ 4 ประตู" class="model-img">
                     </div>
                 </div>
             </NuxtLink>
@@ -24,7 +24,7 @@
                 <div class="rectangle">
                     <div class="model">
                         <div class="model-name">ปิกอัพ 2 ประตู</div>
-                        <div><img src="../public/assets/car-model/2door/2door.png" alt="" class="model-img"></div>
+                        <img src="../public/assets/car-model/2door/2door.png" alt="ปิกอัพ 2 ประตู" class="model-img">
                     </div>
                 </div>
             </NuxtLink>
@@ -33,7 +33,7 @@
                 <div class="rectangle">
                     <div class="model">
                         <div class="model-name">สปาร์ค</div>
-                        <div><img src="../public/assets/car-model/spark/spark.png" alt="" class="model-img"></div>
+                        <img src="../public/assets/car-model/spark/spark.png" alt="สปาร์ค" class="model-img">
                     </div>
                 </div>
             </NuxtLink>
@@ -42,7 +42,7 @@
                 <div class="rectangle">
                     <div class="model">
                         <div class="model-name">เอ็กซ์-ซีรี่ย์</div>
-                        <div><img src="../public/assets/car-model/x-series/x-series.png" alt="" class="model-img"></div>
+                        <img src="../public/assets/car-model/x-series/x-series.png" alt="เอ็กซ์-ซีรี่ย์" class="model-img">
                     </div>
                 </div>
             </NuxtLink>
@@ -51,36 +51,19 @@
                 <div class="rectangle">
                     <div class="model">
                         <div class="model-name">มิว-เอ็กซ์</div>
-                        <div><img src="../public/assets/car-model/mu-x/mu-x.png" alt="" class="model-img"></div>
+                        <img src="../public/assets/car-model/mu-x/mu-x.png" alt="มิว-เอ็กซ์" class="model-img">
                     </div>
                 </div>
             </NuxtLink>
         </div>
-
-
     </div>
 </template>
 
-<script>
-export default {
-    methods: {
-        getModelLink(modelName) {
-            return `/create/${encodeURIComponent(modelName)}`;
-        },
-    }
-}
+<script setup>
+const getModelLink = (modelName) => `/create/${encodeURIComponent(modelName)}`;
 </script>
 
 <style scoped>
-body,
-html {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    width: 100%;
-    height: 100%;
-}
-
 .container {
     display: flex;
     flex-direction: column;
@@ -88,16 +71,14 @@ html {
     padding: 16px;
 }
 
-.content{
+.content {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
-
 .topic {
     font-family: 'Roboto', sans-serif;
-    font-style: normal;
     font-weight: 800;
     font-size: 32px;
     color: #696969;
@@ -106,10 +87,9 @@ html {
 
 .rectangle {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     width: 90vw;
-    height: 10vh;
+    height: 100px; 
     padding: 10px 20px;
     background: #FFFFFF;
     border: 1px solid rgba(0, 0, 0, 0.5);
@@ -129,13 +109,11 @@ html {
     font-size: 24px;
     font-weight: 600;
     color: #696969;
-    text-align: left;
 }
 
 .model-img {
     width: 120px;
     height: auto;
-    object-fit: contain;
 }
 
 .link {
