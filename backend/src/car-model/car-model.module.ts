@@ -9,4 +9,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   controllers: [CarModelController],
   providers: [CarModelService],
 })
+
 export class CarModelModule {}
+
