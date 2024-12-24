@@ -3,24 +3,22 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { StaffModule } from './staff/staff.module';
-import { CarModelModule } from './car-model/car-model.module';
-import { ConfigModule } from '@nestjs/config';
-import dbConfig from './config/db.config';
+import { Staff } from './staff/entities/staff.entity';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      expandVariables: true,
-      load: [dbConfig],
-    }),
-    TypeOrmModule.forRootAsync({
-      useFactory: dbConfig,
-    }),
-    StaffModule,
-    CarModelModule,
+  imports: [TypeOrmModule.forRoot({
+    type: 'mysql',
+    host: '192.168.1.15',
+    port: 3306,
+    username: 'fame',
+    password: 'wtfp',
+    database: 'isuzu',
+    entities: [Staff],
+    synchronize:true,
+  })
+    ,StaffModule
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
