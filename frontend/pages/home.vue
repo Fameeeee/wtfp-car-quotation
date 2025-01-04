@@ -14,6 +14,9 @@
                 </button>
             </NuxtLink>
         </div>
+       
+
+
     </div>
 </template>
 
@@ -48,7 +51,7 @@
     justify-content: center;
     align-items: center;
     width: 90vw;
-    height: 100px; 
+    height: 100px;
     padding: 10px 20px;
     background: #FFFFFF;
     border: 1px solid rgba(0, 0, 0, 0.5);
