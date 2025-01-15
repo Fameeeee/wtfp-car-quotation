@@ -17,8 +17,8 @@
     </div>
     <p v-else>No car data available</p>
     <div class="select-model-btn">
-      <button class="select-btn">เลือกรุ่นรถ <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-          xmlns="http://www.w3.org/2000/svg">
+      <button class="select-btn" @click="openModal">เลือกรุ่นรถ <svg width="24" height="24" viewBox="0 0 24 24"
+          fill="none" xmlns="http://www.w3.org/2000/svg">
           <g clip-path="url(#clip0_659_21)">
             <path
               d="M24 12C24 15.1826 22.7357 18.2348 20.4853 20.4853C18.2348 22.7357 15.1826 24 12 24C8.8174 24 5.76516 22.7357 3.51472 20.4853C1.26428 18.2348 0 15.1826 0 12C0 8.8174 1.26428 5.76516 3.51472 3.51472C5.76516 1.26428 8.8174 0 12 0C15.1826 0 18.2348 1.26428 20.4853 3.51472C22.7357 5.76516 24 8.8174 24 12ZM12.75 6.75C12.75 6.55109 12.671 6.36032 12.5303 6.21967C12.3897 6.07902 12.1989 6 12 6C11.8011 6 11.6103 6.07902 11.4697 6.21967C11.329 6.36032 11.25 6.55109 11.25 6.75V15.4395L8.031 12.219C7.89017 12.0782 7.69916 11.9991 7.5 11.9991C7.30084 11.9991 7.10983 12.0782 6.969 12.219C6.82817 12.3598 6.74905 12.5508 6.74905 12.75C6.74905 12.9492 6.82817 13.1402 6.969 13.281L11.469 17.781C11.5387 17.8508 11.6214 17.9063 11.7125 17.9441C11.8037 17.9819 11.9013 18.0013 12 18.0013C12.0987 18.0013 12.1963 17.9819 12.2874 17.9441C12.3786 17.9063 12.4613 17.8508 12.531 17.781L17.031 13.281C17.1718 13.1402 17.2509 12.9492 17.2509 12.75C17.2509 12.5508 17.1718 12.3598 17.031 12.219C16.8902 12.0782 16.6992 11.9991 16.5 11.9991C16.3008 11.9991 16.1098 12.0782 15.969 12.219L12.75 15.4395V6.75Z"
@@ -35,6 +35,7 @@
     <div class="next-btn">
       <button class="next">ต่อไป</button>
     </div>
+    <SelectModal :show="isModalVisible" :modalData="carModels" @close="closeModal" />
   </div>
 </template>
 
@@ -42,6 +43,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
+import SelectModal from '~/components/SelectModal.vue';
 
 const modelName = ref('');
 const carData = ref([]);
@@ -49,6 +51,14 @@ const currentColor = ref('');
 const currentImageUrl = ref('');
 const availableColors = ref([]);
 const route = useRoute();
+const isModalVisible = ref(false);
+
+const carModels = ref([
+  { name: '3.0 Ddi Z 2-door', price: '937,000 THB' },
+  { name: '3.0 Ddi Z 4-door', price: '1,054,000 THB' },
+  { name: '3.0 Ddi ZP 4-door', price: '1,169,000 THB' },
+  { name: '3.0 Ddi M 4-door AT', price: '1,277,000 THB' }
+]);
 
 const switchColor = (color) => {
   const car = carData.value.find((item) => item.color === color);
@@ -81,6 +91,14 @@ onMounted(async () => {
     }
   }
 });
+
+const openModal = () => {
+  isModalVisible.value = true;
+};
+
+const closeModal = () => {
+  isModalVisible.value = false;
+};
 </script>
 
 <style scoped>
@@ -98,21 +116,23 @@ onMounted(async () => {
   font-family: 'Lexend Giga';
 }
 
-.model ,.car-model {
+.model,
+.car-model {
   display: flex;
   flex-direction: column;
   align-items: center;
 
 }
 
-.car-name{
+.car-name {
   display: flex;
   justify-content: center;
   align-items: center;
   color: #FFFFFF;
   background: #CD2727;
   height: 5vh;
-  width: 35vw;
+  width: fit-content;
+  padding: 5px 15px;
   border-radius: 15px;
   font-size: 24px;
   font-family: 'Lexend Giga';
@@ -149,11 +169,11 @@ onMounted(async () => {
 }
 
 .color-button.active {
-  border: 2px solid #000000; 
+  border: 2px solid #000000;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.4);
 }
 
-.car-color{
+.car-color {
   margin-top: 30px;
   font-size: 18px;
   font-family: 'Lexend Giga';
