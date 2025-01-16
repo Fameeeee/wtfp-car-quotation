@@ -108,7 +108,7 @@ export default {
             }
 
             try {
-                await axios.post('http://localhost:3001/staff', this.form);
+                await axios.post('http://localhost:3001/staff/register', this.form);
                 this.successMessage = 'สมัครสมาชิกสำเร็จ!';
                 this.errorMessage = '';
                 console.log(this.successMessage)

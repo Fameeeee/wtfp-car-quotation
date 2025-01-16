@@ -21,7 +21,7 @@
                         <li class="list">History</li>
                     </NuxtLink>
                     <hr>
-                    <NuxtLink to="/" class="menu">
+                    <NuxtLink to="#" class="menu" @click.prevent="handleLogout">
                         <li class="list logout btn btn-danger">Log Out</li>
                     </NuxtLink>
                 </ul>
@@ -32,6 +32,18 @@
         </main>
     </div>
 </template>
+
+<script setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+const handleLogout = () => {
+  localStorage.removeItem('token');
+  router.push('/');
+};
+</script>
+
 
 <style scoped>
 .layout {

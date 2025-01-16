@@ -14,11 +14,12 @@
             <input type="password" class="form-control" id="password" v-model="form.password"
               placeholder="Ex. password1234" />
           </div>
-          <NuxtLink to="/home"><button type="submit" class="btn btn-primary w-100">เข้าสู่ระบบ</button></NuxtLink>
+          <button type="submit" class="btn btn-primary w-100" :disabled="isLoading">เข้าสู่ระบบ</button>
         </form>
         <p class="text-center mt-3">
           ยังไม่มีบัญชื ? <NuxtLink to="/register" class="text-primary">สมัครสมาชิก</NuxtLink>
         </p>
+        <p v-if="errorMessage" class="text-center text-danger">{{ errorMessage }}</p>
       </div>
     </div>
   </div>
@@ -26,18 +27,53 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router'; // Import useRouter
+import axios from 'axios';
+
 
 const form = ref({
   email: '',
   password: ''
 });
+const emailError = ref(false);
+const passwordError = ref(false);
+const isLoading = ref(false);
+const errorMessage = ref('');
 
-const handleLogin = () => {
-  if (!form.value.email || !form.value.password) {
-    console.error('Please fill out all fields');
+const router = useRouter();
+
+const handleLogin = async () => {
+  emailError.value = false;
+  passwordError.value = false;
+  errorMessage.value = '';
+
+  // Validate form
+  if (!form.value.email) {
+    emailError.value = true;
     return;
   }
-  console.log('Form submitted:', form.value);
+  if (!form.value.password) {
+    passwordError.value = true;
+    return;
+  }
+
+  isLoading.value = true;
+
+  try {
+    const response = await axios.post('http://localhost:3001/staff/login', form.value);
+    
+    if (response.data.token) {
+      localStorage.setItem('token', response.data.token);
+      router.push('/home');
+    } else {
+      errorMessage.value = 'Login failed: No token received.';
+    }
+  } catch (error) {
+    console.error(error.response || error); 
+    errorMessage.value = error.response?.data?.message || 'การเข้าสู่ระบบล้มเหลว กรุณาลองใหม่';
+  } finally {
+    isLoading.value = false;
+  }
 };
 </script>
 

@@ -60,6 +60,9 @@
 </template>
 
 <script setup>
+definePageMeta({
+        middleware: 'auth'
+    })
 const getModelLink = (modelName) => `/create/${encodeURIComponent(modelName)}`;
 </script>
 
