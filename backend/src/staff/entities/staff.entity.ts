@@ -20,11 +20,9 @@ export class Staff {
     @Column()
     gender: string;
 
-    @Column()
-    age: number;
-
     @Column({unique: true})
     phoneNumber: string;
+
 }
 
 
