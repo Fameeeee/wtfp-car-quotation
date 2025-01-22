@@ -30,17 +30,12 @@
                             placeholder="Ex. Doe" />
                     </div>
                     <div class="row">
-                        <div class="col-6 mb-3">
+                        <div class="mb-3">
                             <label for="gender" class="form-label">เพศ</label>
                             <select class="form-select" id="gender" v-model="form.gender">
                                 <option value="male">ชาย</option>
                                 <option value="female">หญิง</option>
                             </select>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <label for="age" class="form-label">อายุ</label>
-                            <input type="number" class="form-control" id="age" v-model="form.age"
-                                placeholder="Ex. 20" />
                         </div>
                     </div>
                     <div class="mb-3">
@@ -71,7 +66,6 @@ export default {
                 firstName: '',
                 lastName: '',
                 gender: 'ชาย',
-                age: '',
                 phoneNumber: ''
             },
             errorMessage: '',
@@ -87,7 +81,6 @@ export default {
                 !this.form.firstName ||
                 !this.form.lastName ||
                 !this.form.gender ||
-                !this.form.age ||
                 !this.form.phoneNumber
             ) {
                 this.errorMessage = 'กรุณากรอกข้อมูลให้ครบทุกช่อง';
