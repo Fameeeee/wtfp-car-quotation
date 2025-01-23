@@ -1,5 +1,11 @@
 import { Column, Entity, OneToMany, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 
+export enum StaffRole {
+    STAFF = 'staff',
+    MANAGER = 'manager',
+  }
+  
+
 @Entity('staff')
 export class Staff {
     @PrimaryGeneratedColumn()
@@ -23,6 +29,8 @@ export class Staff {
     @Column({unique: true})
     phoneNumber: string;
 
+    @Column({ type: 'enum', enum: StaffRole, default: StaffRole.STAFF })
+    role: StaffRole;
 }
 
 
