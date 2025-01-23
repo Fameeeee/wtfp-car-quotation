@@ -90,14 +90,13 @@ definePageMeta({
 }
 
 img {
-  height: 8vw;
-  max-height: 100px;
+  height: 5vh;
   object-fit: contain;
+  margin: 10px 0px;
 }
 
 nav {
-  height: 15vw;
-  max-height: 150px;
+  height: fit-content;
   background: #ffffff;
   display: flex;
   justify-content: center;
@@ -128,7 +127,6 @@ nav {
   font-size: 2.5rem;
   margin-bottom: 1rem;
   text-align: center;
-  color: #333333;
 }
 
 .form-group {
@@ -139,7 +137,6 @@ nav {
   display: block;
   margin-bottom: 0.5rem;
   font-size: 1.5rem;
-  color: #666666;
 }
 
 .form-group input {
@@ -153,7 +150,7 @@ nav {
 .submit-button {
   display: block;
   width: 100%;
-  padding: 1.5rem;
+  padding: 1rem;
   background-color: #007bff;
   color: #ffffff;
   font-size: 1.25rem;
@@ -174,116 +171,6 @@ nav {
   font-size: 1rem;
   color: #666666;
   margin-top: 1rem;
-}
-
-@media (max-width: 768px) {
-  nav {
-    height: 12vw;
-    max-height: 120px;
-  }
-
-  img {
-    height: 7vw;
-    max-height: 80px;
-  }
-
-  .login-box {
-    padding: 1.5rem;
-  }
-
-  .login-title {
-    font-size: 2rem;
-  }
-
-  .form-group label {
-    font-size: 1.25rem;
-  }
-
-  .form-group input {
-    padding: 0.7rem;
-    font-size: 0.9rem;
-  }
-
-  .submit-button {
-    font-size: 1rem;
-  }
-
-  .register {
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 425px) {
-  nav {
-    height: 10vw;
-    max-height: 100px;
-  }
-
-  img {
-    height: 6vw;
-    max-height: 60px;
-  }
-
-  .login-box {
-    padding: 1rem;
-  }
-
-  .login-title {
-    font-size: 1.5rem;
-  }
-
-  .form-group label {
-    font-size: 1rem;
-  }
-
-  .form-group input {
-    font-size: 0.8rem;
-    padding: 0.6rem;
-  }
-
-  .submit-button {
-    font-size: 0.9rem;
-    padding: 0.8rem;
-  }
-
-  .register {
-    font-size: 0.8rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  img {
-    height: 10vw;
-    max-height: 100px;
-  }
-
-  nav {
-    height: 15vw;
-    max-height: 180px;
-  }
-
-  .login-box {
-    max-width: 800px;
-  }
-
-  .login-title {
-    font-size: 3rem;
-  }
-
-  .form-group label {
-    font-size: 2rem;
-  }
-
-  .form-group input {
-    font-size: 1.5rem;
-  }
-  .submit-button {
-    font-size: 2rem;
-  }
-
-  .register {
-    font-size: 1.5rem;
-  }
 }
 
 </style>
