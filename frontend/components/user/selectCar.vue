@@ -89,12 +89,10 @@
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-import { useSelectedCar } from '~/composables/useSelectCar';
 
 const config = useRuntimeConfig();
 const apiUrl = config.public.apiUrl;
 const router = useRouter();
-const selectedCar = useSelectedCar();
 
 const unitTypes = ref([]);
 const modelClasses = ref([]);
@@ -112,7 +110,6 @@ const selectedPrice = ref('');
 const selectedColor = ref('');
 const loading = ref(false);
 const error = ref('');
-
 
 const nextButtonVisible = computed(() => {
     return selectedPrice.value && selectedColor.value;
@@ -194,7 +191,7 @@ const fetchPrice = async () => {
             `${apiUrl}/price?unit-type=${selectedUnitType.value}&model-class=${selectedModelClass.value}&model-code-name=${selectedModelCodeName.value}&model-gname=${selectedModelGname.value}`
         );
         const prices = response.data
-        modelDetails.value.prices =  prices;
+        modelDetails.value.prices = prices;
         selectedPrice.value = prices.length > 0 ? prices[0] : '';
         loading.value = false;
     } catch (err) {
@@ -250,6 +247,7 @@ const clearSelection = (level) => {
             selectedPrice.value = '';
             modelDetails.value.colors = [];
             clearSelection('color');
+            break;
         case 'color':
             selectedColor.value = '';
             break;
@@ -265,7 +263,7 @@ const handleGnameChange = async () => {
 };
 
 const goToConfirmPage = () => {
-    selectedCar.value = {
+    const selectedData = {
         unitType: selectedUnitType.value,
         modelClass: selectedModelClass.value,
         modelCodeName: selectedModelCodeName.value,
@@ -273,8 +271,11 @@ const goToConfirmPage = () => {
         price: selectedPrice.value,
         color: selectedColor.value
     };
-    router.push('/confirm-car')
-}
+
+    localStorage.setItem('selectedCar', JSON.stringify(selectedData));
+
+    router.push('/confirm-car');
+};
 
 onMounted(fetchUnitTypes);
 </script>
@@ -331,7 +332,7 @@ onMounted(fetchUnitTypes);
 .next-btn {
     margin-top: 20px;
     padding: 0.8rem 1.5rem;
-    background-color: #4CAF50;
+    background-color: #4c6ef5;
     color: white;
     border: none;
     border-radius: 0.3rem;
@@ -339,7 +340,7 @@ onMounted(fetchUnitTypes);
 }
 
 .next-btn:hover {
-    background-color: #45a049;
+    background-color: #1a4bdb;
 }
 
 .error {

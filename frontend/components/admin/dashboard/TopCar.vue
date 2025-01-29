@@ -8,10 +8,10 @@
 <style scoped>
 .content {
     background: #fff;
-    width: 27vw;
+    width: 28vw;
     padding: 10px;
     box-shadow: 2px 4px 5px rgba(0, 0, 0, 0.25);
-    border-radius: 10px;
+    border-radius: 5px;
 }
 
 .title {

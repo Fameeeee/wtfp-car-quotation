@@ -49,9 +49,6 @@ const close = () => {
 </script>
 
 <style scoped>
-html,body{
-    
-}
 
 .modal-overlay {
     position: fixed;
