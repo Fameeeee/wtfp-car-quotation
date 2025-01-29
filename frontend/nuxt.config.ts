@@ -1,5 +1,5 @@
-
 export default defineNuxtConfig({
+  modules: ['@pinia/nuxt'],
   css: ["bootstrap/dist/css/bootstrap.min.css"],
   compatibilityDate: "2024-04-03",
   devtools: { enabled: true },
@@ -9,4 +9,9 @@ export default defineNuxtConfig({
     },
   },
   plugins: ["~/plugins/axios.js"],
+  runtimeConfig: {
+    public: {
+      apiUrl: process.env.API_URL,
+    },
+  },
 });

@@ -1,15 +1,39 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { StaffService } from './staff.service';
 import { CreateStaffDto } from './dto/create-staff.dto';
 import { UpdateStaffDto } from './dto/update-staff.dto';
+import { StaffLoginDto } from './dto/staff-login.dto';
+
+
 
 @Controller('staff')
 export class StaffController {
   constructor(private readonly staffService: StaffService) {}
 
-  @Post()
-  create(@Body() createStaffDto: CreateStaffDto) {
-    return this.staffService.create(createStaffDto);
+  @Post('register')
+  async register(@Body() createStaffDto: CreateStaffDto) {
+    const newStaff = await this.staffService.register(createStaffDto);
+    return {
+      message: 'Staff registered successfully',
+      staff: {
+        id: newStaff.id,
+        firstName: newStaff.firstName,
+        email: newStaff.email,
+      },
+    };
+  }
+
+  @Post('login')
+  async login(@Body() staffLoginDto: StaffLoginDto) {
+    return this.staffService.login(staffLoginDto);  
   }
 
   @Get()
