@@ -75,6 +75,8 @@ const handleLogout = () => {
     overflow-y: auto;
     padding: 1rem;
     width: 100%;
+    display: flex;
+    justify-content: center;
 }
 
 .dropdown-menu {
