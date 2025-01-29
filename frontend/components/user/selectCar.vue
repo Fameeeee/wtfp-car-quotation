@@ -135,9 +135,7 @@ const fetchModelClasses = async () => {
         modelClasses.value = [];
         return;
     }
-
     loading.value = true;
-    error.value = '';
     try {
         const response = await axios.get(`${apiUrl}/model-class?unit-type=${selectedUnitType.value}`);
         modelClasses.value = response.data;
@@ -148,15 +146,12 @@ const fetchModelClasses = async () => {
     }
 };
 
-
 const fetchModelCodeName = async () => {
     if (!selectedUnitType.value || !selectedModelClass.value) {
         modelDetails.value.modelCodeNames = [];
         return;
     }
-
     loading.value = true;
-    error.value = '';
     try {
         const response = await axios.get(
             `${apiUrl}/model-code-name?unit-type=${selectedUnitType.value}&model-class=${selectedModelClass.value}`
@@ -175,9 +170,7 @@ const fetchModelGname = async () => {
         modelDetails.value.modelGnames = [];
         return;
     }
-
     loading.value = true;
-    error.value = '';
     try {
         const response = await axios.get(
             `${apiUrl}/model-g-name?unit-type=${selectedUnitType.value}&model-class=${selectedModelClass.value}&model-code-name=${selectedModelCodeName.value}`
@@ -195,15 +188,13 @@ const fetchPrice = async () => {
         modelDetails.value.prices = [];
         return;
     }
-
     loading.value = true;
-    error.value = '';
     try {
         const response = await axios.get(
             `${apiUrl}/price?unit-type=${selectedUnitType.value}&model-class=${selectedModelClass.value}&model-code-name=${selectedModelCodeName.value}&model-gname=${selectedModelGname.value}`
         );
-        const prices = response.data;
-        modelDetails.value.prices = prices;
+        const prices = response.data
+        modelDetails.value.prices =  prices;
         selectedPrice.value = prices.length > 0 ? prices[0] : '';
         loading.value = false;
     } catch (err) {
@@ -217,9 +208,7 @@ const fetchColor = async () => {
         modelDetails.value.colors = [];
         return;
     }
-
     loading.value = true;
-    error.value = '';
     try {
         const response = await axios.get(
             `${apiUrl}/color?unit-type=${selectedUnitType.value}&model-class=${selectedModelClass.value}&model-code-name=${selectedModelCodeName.value}&model-gname=${selectedModelGname.value}&price=${selectedPrice.value}`
@@ -229,14 +218,6 @@ const fetchColor = async () => {
     } catch (err) {
         error.value = `Failed to load colors`;
         loading.value = false;
-    }
-};
-
-const selectColor = (color) => {
-    if (selectedColor.value === color) {
-        selectedColor.value = '';
-    } else {
-        selectedColor.value = color;
     }
 };
 
