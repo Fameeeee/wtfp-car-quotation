@@ -14,12 +14,7 @@
             <input type="password" class="form-control" id="password" v-model="form.password"
               placeholder="Ex. password1234" />
           </div>
-<<<<<<< Updated upstream
-          <button type="submit" class="btn btn-primary w-100" :disabled="isLoading">เข้าสู่ระบบ</button>
-=======
-          <button type="submit" class="form-btn
-          " :disabled="isLoading">เข้าสู่ระบบ</button>
->>>>>>> Stashed changes
+          <button type="submit" class="form-btn" :disabled="isLoading">เข้าสู่ระบบ</button>
         </form>
         <p class="register-link">
           ยังไม่มีบัญชื ? <NuxtLink to="/register" class="text-primary">สมัครสมาชิก</NuxtLink>
@@ -45,20 +40,13 @@ const passwordError = ref(false);
 const isLoading = ref(false);
 const errorMessage = ref('');
 
-<<<<<<< Updated upstream
 const router = useRouter();
 
-=======
->>>>>>> Stashed changes
 const handleLogin = async () => {
   emailError.value = false;
   passwordError.value = false;
   errorMessage.value = '';
 
-<<<<<<< Updated upstream
-  // Validate form
-=======
->>>>>>> Stashed changes
   if (!form.value.email) {
     emailError.value = true;
     return;
@@ -108,9 +96,6 @@ const handleLogin = async () => {
 .card-body{
   gap: 10px;
 }
-<<<<<<< Updated upstream
-</style>
-=======
 
 .card-title{
   text-align: center;

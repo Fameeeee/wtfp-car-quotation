@@ -1,9 +1,5 @@
 <template>
     <div>
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
         <!-- Unit Type Dropdown -->
         <div>
             <label for="unit-type">Select Unit Type:</label>
@@ -34,30 +30,16 @@
         <!-- Model Gname Dropdown -->
         <div v-if="modelDetails.modelGnames.length > 0">
             <label for="model-gname">Select Model Gname:</label>
-<<<<<<< Updated upstream
-            <select v-model="selectedModelGname" @change="fetchPrice" id="model-gname">
-=======
             <select v-model="selectedModelGname" @change="handleGnameChange" id="model-gname">
->>>>>>> Stashed changes
                 <option value="" disabled>Select a model gname</option>
                 <option v-for="gname in modelDetails.modelGnames" :key="gname" :value="gname">{{ gname }}</option>
             </select>
         </div>
 
-<<<<<<< Updated upstream
-        <!-- Price Dropdown -->
-        <div v-if="modelDetails.prices.length > 0">
-            <label for="price">Select Price:</label>
-            <select v-model="selectedPrice" @change="fetchColor" id="price">
-                <option value="" disabled>Select a price</option>
-                <option v-for="price in modelDetails.prices" :key="price" :value="price">{{ price }}</option>
-            </select>
-=======
         <!-- Display Price Automatically -->
         <div v-if="selectedPrice">
             <h3>Price:</h3>
             <p>{{ selectedPrice }}</p>
->>>>>>> Stashed changes
         </div>
 
         <!-- Color Dropdown -->
@@ -184,10 +166,6 @@ const fetchModelGname = async () => {
     }
 };
 
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 const fetchPrice = async () => {
     if (!selectedModelGname.value) {
         modelDetails.value.prices = [];
@@ -200,13 +178,9 @@ const fetchPrice = async () => {
         const response = await axios.get(
             `${apiUrl}/price?unit-type=${selectedUnitType.value}&model-class=${selectedModelClass.value}&model-code-name=${selectedModelCodeName.value}&model-gname=${selectedModelGname.value}`
         );
-<<<<<<< Updated upstream
-        modelDetails.value.prices = response.data;
-=======
         const prices = response.data;
         modelDetails.value.prices = prices;
         selectedPrice.value = prices.length > 0 ? prices[0] : '';
->>>>>>> Stashed changes
         loading.value = false;
     } catch (err) {
         error.value = `Failed to load prices for model-gname: ${selectedModelGname.value}`;
@@ -214,10 +188,6 @@ const fetchPrice = async () => {
     }
 };
 
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 const fetchColor = async () => {
     if (!selectedPrice.value) {
         modelDetails.value.colors = [];
@@ -238,11 +208,6 @@ const fetchColor = async () => {
     }
 };
 
-<<<<<<< Updated upstream
-onMounted(fetchUnitTypes);
-</script>
-
-=======
 const handleGnameChange = async () => {
     await fetchPrice();
     fetchColor();
@@ -252,7 +217,6 @@ onMounted(fetchUnitTypes);
 </script>
 
 
->>>>>>> Stashed changes
 <style scoped>
 .error {
     color: red;

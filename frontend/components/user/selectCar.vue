@@ -245,8 +245,11 @@ const clearSelection = (level) => {
             selectedModelGname.value = '';
             modelDetails.value.prices = [];
             clearSelection('price');
-            clearSelection('color')
             break;
+        case 'price':
+            selectedPrice.value ='';
+            modelDetails.value.colors= [];
+            clearSelection('color');
         case 'color':
             selectedColor.value = '';
             break;
@@ -272,7 +275,7 @@ onMounted(fetchUnitTypes);
 }
 
 .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.5rem;;
 }
 
 .form-label {

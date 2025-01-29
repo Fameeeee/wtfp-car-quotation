@@ -29,23 +29,12 @@
                         <input type="text" class="form-control" id="lastname" v-model="form.lastName"
                             placeholder="Ex. Doe" />
                     </div>
-<<<<<<< Updated upstream
-                    <div class="row">
-                        <div class="mb-3">
-                            <label for="gender" class="form-label">เพศ</label>
-                            <select class="form-select" id="gender" v-model="form.gender">
-                                <option value="male">ชาย</option>
-                                <option value="female">หญิง</option>
-                            </select>
-                        </div>
-=======
                     <div class="form">
                         <label for="gender" class="form-label">เพศ</label>
                         <select class="form-select" id="gender" v-model="form.gender">
                             <option value="male">ชาย</option>
                             <option value="female">หญิง</option>
                         </select>
->>>>>>> Stashed changes
                     </div>
                     <div class="form">
                         <label for="phonenumber" class="form-label">เบอร์โทรศัพท์</label>
@@ -67,39 +56,6 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
-<<<<<<< Updated upstream
-export default {
-    data() {
-        return {
-            form: {
-                email: '',
-                password: '',
-                confirmPassword: '',
-                firstName: '',
-                lastName: '',
-                gender: 'ชาย',
-                phoneNumber: ''
-            },
-            errorMessage: '',
-            successMessage: ''
-        };
-    },
-    methods: {
-        async registerUser() {
-            if (
-                !this.form.email ||
-                !this.form.password ||
-                !this.form.confirmPassword ||
-                !this.form.firstName ||
-                !this.form.lastName ||
-                !this.form.gender ||
-                !this.form.phoneNumber
-            ) {
-                this.errorMessage = 'กรุณากรอกข้อมูลให้ครบทุกช่อง';
-                console.log(this.errorMessage)
-                return;
-            }
-=======
 const form = ref({
   email: '',
   password: '',
@@ -109,7 +65,6 @@ const form = ref({
   gender: 'ชาย',
   phoneNumber: ''
 });
->>>>>>> Stashed changes
 
 const errorMessage = ref('');
 const successMessage = ref('');
@@ -119,20 +74,6 @@ const registerUser = async () => {
   errorMessage.value = '';
   successMessage.value = '';
 
-<<<<<<< Updated upstream
-            try {
-                await axios.post('http://localhost:3001/staff/register', this.form);
-                this.successMessage = 'สมัครสมาชิกสำเร็จ!';
-                this.errorMessage = '';
-                console.log(this.successMessage)
-                this.$router.push('/');
-            } catch (error) {
-                this.errorMessage = error.response ? error.response.data.message : 'An error occurred.';
-                this.successMessage = '';
-            }
-        }
-    },
-=======
   if (
     !form.value.email ||
     !form.value.password ||
@@ -146,7 +87,6 @@ const registerUser = async () => {
     console.log(errorMessage.value);
     return;
   }
->>>>>>> Stashed changes
 
   if (form.value.password !== form.value.confirmPassword) {
     errorMessage.value = 'รหัสผ่านไม่ตรงกัน';
@@ -206,7 +146,8 @@ const registerUser = async () => {
     font-size: 1.2rem;
 }
 
-.form-control ,.form-select{
+.form-control,
+.form-select {
     padding: 8px;
 }
 
