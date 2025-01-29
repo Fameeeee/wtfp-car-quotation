@@ -1,34 +1,35 @@
 <template>
-    <div class="flex justify-content-center align-items-center mt-2">
-        <div class="card shadow-sm w-100" style="max-width: 400px; height: auto; overflow-y: auto;">
+    <div class="container">
+        <div class="card">
             <div class="card-body">
-                <h1 class="card-title text-center mb-4">สมัครสมาชิก</h1>
+                <h1 class="card-title">สมัครสมาชิก</h1>
                 <form @submit.prevent="registerUser">
-                    <div class="mb-3">
+                    <div class="form">
                         <label for="email" class="form-label">อีเมลล์</label>
                         <input type="email" class="form-control" id="email" v-model="form.email"
                             placeholder="Ex. john.doe@gmail.com" />
                     </div>
-                    <div class="mb-3">
+                    <div class="form">
                         <label for="password" class="form-label">รหัสผ่าน</label>
                         <input type="password" class="form-control" id="password" v-model="form.password"
                             placeholder="Ex. password1234" />
                     </div>
-                    <div class="mb-3">
+                    <div class="form">
                         <label for="confirm-password" class="form-label">ยืนยันรหัสผ่าน</label>
                         <input type="password" class="form-control" id="confirm-password" v-model="form.confirmPassword"
                             placeholder="Ex. password1234" />
                     </div>
-                    <div class="mb-3">
+                    <div class="form">
                         <label for="firstname" class="form-label">ชื่อจริง</label>
                         <input type="text" class="form-control" id="firstname" v-model="form.firstName"
                             placeholder="Ex. John" />
                     </div>
-                    <div class="mb-3">
+                    <div class="form">
                         <label for="lastname" class="form-label">นามสกุล</label>
                         <input type="text" class="form-control" id="lastname" v-model="form.lastName"
                             placeholder="Ex. Doe" />
                     </div>
+<<<<<<< Updated upstream
                     <div class="row">
                         <div class="mb-3">
                             <label for="gender" class="form-label">เพศ</label>
@@ -37,25 +38,36 @@
                                 <option value="female">หญิง</option>
                             </select>
                         </div>
+=======
+                    <div class="form">
+                        <label for="gender" class="form-label">เพศ</label>
+                        <select class="form-select" id="gender" v-model="form.gender">
+                            <option value="male">ชาย</option>
+                            <option value="female">หญิง</option>
+                        </select>
+>>>>>>> Stashed changes
                     </div>
-                    <div class="mb-3">
+                    <div class="form">
                         <label for="phonenumber" class="form-label">เบอร์โทรศัพท์</label>
                         <input type="tel" class="form-control" id="phonenumber" v-model="form.phoneNumber"
                             placeholder="Ex. 0123456789" />
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">สมัครสมาชิก</button>
+                    <button type="submit" class="form-btn">สมัครสมาชิก</button>
                 </form>
                 <p class="text-center mt-3">
-                    มีบัญชีผู้ใช้อยู่แล้ว ? <NuxtLink to="/" class="text-primary">เข้าสู่ระบบ</NuxtLink>
+                    มีบัญชีผู้ใช้อยู่แล้ว ? <NuxtLink to="/" class="login-link">เข้าสู่ระบบ</NuxtLink>
                 </p>
             </div>
         </div>
     </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import axios from 'axios';
 
+<<<<<<< Updated upstream
 export default {
     data() {
         return {
@@ -87,19 +99,27 @@ export default {
                 console.log(this.errorMessage)
                 return;
             }
+=======
+const form = ref({
+  email: '',
+  password: '',
+  confirmPassword: '',
+  firstName: '',
+  lastName: '',
+  gender: 'ชาย',
+  phoneNumber: ''
+});
+>>>>>>> Stashed changes
 
-            if (this.form.password !== this.form.confirmPassword) {
-                this.errorMessage = 'รหัสผ่านไม่จรงกัน';
-                console.log(this.errorMessage)
-                return;
-            }
+const errorMessage = ref('');
+const successMessage = ref('');
+const router = useRouter();
 
-            if (!/^\d{10}$/.test(this.form.phoneNumber)) {
-                this.errorMessage = 'เบอร์โทรศัพท์ต้องมีตัวเลข 10 หลัก';
-                console.log(this.errorMessage);
-                return;
-            }
+const registerUser = async () => {
+  errorMessage.value = '';
+  successMessage.value = '';
 
+<<<<<<< Updated upstream
             try {
                 await axios.post('http://localhost:3001/staff/register', this.form);
                 this.successMessage = 'สมัครสมาชิกสำเร็จ!';
@@ -112,32 +132,97 @@ export default {
             }
         }
     },
+=======
+  if (
+    !form.value.email ||
+    !form.value.password ||
+    !form.value.confirmPassword ||
+    !form.value.firstName ||
+    !form.value.lastName ||
+    !form.value.gender ||
+    !form.value.phoneNumber
+  ) {
+    errorMessage.value = 'กรุณากรอกข้อมูลให้ครบทุกช่อง';
+    console.log(errorMessage.value);
+    return;
+  }
+>>>>>>> Stashed changes
 
+  if (form.value.password !== form.value.confirmPassword) {
+    errorMessage.value = 'รหัสผ่านไม่ตรงกัน';
+    console.log(errorMessage.value);
+    return;
+  }
+
+  if (!/^\d{10}$/.test(form.value.phoneNumber)) {
+    errorMessage.value = 'เบอร์โทรศัพท์ต้องมีตัวเลข 10 หลัก';
+    console.log(errorMessage.value);
+    return;
+  }
+
+  try {
+    await axios.post('http://localhost:3001/staff/register', form.value);
+    successMessage.value = 'สมัครสมาชิกสำเร็จ!';
+    console.log(successMessage.value);
+    router.push('/');
+  } catch (error) {
+    errorMessage.value = error.response ? error.response.data.message : 'An error occurred.';
+  }
 };
 </script>
 
 <style scoped>
-body,
-html {
+* {
     margin: 0;
     padding: 0;
     font-family: 'Roboto', sans-serif;
 }
 
-.flex {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.container {
+    margin-top: 20px;
 }
 
 .card {
-    overflow-y: auto;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-@media (max-width: 768px) {
-    .card {
-        max-width: 100%;
-        margin: 0 15px;
-    }
+.card-body {
+    gap: 10px;
+}
+
+.card-title {
+    text-align: center;
+    padding: 5px;
+    font-size: 2rem;
+}
+
+.form {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    font-size: 1.2rem;
+}
+
+.form-control ,.form-select{
+    padding: 8px;
+}
+
+.form-btn {
+    border: none;
+    font-size: 1.2rem;
+    background: #146aff;
+    color: white;
+    width: 100%;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.login-link {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 1rem;
 }
 </style>

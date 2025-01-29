@@ -1,22 +1,27 @@
 <template>
-  <div class="flex justify-center align-items-center mt-5">
-    <div class="card shadow-sm w-100" style="max-width: 400px;">
+  <div class="container">
+    <div class="card">
       <div class="card-body">
-        <h1 class="card-title text-center mb-4">เข้าสู่ระบบ</h1>
+        <h1 class="card-title">เข้าสู่ระบบ</h1>
         <form @submit.prevent="handleLogin">
-          <div class="mb-3">
+          <div class="form">
             <label for="email" class="form-label">อีเมลล์</label>
             <input type="email" class="form-control" id="email" v-model="form.email"
               placeholder="Ex. john.doe@gmail.com" />
           </div>
-          <div class="mb-3">
+          <div class="form">
             <label for="password" class="form-label">รหัสผ่าน</label>
             <input type="password" class="form-control" id="password" v-model="form.password"
               placeholder="Ex. password1234" />
           </div>
+<<<<<<< Updated upstream
           <button type="submit" class="btn btn-primary w-100" :disabled="isLoading">เข้าสู่ระบบ</button>
+=======
+          <button type="submit" class="form-btn
+          " :disabled="isLoading">เข้าสู่ระบบ</button>
+>>>>>>> Stashed changes
         </form>
-        <p class="text-center mt-3">
+        <p class="register-link">
           ยังไม่มีบัญชื ? <NuxtLink to="/register" class="text-primary">สมัครสมาชิก</NuxtLink>
         </p>
         <p v-if="errorMessage" class="text-center text-danger">{{ errorMessage }}</p>
@@ -40,14 +45,20 @@ const passwordError = ref(false);
 const isLoading = ref(false);
 const errorMessage = ref('');
 
+<<<<<<< Updated upstream
 const router = useRouter();
 
+=======
+>>>>>>> Stashed changes
 const handleLogin = async () => {
   emailError.value = false;
   passwordError.value = false;
   errorMessage.value = '';
 
+<<<<<<< Updated upstream
   // Validate form
+=======
+>>>>>>> Stashed changes
   if (!form.value.email) {
     emailError.value = true;
     return;
@@ -78,28 +89,63 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-body,
-html {
+* {
   margin: 0;
   padding: 0;
   font-family: 'Roboto', sans-serif;
 }
 
-.flex {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.container {
+  margin-top: 20px;
 }
 
-.card {
+.card{
+  padding: 15px;
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-@media (max-width: 768px) {
-  .card {
-    max-width: 90%;
-    margin: 0 15px;
-  }
+.card-body{
+  gap: 10px;
 }
+<<<<<<< Updated upstream
 </style>
+=======
+
+.card-title{
+  text-align: center;
+  padding: 5px;
+  font-size: 2rem;
+}
+
+.form{
+  margin-bottom: 20px;
+}
+
+.form-label{
+  font-size: 1.2rem;
+}
+
+.form-control{
+  padding: 8px;
+}
+
+.form-btn{
+  border: none;
+  font-size: 1.2rem;
+  background: #146aff;
+  color: white;
+  width: 100%;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.register-link{
+  margin-top: 15px;
+  text-align: center;
+  font-size: 1rem;
+}
+
+
+</style>
+>>>>>>> Stashed changes
