@@ -11,7 +11,6 @@ import { Staff } from './entities/staff.entity';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 
-
 @Injectable()
 export class StaffService {
   constructor(
@@ -55,11 +54,11 @@ export class StaffService {
       throw new Error('Invalid credentials');
     }
 
-    const payload = { email: staff.email, sub: staff.id };
+    const payload = { email: staff.email, sub: staff.id, role: staff.role };
     const token = this.jwtService.sign(payload);
 
     console.log('JWT Payload:', payload);
-    return { token };
+    return { token , role: staff.role};
   }
 
   findAll() {
