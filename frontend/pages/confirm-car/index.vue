@@ -24,10 +24,17 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
-import { useSelectedCar } from '~/composables/useSelectCar';
+import { ref, onMounted } from 'vue';
 
 const router = useRouter();
-const { selectedCar } = useSelectedCar();
+const selectedCar = ref({});
+
+onMounted(() => {
+    const storedCar = localStorage.getItem('selectedCar');
+    if (storedCar) {
+        selectedCar.value = JSON.parse(storedCar)
+    }
+})
 
 const confirmSelection = () => {
     router.push('/select-accessories')
@@ -37,6 +44,10 @@ const goBack = () => {
     localStorage.removeItem('selectedCar')
     router.push('/select')
 }
+
+definePageMeta({
+    middleware: 'staff-auth'
+})
 </script>
 
 <style scoped>

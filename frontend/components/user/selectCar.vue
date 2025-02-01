@@ -277,6 +277,7 @@ const goToConfirmPage = () => {
     router.push('/confirm-car');
 };
 
+
 onMounted(fetchUnitTypes);
 </script>
 
