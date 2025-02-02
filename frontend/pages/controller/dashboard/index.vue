@@ -73,7 +73,7 @@ definePageMeta({
 }
 
 
-@media (max-width: 425px) {
+@media (max-width: 430px) {
     .first-row {
         flex-direction: column;
     }

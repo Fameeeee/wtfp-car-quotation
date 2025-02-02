@@ -24,7 +24,7 @@
 }
 
 
-@media (max-width: 425px) {
+@media (max-width: 430px) {
     .content {
         width: auto;
         margin: 5px 10px;
