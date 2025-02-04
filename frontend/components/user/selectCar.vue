@@ -285,67 +285,136 @@ onMounted(fetchUnitTypes);
 .form-container {
     width: 90vw;
     max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: linear-gradient(to bottom right, #ffffff, #f8f9fa);
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
 }
 
 .form-group {
     margin-bottom: 1.5rem;
-    ;
+    position: relative;
 }
 
 .form-label {
-    font-size: 1rem;
-    font-weight: bold;
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    transition: color 0.2s ease;
 }
 
 .form-select {
     width: 100%;
-    padding: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: #1f2937;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+    appearance: none;
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+}
 
-    border: 1px solid #ccc;
-    border-radius: 0.25rem;
+.form-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-select:disabled {
+    background-color: #f3f4f6;
+    cursor: not-allowed;
 }
 
 .group {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 5px;
+    gap: 0.75rem;
 }
 
 .remove-btn {
-    background-color: #f0f0f0;
-    border: none;
-    padding: 0.3rem 0.6rem;
-    font-size: 0.9rem;
-    color: #333;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4b5563;
+    background-color: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
     cursor: pointer;
-    border-radius: 5px;
+    flex-shrink: 0;
 }
 
 .remove-btn:hover {
-    background-color: #ddd;
+    background-color: #e5e7eb;
+    color: #374151;
 }
 
 .next-btn {
-    margin-top: 20px;
-    padding: 0.8rem 1.5rem;
-    background-color: #4c6ef5;
-    color: white;
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    margin-top: 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ffffff;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     border: none;
-    border-radius: 0.3rem;
+    border-radius: 0.5rem;
     cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
 }
 
 .next-btn:hover {
-    background-color: #1a4bdb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+}
+
+.next-btn:active {
+    transform: translateY(0);
 }
 
 .error {
-    color: red;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    color: #dc2626;
+    background-color: #fee2e2;
+    border-radius: 0.5rem;
+    border: 1px solid #fecaca;
+}
+
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+@media (max-width: 640px) {
+    .form-container {
+        width: 95vw;
+        padding: 1.5rem;
+        margin: 1rem auto;
+    }
+
+    .group {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .remove-btn {
+        width: 100%;
+    }
 }
 </style>
