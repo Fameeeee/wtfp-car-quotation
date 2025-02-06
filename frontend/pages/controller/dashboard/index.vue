@@ -1,18 +1,21 @@
 <template>
     <div class="layout">
         <AdminSidebar />
-        <div class="main-content">
+        <div class="content">
             <div class="header">
                 <div class="title">Dashboard</div>
                 <FilterDay />
             </div>
             <div class="first-row">
-                <div><TopCar /></div>
-                <div><QuotationTotal /></div>
-                <div><CustomerTotal /></div>
-            </div>
-            <div class="second-row">
-
+                <div class="topcar">
+                    <TopCar />
+                </div>
+                <div class="quotation-total">
+                    <QuotationTotal />
+                </div>
+                <div class="customer-total">
+                    <CustomerTotal />
+                </div>
             </div>
         </div>
     </div>
@@ -26,45 +29,64 @@ import CustomerTotal from '~/components/admin/dashboard/CustomerTotal.vue';
 import FilterDay from '~/components/admin/dashboard/FilterDay.vue';
 
 definePageMeta({
-    layout: false
+    layout: false,
+    middleware: 'admin-auth',
 })
 </script>
 
 <style scoped>
 .layout {
     display: flex;
-    flex-direction: row;
-    height: 100vh;
-
-}
-
-.main-content {
+    min-height: 100vh;
     background: #ECECEC;
-    display: flex;
-    flex-direction: column;
     width: 100vw;
 }
 
-.title{
+.content {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    flex: 1;
+}
+
+.title {
     font-size: 3vw;
 }
 
-.header{
+.sidebar-collapsed+.content {
+    margin-left: 80px;
+}
+
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
 }
 
-.first-row{
+.first-row {
     width: 100%;
     display: flex;
-    justify-content: space-evenly;
+    padding: 10px;
+    justify-content: space-around;
+    gap: 10px;
 }
 
-@media (max-width: 425px) {
-    .first-row{
+
+@media (max-width: 430px) {
+    .first-row {
         flex-direction: column;
+    }
+
+    .content {
+        margin-left: 0;
+        max-width: 100vw;
+    }
+
+    .admin-sidebar {
+        width: 100%;
+        position: static;
+        height: auto;
     }
 }
 </style>

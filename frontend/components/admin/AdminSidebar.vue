@@ -1,167 +1,160 @@
 <template>
-    <aside class="sidebar">
-        <img src="../../public/assets/IsuzuLogo.png" alt="" class="logo">
-        <hr>
-        <div class="link">
-            <div class="link-to">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    stroke-width="1.5" stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z" />
-                </svg>
-                <NuxtLink to="/controller/dashboard" class="dashboard">Dashboard</NuxtLink>
+    <aside class="sidebar" :class="{ 'sidebar-open': isSidebarOpen, 'sidebar-collapsed': !isSidebarOpen }">
+        <div class="first-row">
+            <div class="logo" v-if="isSidebarOpen">
+                <img src="../../public/assets/IsuzuLogo.png" alt="Isuzu Logo" />
             </div>
-            <div class="link-to">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    stroke-width="1.5" stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-                </svg>
-                <NuxtLink to="/controller/dashboard" class="staff">Staff</NuxtLink>
-            </div>
-            <div class="link-to">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    stroke-width="1.5" stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-                </svg>
-                <NuxtLink to="/controller/dashboard" class="customer">Customer</NuxtLink>
-            </div>
-            <div class="link-to">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    stroke-width="1.5" stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
-                </svg>
-                <NuxtLink to="/controller/dashboard" class="history">History</NuxtLink>
+            <div class="hamburger" @click="toggleSidebar">
+                ☰
             </div>
         </div>
-        <button class="logout-btn" @click.prevent="handleLogout">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                stroke-width="1.5" stroke="currentColor" class="size-6">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
-            </svg>
-            <div class="logout">Logout</div>
+        <nav class="link">
+            <NuxtLink to="/controller/dashboard" :class="{ 'active': $route.path === '/controller/dashboard' }">
+                <span v-if="isSidebarOpen">Dashboard</span>
+                <i v-else class="icon-dashboard">D</i>
+            </NuxtLink>
+            <NuxtLink to="/controller/staff" :class="{ 'active': $route.path === '/controller/staff' }">
+                <span v-if="isSidebarOpen">Staff</span>
+                <i v-else class="icon-staff">S</i>
+            </NuxtLink>
+            <NuxtLink to="/controller/customer" :class="{ 'active': $route.path === '/controller/customer' }">
+                <span v-if="isSidebarOpen">Customer</span>
+                <i v-else class="icon-customer">C</i>
+            </NuxtLink>
+            <NuxtLink to="/controller/history" :class="{ 'active': $route.path === '/controller/history' }">
+                <span v-if="isSidebarOpen">History</span>
+                <i v-else class="icon-history">H</i>
+            </NuxtLink>
+        </nav>
+        <button class="logout" @click="Logout">
+            <span v-if="isSidebarOpen">Log Out</span>
+            <i v-else class="icon-logout">L</i>
         </button>
     </aside>
+    <slot></slot>
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
+const isSidebarOpen = ref(false);
 const router = useRouter();
 
-const handleLogout = () => {
-    localStorage.removeItem('token');
-    router.push('/controller/login');
+const toggleSidebar = () => {
+    isSidebarOpen.value = !isSidebarOpen.value;
 };
+
+const Logout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('role')
+    router.push('/controller/login')
+}
 </script>
 
 <style scoped>
-html,
-body {
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-}
-
-hr {
-    width: 90%;
-    color: #000;
-    margin: 5px;
-}
-
-svg{
-    width: 1.2em;
-    height: 1.2em;
-}
-
 .sidebar {
-    background: #ffffff;
-    width: 14vw;
-    max-width: 16vw;
+    width: 300px;
+    min-width: 300px;
+    height: 100vh;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background: white;
+    transition: width 0.3s ease,
+}
+
+.sidebar-collapsed {
+    width: 80px;
+    min-width: 80px;
+}
+
+.logo img {
+    max-width: 150px;
+    margin: 20px 0;
+    transition: max-width 0.3s ease;
+}
+
+.hamburger {
+    cursor: pointer;
+    font-size: 2rem;
+    padding: 10px;
+    text-align: center;
+}
+
+.first-row {
     display: flex;
     align-items: center;
+    padding: 20px;
+    justify-content: space-between;
+}
+
+nav {
+    display: flex;
     flex-direction: column;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    gap: 10px;
+    width: 100%;
     padding: 10px;
 }
 
-.logo {
-    width: 12vw;
-    margin: 15px;
-}
-
-.link {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-}
-
-.link-to {
-    margin-top: 10px;
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    gap: 10px;
-    font-size: 1.8vw;
-    padding: 8px;
-    border-radius: 5px;
-    transition: background-color 0.2s ease;
-}
-
-.link-to:hover {
-    background-color: #f0f0f0f0;
-}
-
-.logout-btn{
-    border: none;
-    background: #E20613;
-    margin-top: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    font-size: 1.8vw;
-    padding: 8px;
-    border-radius: 5px;
-    transition: background-color 0.2s ease;
-    color: #ffffff;
-    width: 100%;
-}
-
-.dashboard,
-.staff,
-.customer,
-.history,
-.logout {
+nav a {
+    padding: 12px 10px;
     text-decoration: none;
     color: #000;
+    font-size: 1rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background-color 0.3s ease, padding 0.3s ease;
+}
+
+nav a i {
+    font-size: 1.5rem;
+    transition: font-size 0.3s ease;
+}
+
+nav a.active {
+    background-color: #f0f0f0;
+    border-left: 4px solid #d32f2f;
+}
+
+nav a:hover {
+    background-color: #e8e8e8;
 }
 
 .logout {
-    font-size: 1.8vw;
-    text-align: center;
-    color: #ffffff;
+    margin-top: auto;
+    width: 90%;
+    padding: 12px 15px;
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-@media (max-width: 425px) {
-    .dashboard,
-    .staff,
-    .customer,
-    .history,
-    .logout {
-        display: none;
-    }
+.sidebar-collapsed nav a {
+    justify-content: center;
+}
 
-    .link-to{
-        margin-top: 5px;
-    }
+.sidebar-collapsed nav a span {
+    display: none;
+}
 
-    svg{
-        width: 2em;
-        height: 2em;
-    }
+.sidebar-collapsed nav a i {
+    font-size: 1.5rem;
 }
 </style>

@@ -40,6 +40,7 @@ const router = useRouter();
 
 const handleLogout = () => {
   localStorage.removeItem('token');
+  localStorage.removeItem('role')
   router.push('/');
 };
 </script>
@@ -49,8 +50,8 @@ const handleLogout = () => {
 .layout {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    width: 100%;
+    height: 100vh;
+    width: 100vw;
 }
 
 .navbar {

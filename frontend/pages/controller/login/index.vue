@@ -65,6 +65,7 @@ const handleLogin = async () => {
     
     if (response.data.token) {
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('role', response.data.role);
       router.push('/controller/dashboard');
     } else {
       errorMessage.value = 'Login failed: No token received.';
