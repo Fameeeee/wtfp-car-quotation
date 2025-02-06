@@ -16,7 +16,7 @@
           </thead>
           <tbody>
             <tr v-for="(item, index) in selectedAccessories" :key="index">
-              <td>{{ item.name }}</td>
+              <td>{{ item.assName }}</td>
               <td>{{ item.price.toLocaleString() }} บาท</td>
             </tr>
             <tr>
@@ -36,15 +36,15 @@
       </div>
     </div>
     <div class="header">
-      <button class="back-btn" @click="goBack"> &lt; </button>
+      <button class="goback-btn" @click="goBack"> &lt; </button>
       <div class="title">อุปกรณ์ตกแต่ง</div>
     </div>
     <div class="content">
       <!-- Left Panel -->
       <div class="left-panel">
-        <div class="brand-title">แบรนด์</div>
-        <div v-for="(brand, index) in brands" :key="index" class="brand-list" @click="filterAccessories(brand)">
-          {{ brand }}
+        <div class="type-title">ประเภท</div>
+        <div v-for="(assType, index) in assTypes" :key="index" class="type-list" @click="filterAccessories(assType)">
+          {{ assType }}
         </div>
       </div>
 
@@ -59,14 +59,22 @@
         <div v-for="(item, index) in filteredAccessories" :key="index"
           :class="['accessories-list', { 'selected-accessory': selectedAccessories.some(acc => acc.id === item.id) }]"
           @click="toggleAccessory(item)">
-          {{ item.name }} - {{ item.price.toLocaleString() }} บาท
+          {{ item.assName }} - {{ item.price.toLocaleString() }} บาท
         </div>
 
       </div>
     </div>
-
     <div class="confirm">
       <button class="confirm-btn">ยืนยัน</button>
+    </div>
+  </div>
+  <div v-if="showModal" class="modal-overlay">
+    <div class="modal">
+      <p class="modal-text">คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการเปลี่ยนแปลงของคุณ?</p>
+      <div class="modal-btn">
+        <button @click="discardChanges" class="confirm-btn">ยืนยัน</button>
+        <button @click="closeModal" class="back-btn">กลับ</button>
+      </div>
     </div>
   </div>
 </template>
@@ -76,29 +84,44 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+const config = useRuntimeConfig();
+const apiUrl = config.public.apiUrl;
 
-// Sample Data
-const brands = ref(["Toyota", "Honda", "Nissan", "Mazda"]);
-const accessories = ref([
-  { id: 1, brand: "Toyota", name: "Seat Covers", price: 2000 },
-  { id: 2, brand: "Toyota", name: "Steering Wheel Cover", price: 1200 },
-  { id: 3, brand: "Honda", name: "Floor Mats", price: 1500 },
-  { id: 4, brand: "Honda", name: "Car Cover", price: 2500 },
-  { id: 5, brand: "Nissan", name: "Phone Holder", price: 800 },
-  { id: 6, brand: "Mazda", name: "Dash Cam", price: 3200 },
-  { id: 7, brand: "Mazda", name: "Air Freshener", price: 500 },
-]);
-
+const assTypes = ref([]);
+const accessories = ref([]);
+const showModal = ref(false);
 const searchQuery = ref('');
 const selectedAccessories = ref([]);
 const showCart = ref(false);
-const selectedBrand = ref(null);
+const selectedAssType = ref(null);
 const carPrice = ref(0);
 
+const fetchAccessories = async () => {
+  const selectedCar = JSON.parse(localStorage.getItem('selectedCar'));
+  if (selectedCar && selectedCar.id) {
+    try {
+      const response = await fetch(`${apiUrl}/standard-base/standard-name/${selectedCar.id}`);
+      const data = await response.json();
+
+      accessories.value = data[0].StandardAccBase.map(item => ({
+        assType: item.accBase.assType,
+        assName: item.accBase.assName,
+        price: parseFloat(item.accBase.itemCostIncVat),
+        id: item.idAccBase
+      }));
+      console.log(accessories.value)
+      assTypes.value = [...new Set(accessories.value.map(item => item.assType))]
+    } catch (error) {
+      console.error('Error fetching accessories:', error);
+    }
+  }
+};
+
 onMounted(() => {
+  fetchAccessories();
   const storedCar = JSON.parse(localStorage.getItem("selectedCar"));
   if (storedCar && storedCar.price) {
-    carPrice.value = parseFloat(storedCar.price); 
+    carPrice.value = parseFloat(storedCar.price);
   }
 
   const storedAccessories = JSON.parse(localStorage.getItem("selectedAccessories"));
@@ -108,22 +131,25 @@ onMounted(() => {
 });
 
 const filteredAccessories = computed(() => {
-  return accessories.value.filter(item =>
-    (!selectedBrand.value || item.brand === selectedBrand.value) &&
-    item.name.toLowerCase().includes(searchQuery.value.toLowerCase())
-  );
+  return accessories.value
+    .filter(item => {
+      const matchesType = selectedAssType.value ? item.assType === selectedAssType.value : true;
+      const matchesSearchQuery = item.assName.toLowerCase().includes(searchQuery.value.toLowerCase());
+      return matchesType && matchesSearchQuery;
+    });
 });
 
-const filterAccessories = (brand) => {
-  selectedBrand.value = brand;
+
+const filterAccessories = (assType) => {
+  selectedAssType.value = assType;
 };
 
 const toggleAccessory = (item) => {
   const index = selectedAccessories.value.findIndex(acc => acc.id === item.id);
   if (index !== -1) {
-    selectedAccessories.value.splice(index, 1);  
+    selectedAccessories.value.splice(index, 1);
   } else {
-    selectedAccessories.value.push(item); 
+    selectedAccessories.value.push(item);
   }
   localStorage.setItem("selectedAccessories", JSON.stringify(selectedAccessories.value));
 };
@@ -140,10 +166,25 @@ const totalPrice = computed(() => {
   return carPrice.value + accessoriesTotal.value;
 });
 
-const goBack = () => {
-  router.push('/confirm-car');
-  localStorage.removeItem('selectedAccessories')
+const goBack = async () => {
+    if (selectedAccessories.value) {
+        showModal.value = true;
+    } else {
+        localStorage.removeItem('selectedAccessories');
+        router.push('/confirm-car');
+    }
 };
+
+const discardChanges = () => {
+    localStorage.removeItem('selectedAccessories');
+    router.push('/confirm-car');
+    closeModal();
+};
+
+const closeModal = () => {
+    showModal.value = false;
+};
+
 
 definePageMeta({
   middleware: 'staff-auth'
@@ -175,7 +216,7 @@ definePageMeta({
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-.back-btn {
+.goback-btn {
   position: absolute;
   left: 20px;
   background: linear-gradient(135deg, #980000 0%, #800000 100%);
@@ -189,7 +230,7 @@ definePageMeta({
   box-shadow: 0 2px 8px rgba(152, 0, 0, 0.2);
 }
 
-.back-btn:hover {
+.goback-btn:hover {
   transform: translateX(-3px);
   box-shadow: 0 4px 12px rgba(152, 0, 0, 0.3);
 }
@@ -215,7 +256,7 @@ definePageMeta({
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
-.brand-title {
+.type-title {
   font-size: 20px;
   font-weight: 700;
   text-align: center;
@@ -227,7 +268,7 @@ definePageMeta({
   box-shadow: 0 2px 8px rgba(152, 0, 0, 0.2);
 }
 
-.brand-list {
+.type-list {
   padding: 12px 16px;
   border: 1px solid #e2e8f0;
   margin: 8px 0;
@@ -237,7 +278,7 @@ definePageMeta({
   transition: all 0.2s ease;
 }
 
-.brand-list:hover {
+.type-list:hover {
   background: #f8f9fa;
   transform: translateY(-2px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -419,6 +460,69 @@ definePageMeta({
   border-color: #980000;
   color: #2d3748;
   box-shadow: 0 2px 8px rgba(152, 0, 0, 0.1);
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background-color: white;
+    position: absolute;
+    display: block;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0.2);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    animation: fadeIn 0.3s ease-in-out;
+    height: 200px;
+}
+
+.modal-btn {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.confirm-btn{
+    flex: 2;
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #980000 0%, #980000 100%);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.back-btn {
+    flex: 1;
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #4b5563;
+    background-color: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 @media (max-width: 768px) {
