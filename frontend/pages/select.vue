@@ -9,8 +9,8 @@
 
 <script setup>
 definePageMeta({
-        middleware: 'auth'
-    })
+    middleware: 'staff-auth'
+})
 
 import selectCar from '~/components/user/selectCar.vue';
 </script>
@@ -19,7 +19,6 @@ import selectCar from '~/components/user/selectCar.vue';
 .container {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     padding: 16px;
 }
@@ -37,5 +36,4 @@ import selectCar from '~/components/user/selectCar.vue';
     color: #696969;
     margin-bottom: 20px;
 }
-
 </style>

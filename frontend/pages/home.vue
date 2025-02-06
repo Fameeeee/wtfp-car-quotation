@@ -22,7 +22,7 @@
 
 <script setup>
     definePageMeta({
-        middleware: 'auth'
+        middleware: 'staff-auth'
     })
 </script>
 
