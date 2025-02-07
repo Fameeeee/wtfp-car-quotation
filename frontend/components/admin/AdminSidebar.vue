@@ -64,7 +64,18 @@ const Logout = () => {
     left: 0;
     top: 0;
     background: white;
-    transition: width 0.3s ease,
+    transition: width 0.3s ease;
+    z-index: 100;
+}
+
+
+.sidebar-open + .content {
+    margin-left: 300px; 
+}
+
+
+.sidebar-collapsed + .content {
+    margin-left: 80px;
 }
 
 .sidebar-collapsed {
