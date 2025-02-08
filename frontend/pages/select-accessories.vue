@@ -65,7 +65,7 @@
       </div>
     </div>
     <div class="confirm">
-      <button class="confirm-btn">ยืนยัน</button>
+      <button class="confirm-btn" @click="comfirm">ยืนยัน</button>
     </div>
   </div>
   <div v-if="showModal" class="modal-overlay">
@@ -185,6 +185,9 @@ const closeModal = () => {
     showModal.value = false;
 };
 
+const comfirm = () => {
+  router.push('/confirm-accessories')
+}
 
 definePageMeta({
   middleware: 'staff-auth'
