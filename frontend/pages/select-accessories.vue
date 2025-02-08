@@ -18,6 +18,7 @@
             <tr v-for="(item, index) in selectedAccessories" :key="index">
               <td>{{ item.assName }}</td>
               <td>{{ item.price.toLocaleString() }} บาท</td>
+              <td><button @click="removeAccessory(item.id)" class="delete-btn">ลบ</button></td>
             </tr>
             <tr>
               <td><strong>ราคาของตกแต่ง</strong></td>
@@ -165,6 +166,11 @@ const accessoriesTotal = computed(() => {
 const totalPrice = computed(() => {
   return carPrice.value + accessoriesTotal.value;
 });
+
+const removeAccessory = (id) => {
+  selectedAccessories.value = selectedAccessories.value.filter(item => item.id !== id);
+  localStorage.setItem('selectedAccessories', JSON.stringify(selectedAccessories.value))
+}
 
 const goBack = async () => {
     if (selectedAccessories.value) {
@@ -526,6 +532,15 @@ definePageMeta({
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
+}
+
+.delete-btn{
+  background: #980000;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 @media (max-width: 768px) {
