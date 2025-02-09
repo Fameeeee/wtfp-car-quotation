@@ -87,7 +87,7 @@ const totalPrice = computed(() => {
 
 const confirmSelection = async () => {
     try {
-        router.push('/payment');
+        router.push('/calculate');
     } catch (error) {
         console.error('Error confirming selection:', error);
     }
