@@ -3,24 +3,23 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { StaffService } from './staff.service';
 import { CreateStaffDto } from './dto/create-staff.dto';
 import { UpdateStaffDto } from './dto/update-staff.dto';
 import { StaffLoginDto } from './dto/staff-login.dto';
-
-
+import { Staff } from './entities/staff.entity';
 
 @Controller('staff')
 export class StaffController {
   constructor(private readonly staffService: StaffService) {}
 
   @Post('register')
-  async register(@Body() createStaffDto: CreateStaffDto) {
-    const newStaff = await this.staffService.register(createStaffDto);
+  async registerStaff(@Body() createStaffDto: CreateStaffDto) {
+    const newStaff = await this.staffService.registerStaff(createStaffDto);
     return {
       message: 'Staff registered successfully',
       staff: {
@@ -32,27 +31,27 @@ export class StaffController {
   }
 
   @Post('login')
-  async login(@Body() staffLoginDto: StaffLoginDto) {
-    return this.staffService.login(staffLoginDto);  
+  async loginStaff(@Body() staffLoginDto: StaffLoginDto) {
+    return this.staffService.loginStaff(staffLoginDto);  
   }
 
   @Get()
-  findAll() {
-    return this.staffService.findAll();
+  async getAllStaff() {
+    return await this.staffService.getAllStaff();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.staffService.findOne(+id);
+  async findById(@Param('id') id: number) {
+    return await this.staffService.findById(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateStaffDto: UpdateStaffDto) {
-    return this.staffService.update(+id, updateStaffDto);
+  @Put(':id')
+  async updateStaff(@Param('id') id: number, @Body() updateData: Partial<Staff>) {
+    return await this.staffService.updateStaff(id, updateData);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.staffService.remove(+id);
+  async deleteStaff(@Param('id') id: number) {
+    return await this.staffService.deleteStaff(+id);
   }
 }

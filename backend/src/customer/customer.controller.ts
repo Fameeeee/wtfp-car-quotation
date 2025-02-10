@@ -18,8 +18,8 @@ export class CustomerController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.customerService.findById(+id);
+  async findById(@Param('id') id: number) {
+    return await this.customerService.findById(+id);
   }
 
   @Put(':id')

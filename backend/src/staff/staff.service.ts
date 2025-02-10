@@ -17,9 +17,9 @@ export class StaffService {
     @InjectRepository(Staff)
     private staffRepository: Repository<Staff>,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
-  async register(createStaffDto: CreateStaffDto): Promise<Staff> {
+  async registerStaff(createStaffDto: CreateStaffDto): Promise<Staff> {
     try {
       const existingStaff = await this.staffRepository.findOne({
         where: { email: createStaffDto.email },
@@ -41,7 +41,7 @@ export class StaffService {
     }
   }
 
-  async login(staffDto: any): Promise<any> {
+  async loginStaff(staffDto: any): Promise<any> {
     const { email, password } = staffDto;
 
     const staff = await this.staffRepository.findOne({ where: { email } });
@@ -58,22 +58,39 @@ export class StaffService {
     const token = this.jwtService.sign(payload);
 
     console.log('JWT Payload:', payload);
-    return { token , role: staff.role};
+    return { token, role: staff.role };
   }
 
-  findAll() {
-    return this.staffRepository.find();
+  async getAllStaff(): Promise<Staff[]> {
+    return await this.staffRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} staff`;
+  async findById(id: number): Promise<Staff | null> {
+    return this.staffRepository.findOne({
+      where: { id },
+      relations: ['quotations'],
+    });
   }
 
-  update(id: number, updateStaffDto: UpdateStaffDto) {
-    return `This action updates a #${id} staff`;
+  async updateStaff(id: number, updateData: Partial<Staff>): Promise<Staff> {
+    const staff = await this.staffRepository.findOne({ where: { id } })
+
+    if (!staff) {
+      throw new Error('Staff not found')
+    }
+
+    Object.assign(staff, updateData);
+    return this.staffRepository.save(staff);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} staff`;
+  async deleteStaff(id: number): Promise<string> {
+    const staff = await this.staffRepository.findOne({ where: { id } })
+
+    if (!staff) {
+      throw new Error('Staff not found')
+    }
+
+    await this.staffRepository.remove(staff);
+    return 'Staff deleted successfully'
   }
 }
