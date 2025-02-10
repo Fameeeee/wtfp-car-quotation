@@ -1,7 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { QuotationService } from './quotation.service';
 import { CreateQuotationDto } from './dto/create-quotation.dto';
-import { UpdateQuotationDto } from './dto/update-quotation.dto';
 import { Quotation } from './entities/quotation.entity';
 
 @Controller('quotation')
@@ -14,27 +13,22 @@ export class QuotationController {
   }
 
   @Get()
-  findAll() {
-    return this.quotationService.findAll();
-  }
-
-  @Get('customer/:id')
-  async getCustomerQuotations(@Param('id') id: number) {
-    return await this.quotationService.findQuotationByCustomer(id);
+  async getAllQuotation(): Promise<Quotation[]> {
+    return this.quotationService.getAllQuotation();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.quotationService.findOne(+id);
+  async findById(@Param('id') id: number) {
+    return this.quotationService.findById(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateQuotationDto: UpdateQuotationDto) {
-    return this.quotationService.update(+id, updateQuotationDto);
+  @Put(':id')
+  async updateQuotation(@Param('id') id: number, @Body() updateData: Partial<Quotation>) {
+    return this.quotationService.updateQuotation(id, updateData);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.quotationService.remove(+id);
+  async deleteQuotation(@Param('id') id: number) {
+    return this.quotationService.deleteQuotation(+id);
   }
 }

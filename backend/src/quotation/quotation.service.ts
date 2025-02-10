@@ -1,10 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateQuotationDto } from './dto/create-quotation.dto';
-import { UpdateQuotationDto } from './dto/update-quotation.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaymentMethod, Quotation } from './entities/quotation.entity';
 import { Repository } from 'typeorm';
 import { CustomerService } from 'src/customer/customer.service';
+import { StaffService } from 'src/staff/staff.service';
 
 @Injectable()
 export class QuotationService {
@@ -12,6 +12,7 @@ export class QuotationService {
     @InjectRepository(Quotation)
     private quotationRepository: Repository<Quotation>,
     private readonly customerService: CustomerService,
+    private readonly staffService: StaffService,
   ) { }
 
   async createQuotation(dto: CreateQuotationDto): Promise<Quotation> {
@@ -40,6 +41,11 @@ export class QuotationService {
       installmentPlans = null;
     }
 
+    const staff = await this.staffService.findById(dto.staffId);
+    if (!staff) {
+      throw new BadRequestException('Staff not found')
+    }
+
     const quotation = this.quotationRepository.create({
       quotationDate: new Date(),
       paymentMethod: dto.paymentMethod,
@@ -50,33 +56,47 @@ export class QuotationService {
       carDetails: dto.carDetails,
       accessories: dto.accessories || null,
       customer,
+      staff,
     });
 
     return await this.quotationRepository.save(quotation);
   }
 
-  async findQuotationByCustomer(customerId: number): Promise<Quotation[]> {
-    const customer = await this.customerService.findById(customerId);
-    if (!customer) {
-      throw new Error('Customer not found');
+  async getAllQuotation() {
+    return this.quotationRepository.find({ relations: ['customer', 'staff'] });
+  }
+
+  async findById(id: number): Promise<Quotation> {
+    const quotation = await this.quotationRepository.findOne({
+      where: { id },
+      relations: ['customer', 'staff'],
+    });
+    if (!quotation) {
+      throw new NotFoundException('Quotation not found');
     }
-    return customer.quotations;
+    return quotation;
   }
 
+  async updateQuotation(id: number, updateData: Partial<Quotation>): Promise<Quotation> {
+    const quotation = await this.quotationRepository.findOne({ where: { id }, relations: ['staff', 'customer'] })
 
-  findAll() {
-    return `This action returns all quotation`;
+    if (!quotation) {
+      throw new Error('Quotation not found')
+    }
+
+    
+    Object.assign(quotation, updateData);
+    return await this.quotationRepository.save(quotation);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} quotation`;
-  }
+  async deleteQuotation(id: number): Promise<string> {
+    const quotation = await this.quotationRepository.findOne({ where: { id } })
 
-  update(id: number, updateQuotationDto: UpdateQuotationDto) {
-    return `This action updates a #${id} quotation`;
-  }
+    if (!quotation) {
+      throw new Error('Qustomer not found')
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} quotation`;
+    await this.quotationRepository.remove(quotation);
+    return 'Quotation deleted successfully'
   }
 }

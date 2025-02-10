@@ -14,7 +14,7 @@ export class CustomerController {
 
   @Get()
   async getAllCustomers(): Promise<Customer[]> {
-      return this.customerService.getAllCustomers();
+      return await this.customerService.getAllCustomers();
   }
 
   @Get(':id')

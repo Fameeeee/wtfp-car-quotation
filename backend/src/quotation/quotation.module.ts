@@ -6,11 +6,12 @@ import { Quotation } from './entities/quotation.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CustomerModule } from 'src/customer/customer.module';
+import { StaffModule } from 'src/staff/staff.module';
 
 @Module({
   imports: [
       TypeOrmModule.forFeature([Quotation]),
-      CustomerModule,
+      CustomerModule, StaffModule,
       JwtModule.registerAsync({
         imports: [ConfigModule],
         useFactory: async (configService: ConfigService) => ({

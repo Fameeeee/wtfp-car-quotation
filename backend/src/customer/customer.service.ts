@@ -53,7 +53,8 @@ export class CustomerService {
     }
 
     Object.assign(customer, updateData);
-    return this.customerRepository.save(customer);
+    return this.customerRepository.save(customer)
+
   }
 
   async deleteCustomer(id: number): Promise<string> {
