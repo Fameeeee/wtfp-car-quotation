@@ -4,7 +4,6 @@ import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Customer } from './entities/customer.entity';
 import { Repository } from 'typeorm';
-import { create } from 'domain';
 
 @Injectable()
 export class CustomerService {
@@ -29,7 +28,6 @@ export class CustomerService {
     return customer;
   }
 
-
   async getAllCustomers(): Promise<Customer[]> {
     return await this.customerRepository.find();
   }
@@ -41,18 +39,31 @@ export class CustomerService {
   }
 
   async findById(id: number): Promise<Customer | null> {
-    return this.customerRepository.findOne({ 
+    return this.customerRepository.findOne({
       where: { id },
-      relations: ['quotations'],  
+      relations: ['quotations'],
     });
   }
 
+  async updateCustomer(id: number, updateData: Partial<Customer>): Promise<Customer> {
+    const customer = await this.customerRepository.findOne({ where: { id } })
 
-  update(id: number, updateCustomerDto: UpdateCustomerDto) {
-    return `This action updates a #${id} customer`;
+    if (!customer) {
+      throw new Error('Customer not found')
+    }
+
+    Object.assign(customer, updateData);
+    return this.customerRepository.save(customer);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} customer`;
+  async deleteCustomer(id: number): Promise<string> {
+    const customer = await this.customerRepository.findOne({ where: { id } })
+
+    if (!customer) {
+      throw new Error('Customer not found')
+    }
+
+    await this.customerRepository.remove(customer);
+    return 'Customer deleted successfully'
   }
 }
