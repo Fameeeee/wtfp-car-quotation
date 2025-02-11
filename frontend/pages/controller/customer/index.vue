@@ -24,7 +24,7 @@
         <table v-if="!loading">
           <thead>
             <tr>
-              <th>Details</th> <!-- ใส่คอลัมน์ Details เป็นคอลัมน์แรก -->
+              <th>Details</th>
               <th>ID</th>
               <th>Name</th>
               <th>Last Name</th>
@@ -33,7 +33,6 @@
           <tbody>
             <tr v-for="customer in paginatedCustomers" :key="customer.id">
               <td>
-                <!-- ใส่ magnifying-glass icon -->
                 <NuxtLink :to="`/controller/customer/${customer.id}`">
                   <img src="/assets/magnifying-glass.png" alt="Details" width="20" />
                 </NuxtLink>
@@ -89,33 +88,28 @@ const paginatedCustomers = computed(() => {
 
 const totalPages = computed(() => Math.ceil(filteredCustomers.value.length / itemsPerPage));
 
-// ฟังก์ชันค้นหาข้อมูล
 const search = () => {
-  currentPage.value = 1; // รีเซ็ตหน้าเป็นหน้าแรกทุกครั้งที่ค้นหา
+  currentPage.value = 1;
   fetchData();
 };
 
-// ฟังก์ชันโหลดข้อมูล
 const fetchData = () => {
   loading.value = true;
   setTimeout(() => {
     loading.value = false;
   }, 1000);
 };
-
-// ฟังก์ชันเปลี่ยนไปหน้าก่อนหน้า
 const prevPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--;
-    fetchData(); // รีเฟรชข้อมูล
+    fetchData();
   }
 };
 
-// ฟังก์ชันเปลี่ยนไปหน้าถัดไป
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++;
-    fetchData(); // รีเฟรชข้อมูล
+    fetchData();
   }
 };
 
@@ -175,8 +169,8 @@ td {
   padding: 10px;
   text-align: left;
   border-bottom: 1px solid #ddd;
-  min-width: 150px; /* กำหนดความกว้างขั้นต่ำเพื่อให้คอลัมน์ไม่ขยับ */
-  white-space: nowrap; /* ป้องกันการขึ้นบรรทัดใหม่ของข้อความ */
+  min-width: 150px;
+  white-space: nowrap;
 }
 
 th {
@@ -184,7 +178,7 @@ th {
 }
 
 tbody {
-  min-height: 200px; /* รักษาพื้นที่ของข้อมูล */
+  min-height: 200px;
 }
 
 .pagination {
@@ -247,7 +241,6 @@ tbody {
   cursor: pointer;
 }
 
-/* Spinner Styles */
 .spinner-container {
   position: absolute;
   top: 50%;

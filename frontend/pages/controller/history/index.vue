@@ -24,7 +24,7 @@
         <table v-if="!loading">
           <thead>
             <tr>
-              <th>Details</th> <!-- New Column for Magnifying Glass -->
+              <th>Details</th>
               <th>ID</th>
               <th>Create At</th>
               <th>Staff Name</th>
@@ -93,7 +93,7 @@ const paginatedHistory = computed(() => {
 const totalPages = computed(() => Math.ceil(filteredHistory.value.length / itemsPerPage));
 
 const search = () => {
-  currentPage.value = 1;  // รีเซ็ตเป็นหน้า 1 เมื่อค้นหาใหม่
+  currentPage.value = 1;
   fetchData();
 };
 
@@ -237,7 +237,6 @@ th {
   cursor: pointer;
 }
 
-/* Magnifying Glass Icon Style */
 .magnifying-icon {
   width: 20px;
   height: 20px;

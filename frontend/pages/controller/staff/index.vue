@@ -33,7 +33,6 @@
           </thead>
           <tbody>
             <tr v-for="staff in paginatedStaff" :key="staff.id">
-              <!-- คอลัมน์สำหรับไอคอน magnifying-glass -->
               <td class="view-column">
                 <NuxtLink :to="`/controller/staff/${staff.id}`">
                   <img src="/assets/magnifying-glass.png" alt="View" class="icon" />
@@ -93,7 +92,7 @@ const paginatedStaff = computed(() => {
 const totalPages = computed(() => Math.ceil(filteredStaff.value.length / itemsPerPage));
 
 const search = () => {
-  currentPage.value = 1; // รีเซ็ตหน้าเป็นหน้าแรกทุกครั้งที่ค้นหา
+  currentPage.value = 1;
   fetchData();
 };
 
@@ -106,15 +105,15 @@ const fetchData = () => {
 
 const prevPage = () => {
   if (currentPage.value > 1) {
-    currentPage.value--; // ย้ายไปหน้าก่อนหน้า
-    fetchData(); // รีเฟรชข้อมูล
+    currentPage.value--;
+    fetchData();
   }
 };
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
-    currentPage.value++; // ย้ายไปหน้าถัดไป
-    fetchData(); // รีเฟรชข้อมูล
+    currentPage.value++;
+    fetchData();
   }
 };
 
@@ -174,7 +173,7 @@ td {
   padding: 10px;
   text-align: left;
   border-bottom: 1px solid #ddd;
-  width: 25%; /* ปรับให้คอลัมน์แบ่งเท่าๆ กัน */
+  width: 25%;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -191,7 +190,7 @@ th {
 }
 
 .view-column {
-  width: 10%; /* กำหนดความกว้างของคอลัมน์ไอคอน */
+  width: 10%;
 }
 
 .pagination {
