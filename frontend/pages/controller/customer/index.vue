@@ -24,6 +24,7 @@
         <table v-if="!loading">
           <thead>
             <tr>
+              <th>Details</th> <!-- ใส่คอลัมน์ Details เป็นคอลัมน์แรก -->
               <th>ID</th>
               <th>Name</th>
               <th>Last Name</th>
@@ -31,10 +32,14 @@
           </thead>
           <tbody>
             <tr v-for="customer in paginatedCustomers" :key="customer.id">
-              <td>{{ customer.id }}</td>
               <td>
-                <NuxtLink :to="`/controller/customer/${customer.id}`">{{ customer.name }}</NuxtLink>
+                <!-- ใส่ magnifying-glass icon -->
+                <NuxtLink :to="`/controller/customer/${customer.id}`">
+                  <img src="/assets/magnifying-glass.png" alt="Details" width="20" />
+                </NuxtLink>
               </td>
+              <td>{{ customer.id }}</td>
+              <td>{{ customer.name }}</td>
               <td>{{ customer.lastName }}</td>
             </tr>
           </tbody>
@@ -49,7 +54,6 @@
     </div>
   </div>
 </template>
-
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
@@ -68,7 +72,7 @@ const customerList = ref([
   { id: 5, name: "Nithikorn", lastName: "Bamrungrach" },
 ]);
 
-const itemsPerPage = 12;
+const itemsPerPage = 13;
 const currentPage = ref(1);
 const loading = ref(false);
 
@@ -85,11 +89,13 @@ const paginatedCustomers = computed(() => {
 
 const totalPages = computed(() => Math.ceil(filteredCustomers.value.length / itemsPerPage));
 
+// ฟังก์ชันค้นหาข้อมูล
 const search = () => {
-  currentPage.value = 1;
+  currentPage.value = 1; // รีเซ็ตหน้าเป็นหน้าแรกทุกครั้งที่ค้นหา
   fetchData();
 };
 
+// ฟังก์ชันโหลดข้อมูล
 const fetchData = () => {
   loading.value = true;
   setTimeout(() => {
@@ -97,19 +103,27 @@ const fetchData = () => {
   }, 1000);
 };
 
+// ฟังก์ชันเปลี่ยนไปหน้าก่อนหน้า
 const prevPage = () => {
-  if (currentPage.value > 1) currentPage.value--;
+  if (currentPage.value > 1) {
+    currentPage.value--;
+    fetchData(); // รีเฟรชข้อมูล
+  }
 };
 
+// ฟังก์ชันเปลี่ยนไปหน้าถัดไป
 const nextPage = () => {
-  if (currentPage.value < totalPages.value) currentPage.value++;
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+    fetchData(); // รีเฟรชข้อมูล
+  }
 };
 
 onMounted(() => {
   fetchData();
 });
-
 </script>
+
 
 <style scoped>
 .layout {
@@ -148,6 +162,7 @@ onMounted(() => {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   position: relative;
   height: 100%;
+  min-height: 300px;
 }
 
 table {
@@ -160,10 +175,16 @@ td {
   padding: 10px;
   text-align: left;
   border-bottom: 1px solid #ddd;
+  min-width: 150px; /* กำหนดความกว้างขั้นต่ำเพื่อให้คอลัมน์ไม่ขยับ */
+  white-space: nowrap; /* ป้องกันการขึ้นบรรทัดใหม่ของข้อความ */
 }
 
 th {
   background: #f4f4f4;
+}
+
+tbody {
+  min-height: 200px; /* รักษาพื้นที่ของข้อมูล */
 }
 
 .pagination {

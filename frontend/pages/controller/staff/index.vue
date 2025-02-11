@@ -25,6 +25,7 @@
         <table v-if="!loading">
           <thead>
             <tr>
+              <th></th>
               <th>ID</th>
               <th>First Name</th>
               <th>Last Name</th>
@@ -32,10 +33,16 @@
           </thead>
           <tbody>
             <tr v-for="staff in paginatedStaff" :key="staff.id">
-              <td>{{ staff.id }}</td>
-              <td>
-                <NuxtLink :to="`/controller/staff/${staff.id}`">{{ staff.firstName }}</NuxtLink>
+              <!-- คอลัมน์สำหรับไอคอน magnifying-glass -->
+              <td class="view-column">
+                <NuxtLink :to="`/controller/staff/${staff.id}`">
+                  <img src="/assets/magnifying-glass.png" alt="View" class="icon" />
+                </NuxtLink>
               </td>
+              <td class="id-column">
+                <span class="id-text">{{ staff.id }}</span>
+              </td>
+              <td>{{ staff.firstName }}</td>
               <td>{{ staff.lastName }}</td>
             </tr>
           </tbody>
@@ -68,7 +75,7 @@ const staffList = ref([
   { id: 5, firstName: "Nithikorn", lastName: "Bamrungrach" },
 ]);
 
-const itemsPerPage = 12;
+const itemsPerPage = 13;
 const currentPage = ref(1);
 const loading = ref(false);
 
@@ -86,7 +93,7 @@ const paginatedStaff = computed(() => {
 const totalPages = computed(() => Math.ceil(filteredStaff.value.length / itemsPerPage));
 
 const search = () => {
-  currentPage.value = 1;
+  currentPage.value = 1; // รีเซ็ตหน้าเป็นหน้าแรกทุกครั้งที่ค้นหา
   fetchData();
 };
 
@@ -98,18 +105,24 @@ const fetchData = () => {
 };
 
 const prevPage = () => {
-  if (currentPage.value > 1) currentPage.value--;
+  if (currentPage.value > 1) {
+    currentPage.value--; // ย้ายไปหน้าก่อนหน้า
+    fetchData(); // รีเฟรชข้อมูล
+  }
 };
 
 const nextPage = () => {
-  if (currentPage.value < totalPages.value) currentPage.value++;
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++; // ย้ายไปหน้าถัดไป
+    fetchData(); // รีเฟรชข้อมูล
+  }
 };
 
 onMounted(() => {
   fetchData();
 });
-
 </script>
+
 
 <style scoped>
 .layout {
@@ -153,6 +166,7 @@ onMounted(() => {
 table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 th,
@@ -160,10 +174,24 @@ td {
   padding: 10px;
   text-align: left;
   border-bottom: 1px solid #ddd;
+  width: 25%; /* ปรับให้คอลัมน์แบ่งเท่าๆ กัน */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 th {
   background: #f4f4f4;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.view-column {
+  width: 10%; /* กำหนดความกว้างของคอลัมน์ไอคอน */
 }
 
 .pagination {
@@ -224,25 +252,5 @@ th {
   background: #007bff;
   color: white;
   cursor: pointer;
-}
-
-/* Spinner Styles */
-.spinner-container {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 999;
-}
-
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
 }
 </style>
