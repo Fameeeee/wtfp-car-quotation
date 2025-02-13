@@ -12,7 +12,9 @@
         </button>
         <div class="search-bar">
           <input type="text" v-model="searchQuery" placeholder="ค้นหา" />
-          <button @click="search">🔍</button>
+          <button @click="search">
+            <img src="/assets/magnifying-glass.png" alt="Search" width="20" />
+          </button>
         </div>
       </div>
 
@@ -24,9 +26,9 @@
         <table v-if="!loading">
           <thead>
             <tr>
-              <th>Details</th>
+              <th></th>
               <th>ID</th>
-              <th>Name</th>
+              <th>First Name</th>
               <th>Last Name</th>
             </tr>
           </thead>
@@ -34,7 +36,7 @@
             <tr v-for="customer in paginatedCustomers" :key="customer.id">
               <td>
                 <NuxtLink :to="`/controller/customer/${customer.id}`">
-                  <img src="/assets/magnifying-glass.png" alt="Details" width="20" />
+                  <img src="/assets/magnifying-glass.png " alt="Details" width="20" />
                 </NuxtLink>
               </td>
               <td>{{ customer.id }}</td>
@@ -99,6 +101,7 @@ const fetchData = () => {
     loading.value = false;
   }, 1000);
 };
+
 const prevPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--;
@@ -117,7 +120,6 @@ onMounted(() => {
   fetchData();
 });
 </script>
-
 
 <style scoped>
 .layout {
@@ -162,15 +164,21 @@ onMounted(() => {
 table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 th,
 td {
   padding: 10px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
-  min-width: 150px;
+  border-bottom: 1px solid #f4f4f4;
+  border-right: 1px solid #0000001A;
   white-space: nowrap;
+}
+
+th:last-child,
+td:last-child {
+  border-right: none;
 }
 
 th {
@@ -203,17 +211,21 @@ tbody {
 
 .table-controls {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
   margin-bottom: 10px;
 }
 
 .filter-button {
-  background: white;
-  border: 1px solid #ccc;
-  padding: 5px 10px;
+  background: #fff;
+  border: 1px solid #0000001A;
+  padding: 8px 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
+  border-radius: 5px;
+  margin-right: 10px;
+  transition: all 0.3s ease;
+  height: 40px;
 }
 
 .filter-button img {
@@ -222,23 +234,34 @@ tbody {
   margin-right: 5px;
 }
 
+.filter-button:hover {
+  color: white;
+}
+
 .search-bar {
   display: flex;
   align-items: center;
+  padding: 5px;
+  border-radius: 5px;
+  transition: all 0.3s ease;
 }
 
 .search-bar input {
-  padding: 5px;
-  border: 1px solid #ccc;
+  padding: 5px 10px;
+  border: none;
+  outline: none;
   border-radius: 5px;
+  width: 200px;
+  font-size: 1rem;
 }
 
 .search-bar button {
   padding: 5px;
   border: none;
-  background: #007bff;
   color: white;
   cursor: pointer;
+  border-radius: 5px;
+  margin-left: 5px;
 }
 
 .spinner-container {
@@ -258,4 +281,36 @@ tbody {
     transform: rotate(360deg);
   }
 }
+
+.customer-table img {
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+
+.customer-table img:hover {
+  opacity: 1;
+}
+
+
+th:nth-child(1),
+td:nth-child(1) {
+  text-align: center;
+  padding-right: 8px;
+  width: 80px;
+}
+
+th:nth-child(2),
+td:nth-child(2) {
+  padding-left: 8px;
+  width: 100px;
+}
+
+th:nth-child(3),
+td:nth-child(3),
+th:nth-child(4),
+td:nth-child(4) {
+  padding-left: 20px;
+  text-align: left;
+}
+
 </style>

@@ -13,7 +13,9 @@
         </button>
         <div class="search-bar">
           <input type="text" v-model="searchQuery" placeholder="ค้นหา" />
-          <button @click="search">🔍</button>
+          <button @click="search">
+            <img src="/assets/magnifying-glass.png" alt="Search" width="20" />
+          </button>
         </div>
       </div>
 
@@ -122,7 +124,6 @@ onMounted(() => {
 });
 </script>
 
-
 <style scoped>
 .layout {
   display: flex;
@@ -142,7 +143,7 @@ onMounted(() => {
   font-size: 3vw;
 }
 
-.sidebar-collapsed+.content {
+.sidebar-collapsed + .content {
   margin-left: 80px;
 }
 
@@ -160,6 +161,7 @@ onMounted(() => {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   position: relative;
   height: 100%;
+  min-height: 300px;
 }
 
 table {
@@ -171,12 +173,15 @@ table {
 th,
 td {
   padding: 10px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-  width: 25%;
-  overflow: hidden;
+  text-align: left; 
+  border-bottom: 1px solid #f4f4f4;
+  border-right: 1px solid #0000001A;
   white-space: nowrap;
-  text-overflow: ellipsis;
+}
+
+th:last-child,
+td:last-child {
+  border-right: none;
 }
 
 th {
@@ -215,17 +220,21 @@ th {
 
 .table-controls {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
   margin-bottom: 10px;
 }
 
 .filter-button {
-  background: white;
-  border: 1px solid #ccc;
-  padding: 5px 10px;
+  background: #fff;
+  border: 1px solid #0000001A;
+  padding: 8px 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+  height: 40px;
+  margin-right: 10px;
 }
 
 .filter-button img {
@@ -234,22 +243,72 @@ th {
   margin-right: 5px;
 }
 
+.filter-button:hover {
+  color: white;
+}
+
 .search-bar {
   display: flex;
   align-items: center;
+  padding: 5px;
+  border-radius: 5px;
+  transition: all 0.3s ease;
 }
 
 .search-bar input {
-  padding: 5px;
-  border: 1px solid #ccc;
+  padding: 5px 10px;
+  border: none;
+  outline: none;
   border-radius: 5px;
+  width: 200px;
+  font-size: 1rem;
 }
 
 .search-bar button {
   padding: 5px;
   border: none;
-  background: #007bff;
   color: white;
   cursor: pointer;
+  border-radius: 5px;
+  margin-left: 5px;
+}
+
+.spinner-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+}
+
+.staff-table img {
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+
+.staff-table img:hover {
+  opacity: 1;
+}
+
+th:nth-child(1),
+td:nth-child(1) {
+  text-align: center;
+  padding-right: 8px;
+  width: 80px;
+}
+
+th:nth-child(2),
+td:nth-child(2) {
+  padding-left: 8px;
+  width: 100px;
+}
+
+th:nth-child(3),
+td:nth-child(3),
+th:nth-child(4),
+td:nth-child(4) {
+  padding-left: 20px;
+  text-align: left;
 }
 </style>
+
