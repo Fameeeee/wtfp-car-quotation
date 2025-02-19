@@ -46,8 +46,7 @@ const toggleSidebar = () => {
 };
 
 const Logout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('role')
+    localStorage.removeItem('access_token')
     router.push('/controller/login')
 }
 </script>
