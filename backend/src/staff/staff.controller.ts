@@ -17,24 +17,6 @@ import { Staff } from './entities/staff.entity';
 export class StaffController {
   constructor(private readonly staffService: StaffService) {}
 
-  @Post('register')
-  async registerStaff(@Body() createStaffDto: CreateStaffDto) {
-    const newStaff = await this.staffService.registerStaff(createStaffDto);
-    return {
-      message: 'Staff registered successfully',
-      staff: {
-        id: newStaff.id,
-        firstName: newStaff.firstName,
-        email: newStaff.email,
-      },
-    };
-  }
-
-  @Post('login')
-  async loginStaff(@Body() staffLoginDto: StaffLoginDto) {
-    return this.staffService.loginStaff(staffLoginDto);  
-  }
-
   @Get()
   async getAllStaff() {
     return await this.staffService.getAllStaff();

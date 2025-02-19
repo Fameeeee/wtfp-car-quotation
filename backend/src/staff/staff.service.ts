@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   UnauthorizedException,
@@ -17,49 +18,36 @@ export class StaffService {
     @InjectRepository(Staff)
     private staffRepository: Repository<Staff>,
     private jwtService: JwtService,
-  ) { }
+  ) {}
 
-  async registerStaff(createStaffDto: CreateStaffDto): Promise<Staff> {
-    try {
-      const existingStaff = await this.staffRepository.findOne({
-        where: { email: createStaffDto.email },
-      });
-      if (existingStaff) {
-        throw new ConflictException('Email already exists');
-      }
-
-      const hashedPassword = await bcrypt.hash(createStaffDto.password, 10);
-
-      const newStaff = this.staffRepository.create({
-        ...createStaffDto,
-        password: hashedPassword,
-      });
-
-      return await this.staffRepository.save(newStaff);
-    } catch (error) {
-      throw error;
-    }
+  async findByEmail(email: string): Promise<Staff | null> {
+    return this.staffRepository.findOne({ where: { email } });
   }
 
-  async loginStaff(staffDto: any): Promise<any> {
-    const { email, password } = staffDto;
-
-    const staff = await this.staffRepository.findOne({ where: { email } });
-    if (!staff) {
-      throw new Error('Email not registered');
+  async createStaff(staffData: Partial<Staff>): Promise<void> {
+    const { email, firstName, lastName, phoneNumber } = staffData;
+  
+    const existingStaff = await this.staffRepository.findOne({
+      where: [{ email }, { firstName }, { lastName }, { phoneNumber }],
+    });
+  
+    const duplicateFields = [];
+  
+    if (existingStaff) {
+      if (existingStaff.email === email) duplicateFields.push('email');
+      if (existingStaff.firstName === firstName) duplicateFields.push('firstName');
+      if (existingStaff.lastName === lastName) duplicateFields.push('lastName');
+      if (existingStaff.phoneNumber === phoneNumber) duplicateFields.push('phoneNumber');
+      
+      throw new BadRequestException(`Duplicate fields: ${duplicateFields.join(', ')}`);
     }
-
-    const isPasswordValid = await bcrypt.compare(password, staff.password);
-    if (!isPasswordValid) {
-      throw new Error('Invalid credentials');
-    }
-
-    const payload = { email: staff.email, sub: staff.id, role: staff.role };
-    const token = this.jwtService.sign(payload);
-
-    console.log('JWT Payload:', payload);
-    return { token, role: staff.role };
+  
+    const hashedPassword = await bcrypt.hash(staffData.password, 10);
+    staffData.password = hashedPassword;
+  
+    await this.staffRepository.save(staffData);
   }
+  
 
   async getAllStaff(): Promise<Staff[]> {
     return await this.staffRepository.find();
@@ -73,10 +61,10 @@ export class StaffService {
   }
 
   async updateStaff(id: number, updateData: Partial<Staff>): Promise<Staff> {
-    const staff = await this.staffRepository.findOne({ where: { id } })
+    const staff = await this.staffRepository.findOne({ where: { id } });
 
     if (!staff) {
-      throw new Error('Staff not found')
+      throw new Error('Staff not found');
     }
 
     Object.assign(staff, updateData);
@@ -84,13 +72,13 @@ export class StaffService {
   }
 
   async deleteStaff(id: number): Promise<string> {
-    const staff = await this.staffRepository.findOne({ where: { id } })
+    const staff = await this.staffRepository.findOne({ where: { id } });
 
     if (!staff) {
-      throw new Error('Staff not found')
+      throw new Error('Staff not found');
     }
 
     await this.staffRepository.remove(staff);
-    return 'Staff deleted successfully'
+    return 'Staff deleted successfully';
   }
 }
