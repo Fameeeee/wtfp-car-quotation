@@ -7,10 +7,10 @@ export class Customer {
     id: number;
 
     @Column()
-    firstname: string;
+    firstName: string;
 
     @Column()
-    lastname: string;
+    lastName: string;
 
     @OneToMany(() => Quotation, (quotation) => quotation.customer)
     quotations: Quotation[];

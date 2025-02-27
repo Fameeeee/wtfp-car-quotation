@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { StaffService } from 'src/staff/staff.service';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { Staff } from 'src/staff/entities/staff.entity';
 
 @Injectable()

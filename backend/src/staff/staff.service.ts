@@ -26,28 +26,31 @@ export class StaffService {
 
   async createStaff(staffData: Partial<Staff>): Promise<void> {
     const { email, firstName, lastName, phoneNumber } = staffData;
-  
+
     const existingStaff = await this.staffRepository.findOne({
       where: [{ email }, { firstName }, { lastName }, { phoneNumber }],
     });
-  
+
     const duplicateFields = [];
-  
+
     if (existingStaff) {
       if (existingStaff.email === email) duplicateFields.push('email');
-      if (existingStaff.firstName === firstName) duplicateFields.push('firstName');
+      if (existingStaff.firstName === firstName)
+        duplicateFields.push('firstName');
       if (existingStaff.lastName === lastName) duplicateFields.push('lastName');
-      if (existingStaff.phoneNumber === phoneNumber) duplicateFields.push('phoneNumber');
-      
-      throw new BadRequestException(`Duplicate fields: ${duplicateFields.join(', ')}`);
+      if (existingStaff.phoneNumber === phoneNumber)
+        duplicateFields.push('phoneNumber');
+
+      throw new BadRequestException(
+        `Duplicate fields: ${duplicateFields.join(', ')}`,
+      );
     }
-  
+
     const hashedPassword = await bcrypt.hash(staffData.password, 10);
     staffData.password = hashedPassword;
-  
+
     await this.staffRepository.save(staffData);
   }
-  
 
   async getAllStaff(): Promise<Staff[]> {
     return await this.staffRepository.find();
@@ -56,7 +59,7 @@ export class StaffService {
   async findById(id: number): Promise<Staff | null> {
     return this.staffRepository.findOne({
       where: { id },
-      relations: ['quotations'],
+      relations: ['quotations', 'quotations.customer'],
     });
   }
 
