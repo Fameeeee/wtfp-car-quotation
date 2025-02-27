@@ -51,7 +51,7 @@
               <td>{{ staff.id }}</td>
               <td>{{ staff.firstName }}</td>
               <td>{{ staff.lastName }}</td>
-              <td>{{ staff.position || 'Staff' }}</td>
+              <td>{{ staff.role}}</td>
             </tr>
           </tbody>
         </table>
@@ -68,6 +68,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import axios from "axios";
 
 definePageMeta({
   layout: false,
@@ -75,24 +76,7 @@ definePageMeta({
 });
 
 const searchQuery = ref("");
-const staffList = ref([
-  { id: 1, firstName: "Arnon", lastName: "Sukom", position: "Manager" },
-  { id: 2, firstName: "Assanai", lastName: "Anukulanan", position: "Staff" },
-  { id: 3, firstName: "Kittipong", lastName: "Anukularam", position: "Staff" },
-  { id: 4, firstName: "Kitti", lastName: "Piso", position: "Staff" },
-  { id: 5, firstName: "Nithikorn", lastName: "Bamrungrach", position: "Staff" },
-  { id: 6, firstName: "John", lastName: "Doe", position: "Manager" },
-  { id: 7, firstName: "Jane", lastName: "Smith", position: "Staff" },
-  { id: 8, firstName: "Robert", lastName: "Johnson", position: "Staff" },
-  { id: 9, firstName: "Michael", lastName: "Brown", position: "Staff" },
-  { id: 10, firstName: "William", lastName: "Davis", position: "Staff" },
-  { id: 11, firstName: "David", lastName: "Miller", position: "Manager" },
-  { id: 12, firstName: "Richard", lastName: "Wilson", position: "Staff" },
-  { id: 13, firstName: "Joseph", lastName: "Moore", position: "Staff" },
-  { id: 14, firstName: "Thomas", lastName: "Taylor", position: "Staff" },
-  { id: 15, firstName: "Charles", lastName: "Anderson", position: "Staff" },
-]);
-
+const staffList = ref([]);
 const itemsPerPage = 12;
 const currentPage = ref(1);
 const loading = ref(false);
@@ -118,11 +102,16 @@ const search = () => {
   fetchData();
 };
 
-const fetchData = () => {
+const fetchData = async () => {
   loading.value = true;
-  setTimeout(() => {
+  try {
+    const response = await axios.get("http://localhost:3001/staff");
+    staffList.value = response.data; 
+  } catch (error) {
+    console.error("Error fetching staff data:", error);
+  } finally {
     loading.value = false;
-  }, 1000);
+  }
 };
 
 const prevPage = () => {
@@ -145,6 +134,13 @@ onMounted(() => {
 </script>
 
 <style scoped>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
 .layout {
   display: flex;
   min-height: 100vh;
@@ -160,7 +156,7 @@ onMounted(() => {
 }
 
 .title {
-  font-size: 3vw;
+  font-size: 3rem;
 }
 
 .sidebar-collapsed+.content {

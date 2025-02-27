@@ -50,7 +50,7 @@ definePageMeta({
 }
 
 .title {
-    font-size: 3vw;
+    font-size: 3rem;
 }
 
 .sidebar-collapsed+.content {
