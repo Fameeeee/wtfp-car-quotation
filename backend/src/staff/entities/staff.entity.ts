@@ -1,3 +1,4 @@
+import { Quotation } from "src/quotation/entities/quotation.entity";
 import { Column, Entity, OneToMany, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 
 export enum StaffRole {
@@ -31,6 +32,9 @@ export class Staff {
 
     @Column({ type: 'enum', enum: StaffRole, default: StaffRole.STAFF })
     role: StaffRole;
+
+    @OneToMany(() => Quotation, (quotation) => quotation.staff)
+    quotations: Quotation[];
 }
 
 

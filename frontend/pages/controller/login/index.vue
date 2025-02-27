@@ -58,14 +58,13 @@ const handleLogin = async () => {
   isLoading.value = true;
 
   try {
-    const response = await axios.post('http://localhost:3001/staff/login', {
+    const response = await axios.post('http://localhost:3001/auth/login', {
       email: email.value,
       password: password.value
     });
     
-    if (response.data.token) {
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('role', response.data.role);
+    if (response.data.access_token) {
+      localStorage.setItem('access_token', response.data.access_token);
       router.push('/controller/dashboard');
     } else {
       errorMessage.value = 'Login failed: No token received.';

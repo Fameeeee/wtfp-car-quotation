@@ -118,7 +118,7 @@ const nextButtonVisible = computed(() => {
 const fetchUnitTypes = async () => {
     loading.value = true;
     try {
-        const response = await axios.get(`${apiUrl}/unit-type`);
+        const response = await axios.get(`${apiUrl}/model-code/unit-type`);
         unitTypes.value = response.data;
         loading.value = false;
     } catch (err) {
@@ -134,7 +134,7 @@ const fetchModelClasses = async () => {
     }
     loading.value = true;
     try {
-        const response = await axios.get(`${apiUrl}/model-class?unit-type=${selectedUnitType.value}`);
+        const response = await axios.get(`${apiUrl}/model-code/model-class?unit-type=${selectedUnitType.value}`);
         modelClasses.value = response.data;
         loading.value = false;
     } catch (err) {
@@ -151,7 +151,7 @@ const fetchModelCodeName = async () => {
     loading.value = true;
     try {
         const response = await axios.get(
-            `${apiUrl}/model-code-name?unit-type=${selectedUnitType.value}&model-class=${selectedModelClass.value}`
+            `${apiUrl}/model-code/model-code-name?unit-type=${selectedUnitType.value}&model-class=${selectedModelClass.value}`
         );
         modelDetails.value.modelCodeNames = response.data;
         loading.value = false;
@@ -170,7 +170,7 @@ const fetchModelGname = async () => {
     loading.value = true;
     try {
         const response = await axios.get(
-            `${apiUrl}/model-g-name?unit-type=${selectedUnitType.value}&model-class=${selectedModelClass.value}&model-code-name=${selectedModelCodeName.value}`
+            `${apiUrl}/model-code/model-g-name?unit-type=${selectedUnitType.value}&model-class=${selectedModelClass.value}&model-code-name=${selectedModelCodeName.value}`
         );
         modelDetails.value.modelGnames = response.data;
         loading.value = false;
@@ -188,7 +188,7 @@ const fetchPrice = async () => {
     loading.value = true;
     try {
         const response = await axios.get(
-            `${apiUrl}/price?unit-type=${selectedUnitType.value}&model-class=${selectedModelClass.value}&model-code-name=${selectedModelCodeName.value}&model-gname=${selectedModelGname.value}`
+            `${apiUrl}/model-code/price?unit-type=${selectedUnitType.value}&model-class=${selectedModelClass.value}&model-code-name=${selectedModelCodeName.value}&model-gname=${selectedModelGname.value}`
         );
         const prices = response.data
         modelDetails.value.prices = prices;
@@ -208,7 +208,7 @@ const fetchColor = async () => {
     loading.value = true;
     try {
         const response = await axios.get(
-            `${apiUrl}/color?unit-type=${selectedUnitType.value}&model-class=${selectedModelClass.value}&model-code-name=${selectedModelCodeName.value}&model-gname=${selectedModelGname.value}&price=${selectedPrice.value}`
+            `${apiUrl}/model-code/color?unit-type=${selectedUnitType.value}&model-class=${selectedModelClass.value}&model-code-name=${selectedModelCodeName.value}&model-gname=${selectedModelGname.value}&price=${selectedPrice.value}`
         );
         modelDetails.value.colors = response.data;
         loading.value = false;
@@ -325,7 +325,7 @@ onMounted(fetchUnitTypes);
 
 .form-select:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: #980000;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -365,7 +365,7 @@ onMounted(fetchUnitTypes);
     font-size: 1rem;
     font-weight: 600;
     color: #ffffff;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #980000 0%, #980000 100%);
     border: none;
     border-radius: 0.5rem;
     cursor: pointer;

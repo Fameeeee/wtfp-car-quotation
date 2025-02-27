@@ -5,14 +5,33 @@
                 <h2 class="title">ยืนยันรายการที่เลือก</h2>
             </div>
             <div class="card-body">
-                <div class="info">
-                    <p><strong>Unit Type :</strong> {{ selectedCar.unitType }}</p>
-                    <p><strong>Model Class :</strong> {{ selectedCar.modelClass }}</p>
-                    <p><strong>Model Code Name :</strong> {{ selectedCar.modelCodeName }}</p>
-                    <p><strong>Model G name :</strong> {{ selectedCar.modelGname }}</p>
-                    <p><strong>Price :</strong> {{ selectedCar.price }}</p>
-                    <p><strong>Color :</strong> {{ selectedCar.color }}</p>
-                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ selectedCar.unitType }}</td>
+                            <td>{{ selectedCar.modelGname }}</td>
+                            <td>{{ selectedCar?.price?.toLocaleString() ?? '0' }} ฿</td>
+                        </tr>
+                        <tr v-for="(accessory, index) in selectedAccessories" :key="index">
+                            <td>{{ accessory.assType }}</td>
+                            <td>{{ accessory.assName }}</td>
+                            <td>{{ accessory?.price?.toLocaleString() ?? '0' }} ฿</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2"><strong>Total Price</strong></td>
+                            <td><strong>{{ totalPrice.toLocaleString() }} บาท</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
             </div>
             <div class="btn">
                 <button @click="confirmSelection" class="confirm-btn">ยืนยัน</button>
@@ -34,34 +53,37 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
 
 const router = useRouter();
 const selectedCar = ref({});
+const selectedAccessories = ref({});
 const showModal = ref(false);
-const config = useRuntimeConfig();
-const apiUrl = config.public.apiUrl;
 
-onMounted(async () => {
+onMounted(() => {
+    const storedAccessories = localStorage.getItem('selectedAccessories');
     const storedCar = localStorage.getItem('selectedCar');
-    if (storedCar) {
-        selectedCar.value = JSON.parse(storedCar);
-        if (!selectedCar.value.id) {
-            await fetchUnitId(selectedCar.value.unitType);
-        }
-    }
-});
-const fetchUnitId = async (unitType) => {
     try {
-        const response = await axios.get(`${apiUrl}/standard-base?filter=unitType||$eq||${unitType}&filter=status||$eq||1`);
-        if (response.data && response.data.length > 0) {
-            selectedCar.value = { ...selectedCar.value, id: response.data[0].id };
-            localStorage.setItem('selectedCar', JSON.stringify(selectedCar.value));
+        selectedAccessories.value = storedAccessories ? JSON.parse(storedAccessories) : [];
+        if (!Array.isArray(selectedAccessories.value)) {
+            selectedAccessories.value = [];
+        }
+        if (storedCar) {
+            selectedCar.value = JSON.parse(storedCar);
         }
     } catch (error) {
-        console.error('Error fetching unit ID:', error);
+        console.error('Error parsing selectedAccessories:', error);
+        selectedAccessories.value = [];
     }
-};
+});
+
+const totalPrice = computed(() => {
+    const carPrice = Number(selectedCar.value?.price) || 0;
+    const accessoriesPrice = Array.isArray(selectedAccessories.value)
+        ? selectedAccessories.value.reduce((sum, item) => sum + (Number(item.price) || 0), 0)
+        : 0;
+    return carPrice + accessoriesPrice;
+});
+
 
 const confirmSelection = async () => {
     try {
@@ -72,17 +94,17 @@ const confirmSelection = async () => {
 };
 
 const goBack = async () => {
-    if (selectedCar.value) {
+    if (selectedAccessories.value) {
         showModal.value = true;
     } else {
-        localStorage.removeItem('selectedCar');
-        router.push('/select-car');
+        localStorage.removeItem('selectedAccessories');
+        router.push('/select-accessories');
     }
 };
 
 const discardChanges = () => {
-    localStorage.removeItem('selectedCar');
-    router.push('/select-car');
+    localStorage.removeItem('selectedAccessories');
+    router.push('/select-accessories');
     closeModal();
 };
 
@@ -112,6 +134,7 @@ body {
     justify-content: center;
     min-height: 100%;
     padding: 2rem;
+    background-color: #f4f7fc;
     height: fit-content;
 }
 
@@ -121,10 +144,10 @@ body {
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 480px;
+    height: fit-content;
     padding: 2rem;
     margin-top: 2rem;
     transition: transform 0.2s ease;
-    height: fit-content;
     display: flex;
     align-items: center
 }
@@ -258,6 +281,30 @@ body {
     gap: 1rem;
     justify-content: space-between;
     margin-top: 1rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+}
+
+th,
+td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f9fafb;
+    font-weight: 600;
+}
+
+tfoot td {
+    font-size: 1.2rem;
+    font-weight: bold;
+    background-color: #f3f4f6;
 }
 
 @media (max-width: 640px) {

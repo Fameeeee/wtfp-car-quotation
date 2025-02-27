@@ -33,7 +33,14 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="customer in paginatedCustomers" :key="customer.id">
+            <tr v-if="paginatedCustomers.length === 0">
+              <td colspan="4" class="no-data">
+                <div class="no-data-message">
+                  <span>ไม่พบข้อมูล</span>
+                </div>
+              </td>
+            </tr>
+            <tr v-else v-for="customer in paginatedCustomers" :key="customer.id">
               <td>
                 <NuxtLink :to="`/controller/customer/${customer.id}`">
                   <img src="/assets/magnifying-glass.png " alt="Details" width="20" />
@@ -71,15 +78,28 @@ const customerList = ref([
   { id: 3, name: "Kittipong", lastName: "Anukularam" },
   { id: 4, name: "Kitti", lastName: "Piso" },
   { id: 5, name: "Nithikorn", lastName: "Bamrungrach" },
+  { id: 6, name: "John", lastName: "Doe" },
+  { id: 7, name: "Jane", lastName: "Smith" },
+  { id: 8, name: "Robert", lastName: "Johnson" },
+  { id: 9, name: "Michael", lastName: "Brown" },
+  { id: 10, name: "William", lastName: "Davis" },
+  { id: 11, name: "David", lastName: "Miller" },
+  { id: 12, name: "Richard", lastName: "Wilson" },
+  { id: 13, name: "Joseph", lastName: "Moore" },
+  { id: 14, name: "Thomas", lastName: "Taylor" },
+  { id: 15, name: "Charles", lastName: "Anderson" },
 ]);
 
-const itemsPerPage = 13;
+const itemsPerPage = 12;
 const currentPage = ref(1);
 const loading = ref(false);
 
 const filteredCustomers = computed(() => {
+  const query = searchQuery.value.toLowerCase();
   return customerList.value.filter((customer) =>
-    customer.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+    customer.id.toString().includes(query) ||
+    customer.name.toLowerCase().includes(query) ||
+    customer.lastName.toLowerCase().includes(query)
   );
 });
 
@@ -137,7 +157,7 @@ onMounted(() => {
 }
 
 .title {
-  font-size: 3vw;
+  font-size: 3rem;
 }
 
 .sidebar-collapsed+.content {
@@ -159,54 +179,160 @@ onMounted(() => {
   position: relative;
   height: 100%;
   min-height: 300px;
+  overflow: hidden;
 }
 
 table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   table-layout: fixed;
-}
-
-th,
-td {
-  padding: 10px;
-  text-align: left;
-  border-bottom: 1px solid #f4f4f4;
-  border-right: 1px solid #0000001A;
-  white-space: nowrap;
-}
-
-th:last-child,
-td:last-child {
-  border-right: none;
+  margin-bottom: 20px;
 }
 
 th {
-  background: #f4f4f4;
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 600;
+  padding: 14px 20px;
+  font-size: 0.9rem;
+  border-bottom: 2px solid #e2e8f0;
+  text-align: left;
 }
 
-tbody {
-  min-height: 200px;
+td {
+  padding: 12px 20px;
+  color: #334155;
+  border-bottom: 1px solid #f1f4f9;
+  font-size: 0.95rem;
+}
+
+tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.customer-table img {
+  width: 24px;
+  height: 24px;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.customer-table img:hover {
+  opacity: 1;
+  background-color: #e2e8f0;
+  transform: scale(1.15);
+  cursor: pointer;
 }
 
 .pagination {
   display: flex;
   justify-content: center;
-  margin-top: 10px;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
 }
 
 .pagination button {
-  padding: 5px 10px;
-  margin: 0 5px;
+  padding: 8px 16px;
   border: none;
-  background: #007bff;
+  background: #3b82f6;
   color: white;
+  font-weight: 500;
+  border-radius: 8px;
   cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  height: 38px;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+.pagination button:hover:not(:disabled) {
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.25);
 }
 
 .pagination button:disabled {
-  background: #ccc;
+  background: #e2e8f0;
+  color: #94a3b8;
   cursor: not-allowed;
+  box-shadow: none;
+}
+
+.pagination span {
+  color: #475569;
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 0 8px;
+  min-width: 120px;
+  text-align: center;
+}
+
+.spinner-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.spinner {
+  color: #3b82f6;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spinner::before {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #3b82f6;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+th:nth-child(1),
+td:nth-child(1) {
+  width: 100px;
+  text-align: center;
+}
+
+th:nth-child(2),
+td:nth-child(2) {
+  width: 120px;
+}
+
+tbody tr:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+tbody tr:hover td {
+  color: inherit;
 }
 
 .table-controls {
@@ -264,53 +390,18 @@ tbody {
   margin-left: 5px;
 }
 
-.spinner-container {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 999;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.customer-table img {
-  opacity: 0.5;
-  transition: opacity 0.3s ease;
-}
-
-.customer-table img:hover {
-  opacity: 1;
-}
-
-
-th:nth-child(1),
-td:nth-child(1) {
+.no-data {
   text-align: center;
-  padding-right: 8px;
-  width: 80px;
+  height: 200px;
 }
 
-th:nth-child(2),
-td:nth-child(2) {
-  padding-left: 8px;
-  width: 100px;
+.no-data-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #94a3b8;
+  font-size: 1rem;
+  font-weight: 500;
 }
-
-th:nth-child(3),
-td:nth-child(3),
-th:nth-child(4),
-td:nth-child(4) {
-  padding-left: 20px;
-  text-align: left;
-}
-
 </style>
