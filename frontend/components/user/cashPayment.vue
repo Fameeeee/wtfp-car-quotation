@@ -1,36 +1,40 @@
 <template>
     <div class="main">
-        <div class="customer">
-            <div class="cus-title">ลูกค้า</div>
-            <div class="cus-details">
-                <input type="text" placeholder="ชื่อจริง" />
-                <input type="text" placeholder="นามสกุล" />
-            </div>
-        </div>
-
-        <div class="staff">
-            <div class="staff-title">พนักงานขาย</div>
-            <div class="staff-details">
-                <input type="text" placeholder="ชื่อจริง" />
-                <input type="text" placeholder="นามสกุล" />
-            </div>
-        </div>
-
         <div class="special-dis">
             <div class="special-title">ส่วนลดพิเศษ</div>
             <div class="special-details">
                 <input type="text" placeholder="ส่วนลดพิเศษ" />
             </div>
         </div>
-
-        <div class="note">
-            <div class="note-title">หมายเหตุ</div>
-            <div class="note-details">
-                <input type="text" placeholder="หมายเหตุ" />
+        <div class="special-plus">
+            <div class="special-title">ส่วนเพิ่ม</div>
+            <div class="special-details">
+                <input type="text" placeholder="ส่วนเพิ่ม" />
             </div>
         </div>
+        <div class="total-price">
+            <div class="total-title">ราคาสุทธิ</div>
+            <div class="total-details">
+                <div class="price-box">{{ selectedCar?.price ? Number(selectedCar.price).toLocaleString() : 'N/A' }} บาท
+                </div>
+            </div>
+        </div>
+
     </div>
 </template>
+
+<script setup>
+const selectedCar = ref({});
+
+onMounted(() => {
+    const storedCar = localStorage.getItem('selectedCar');
+    if (storedCar) {
+        selectedCar.value = JSON.parse(storedCar);
+    }
+});
+
+
+</script>
 
 <style scoped>
 * {
@@ -44,34 +48,44 @@
     width: 80vw;
     display: flex;
     flex-direction: column;
-    gap: 15px;
     align-items: center;
 }
 
-.customer,
-.staff,
+
+
+.special-plus,
 .special-dis,
-.note {
+.total-price {
     display: flex;
     width: 100%;
-    /* align-items: center; */
     padding: 10px;
     gap: 10px;
 }
 
-.cus-title,
-.staff-title,
 .special-title,
-.note-title {
+.total-title {
     font-size: 18px;
     font-weight: bold;
     width: 35%;
 }
 
-.cus-details,
-.staff-details,
+.down-payment-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.price-box {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    color: #4b5563;
+    background-color: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
 .special-details,
-.note-details {
+.total-details {
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -85,5 +99,6 @@ input {
     border: 1px solid #ccc;
     font-size: 16px;
 }
+
 
 </style>

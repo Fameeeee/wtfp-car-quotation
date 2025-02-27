@@ -9,19 +9,19 @@
             </div>
         </div>
         <nav class="link">
-            <NuxtLink to="/controller/dashboard" :class="{ 'active': $route.path === '/controller/dashboard' }">
+            <NuxtLink to="/controller/dashboard" :class="{ 'active': $route.path.startsWith('/controller/dashboard') }">
                 <span v-if="isSidebarOpen">Dashboard</span>
                 <i v-else class="icon-dashboard">D</i>
             </NuxtLink>
-            <NuxtLink to="/controller/staff" :class="{ 'active': $route.path === '/controller/staff' }">
+            <NuxtLink to="/controller/staff" :class="{ 'active': $route.path.startsWith('/controller/staff') }">
                 <span v-if="isSidebarOpen">Staff</span>
                 <i v-else class="icon-staff">S</i>
             </NuxtLink>
-            <NuxtLink to="/controller/customer" :class="{ 'active': $route.path === '/controller/customer' }">
+            <NuxtLink to="/controller/customer" :class="{ 'active': $route.path.startsWith('/controller/customer')}">
                 <span v-if="isSidebarOpen">Customer</span>
                 <i v-else class="icon-customer">C</i>
             </NuxtLink>
-            <NuxtLink to="/controller/history" :class="{ 'active': $route.path === '/controller/history' }">
+            <NuxtLink to="/controller/history" :class="{ 'active': $route.path.startsWith('/controller/history')}">
                 <span v-if="isSidebarOpen">History</span>
                 <i v-else class="icon-history">H</i>
             </NuxtLink>
@@ -68,12 +68,12 @@ const Logout = () => {
 }
 
 
-.sidebar-open + .content {
-    margin-left: 300px; 
+.sidebar-open+.content {
+    margin-left: 300px;
 }
 
 
-.sidebar-collapsed + .content {
+.sidebar-collapsed+.content {
     margin-left: 80px;
 }
 

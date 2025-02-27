@@ -177,13 +177,13 @@ const goBack = async () => {
         showModal.value = true;
     } else {
         localStorage.removeItem('selectedAccessories');
-        router.push('/confirm-car');
+        router.push('/calculate');
     }
 };
 
 const discardChanges = () => {
     localStorage.removeItem('selectedAccessories');
-    router.push('/confirm-car');
+    router.push('/calculate');
     closeModal();
 };
 

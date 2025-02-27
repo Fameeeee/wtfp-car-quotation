@@ -65,7 +65,7 @@ const fetchUnitId = async (unitType) => {
 
 const confirmSelection = async () => {
     try {
-        router.push('/select-accessories');
+        router.push('/calculate');
     } catch (error) {
         console.error('Error confirming selection:', error);
     }
@@ -76,13 +76,13 @@ const goBack = async () => {
         showModal.value = true;
     } else {
         localStorage.removeItem('selectedCar');
-        router.push('/select');
+        router.push('/select-car');
     }
 };
 
 const discardChanges = () => {
     localStorage.removeItem('selectedCar');
-    router.push('/select');
+    router.push('/select-car');
     closeModal();
 };
 
@@ -112,7 +112,6 @@ body {
     justify-content: center;
     min-height: 100%;
     padding: 2rem;
-    background-color: #f4f7fc;
     height: fit-content;
 }
 

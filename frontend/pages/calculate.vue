@@ -4,9 +4,9 @@
 
         <div class="select-payment">
             <button @click="selectedPayment = 'cash'" :class="{ active: selectedPayment === 'cash' }"
-                class="sod">ราคาซื้อสด</button>
+                class="cash">ราคาซื้อสด</button>
             <button @click="selectedPayment = 'installment'" :class="{ active: selectedPayment === 'installment' }"
-                class="pon">คำนวณเงินผ่อน</button>
+                class="installment">คำนวณเงินผ่อน</button>
         </div>
 
         <div class="car-details">
@@ -19,8 +19,8 @@
         </div>
 
         <div class="btn">
-            <div class="back-btn" @click="goBack">Back</div>
-            <div class="confirm-btn">Confirm</div>
+            <div class="back-btn" @click="goBack">กลับ</div>
+            <div class="confirm-btn" @click="goNext">ต่อไป</div>
         </div>
     </div>
 </template>
@@ -35,8 +35,12 @@ import installmentPayment from '~/components/user/installmentPayment.vue';
 const router = useRouter();
 
 const goBack = async () => {
-    router.push('/confirm-accessories');
+    router.push('/confirm-car');
 };
+
+const goNext = async () => {
+    router.push('/select-accessories')
+}
 
 definePageMeta({
     middleware: 'staff-auth'
@@ -66,7 +70,7 @@ const selectedPayment = ref('cash');
     font-weight: 800;
     font-size: 32px;
     color: #696969;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .select-payment {
@@ -78,35 +82,35 @@ const selectedPayment = ref('cash');
     margin-bottom: 20px;
 }
 
-.sod,
-.pon {
+.cash,
+.installment {
     flex: 1;
     text-align: center;
     font-size: 20px;
-    padding: 12px 0;
-    border-radius: 30px;
+    padding: 10px 0;
+    border-radius: 20px;
     cursor: pointer;
     transition: 0.3s ease;
     border: 1px solid #000;
     border: none;
 }
 
-.sod {
+.cash {
     background: #FFFFFF;
     color: #000000;
 }
 
-.pon {
+.installment {
     background: #FFFFFF;
     color: #000000;
 }
 
-.sod.active {
+.cash.active {
     background: #000000;
     color: #FFFFFF;
 }
 
-.pon.active {
+.installment.active {
     background: #000000;
     color: #FFFFFF;
 }
