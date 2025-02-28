@@ -13,10 +13,10 @@ export class CustomerService {
   ) { }
 
   async createCustomer(createCustomerDto: CreateCustomerDto): Promise<Customer> {
-    const { firstname, lastname } = createCustomerDto;
+    const { firstName, lastName } = createCustomerDto;
 
     let customer = await this.customerRepository.findOne({
-      where: { firstname, lastname },
+      where: { firstName, lastName },
       relations: ['quotations']
     });
 
@@ -32,9 +32,9 @@ export class CustomerService {
     return await this.customerRepository.find();
   }
 
-  async findByName(firstname: string, lastname: string): Promise<Customer | null> {
+  async findByName(firstName: string, lastName: string): Promise<Customer | null> {
     return await this.customerRepository.findOne({
-      where: { firstname, lastname },
+      where: { firstName, lastName },
     });
   }
 

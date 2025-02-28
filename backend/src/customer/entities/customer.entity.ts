@@ -12,6 +12,9 @@ export class Customer {
     @Column()
     lastName: string;
 
+    @Column()
+    phoneNumber: number;
+
     @OneToMany(() => Quotation, (quotation) => quotation.customer)
     quotations: Quotation[];
 }

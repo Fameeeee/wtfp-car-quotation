@@ -16,12 +16,13 @@ export class QuotationService {
   ) { }
 
   async createQuotation(dto: CreateQuotationDto): Promise<Quotation> {
-    let customer = await this.customerService.findByName(dto.customer.firstname, dto.customer.lastname);
+    let customer = await this.customerService.findByName(dto.customer.firstName, dto.customer.lastName);
 
     if (!customer) {
       customer = await this.customerService.createCustomer({
-        firstname: dto.customer.firstname,
-        lastname: dto.customer.lastname,
+        firstName: dto.customer.firstName,
+        lastName: dto.customer.lastName,
+        phoneNumber: dto.customer.phoneNumber,
       });
     }
 

@@ -3,9 +3,12 @@ import { IsNotEmpty, IsString } from "class-validator";
 export class CreateCustomerDto {
     @IsNotEmpty()
     @IsString()
-    firstname: string;
+    firstName: string;
 
     @IsNotEmpty()
     @IsString()
-    lastname: string;
+    lastName: string;
+
+    @IsNotEmpty()
+    phoneNumber: number;
 }
