@@ -28,10 +28,11 @@
           <thead>
             <tr>
               <th></th>
-              <th>ID</th>
-              <th>First Name</th>
-              <th>Last Name</th>
-              <th>Position</th>
+              <th>ไอดี</th>
+              <th>ชื่อจริง</th>
+              <th>นามสกุล</th>
+              <th>จังหวัด</th>
+              <th>ตำแหน่ง</th>
             </tr>
           </thead>
           <tbody>
@@ -51,6 +52,7 @@
               <td>{{ staff.id }}</td>
               <td>{{ staff.firstName }}</td>
               <td>{{ staff.lastName }}</td>
+              <td>{{ staff.city }}</td>
               <td>{{ staff.role}}</td>
             </tr>
           </tbody>
@@ -114,6 +116,7 @@ const fetchData = async () => {
   }
 };
 
+
 const prevPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--;
@@ -172,35 +175,34 @@ onMounted(() => {
 
 .staff-table {
   background: white;
-  padding: 20px;
+  padding: 15px;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   position: relative;
   height: 100%;
-  min-height: 300px;
-  overflow: hidden;
+  min-height: 400px;
+  overflow: auto;
 }
 
 table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  table-layout: fixed;
-  margin-bottom: 20px;
+  table-layout: auto;
 }
 
 th {
   background: #f1f5f9;
   color: #475569;
   font-weight: 600;
-  padding: 14px 20px;
+  padding: 10px 20px;
   font-size: 0.9rem;
   border-bottom: 2px solid #e2e8f0;
   text-align: left;
 }
 
 td {
-  padding: 12px 20px;
+  padding: 13px 20px;
   color: #334155;
   border-bottom: 1px solid #f1f4f9;
   font-size: 0.95rem;

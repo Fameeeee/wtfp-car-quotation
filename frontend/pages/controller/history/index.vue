@@ -49,10 +49,10 @@
                 </NuxtLink>
               </td>
               <td>{{ history.id }}</td>
-              <td>{{ history.createAt }}</td>
-              <td>{{ history.staffName }}</td>
-              <td>{{ history.customerName }}</td>
-              <td>{{ history.carModel }}</td>
+              <td>{{ history.quotationDate }}</td>
+              <td>{{ history.staff.firstName }}</td>
+              <td>{{ history.customer.firstName }}</td>
+              <td>{{ history.carDetails.modelGName }}</td>
             </tr>
           </tbody>
         </table>
@@ -69,6 +69,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import axios from "axios";
 
 definePageMeta({
   layout: false,
@@ -76,27 +77,24 @@ definePageMeta({
 });
 
 const searchQuery = ref("");
-const historyList = ref([
-  { id: 1, createAt: "2025-02-01", staffName: "John", customerName: "Arnon Sukom", carModel: "Isuzu MU-X" },
-  { id: 2, createAt: "2025-02-02", staffName: "Mash", customerName: "Assanai Anukulanan", carModel: "Isuzu D-Max" },
-  { id: 3, createAt: "2025-02-03", staffName: "Lee", customerName: "Kittipong Anukularam", carModel: "Isuzu V-Cross" },
-  { id: 4, createAt: "2025-02-04", staffName: "Brown", customerName: "Kitti Piso", carModel: "Isuzu MU-X" },
-  { id: 5, createAt: "2025-02-05", staffName: "White", customerName: "Nithikorn Bamrungrach", carModel: "Isuzu D-Max" },
-  { id: 6, createAt: "2025-02-06", staffName: "John", customerName: "John Doe", carModel: "Isuzu MU-X" },
-  { id: 7, createAt: "2025-02-07", staffName: "Mash", customerName: "Jane Smith", carModel: "Isuzu D-Max" },
-  { id: 8, createAt: "2025-02-08", staffName: "Lee", customerName: "Robert Johnson", carModel: "Isuzu V-Cross" },
-  { id: 9, createAt: "2025-02-09", staffName: "Brown", customerName: "Michael Brown", carModel: "Isuzu MU-X" },
-  { id: 10, createAt: "2025-02-10", staffName: "White", customerName: "William Davis", carModel: "Isuzu D-Max" },
-  { id: 11, createAt: "2025-02-11", staffName: "John", customerName: "David Miller", carModel: "Isuzu MU-X" },
-  { id: 12, createAt: "2025-02-12", staffName: "Mash", customerName: "Richard Wilson", carModel: "Isuzu D-Max" },
-  { id: 13, createAt: "2025-02-13", staffName: "Lee", customerName: "Joseph Moore", carModel: "Isuzu V-Cross" },
-  { id: 14, createAt: "2025-02-14", staffName: "Brown", customerName: "Thomas Taylor", carModel: "Isuzu MU-X" },
-  { id: 15, createAt: "2025-02-15", staffName: "White", customerName: "Charles Anderson", carModel: "Isuzu D-Max" },
-]);
-
+const historyList = ref([]);
 const itemsPerPage = 12;
 const currentPage = ref(1);
 const loading = ref(false);
+
+
+const fetchData = async () => {
+  loading.value = true;
+  try {
+    const response = await axios.get("http://localhost:3001/quotation");
+    historyList.value = response.data;
+    console.log("Fetched history data:", historyList.value);
+  } catch (error) {
+    console.error("Error fetching staff data:", error);
+  } finally {
+    loading.value = false;
+  }
+}
 
 const filteredHistory = computed(() => {
   const query = searchQuery.value.toLowerCase();
@@ -117,14 +115,6 @@ const totalPages = computed(() => Math.ceil(filteredHistory.value.length / items
 
 const search = () => {
   currentPage.value = 1;
-  fetchData();
-};
-
-const fetchData = () => {
-  loading.value = true;
-  setTimeout(() => {
-    loading.value = false;
-  }, 1000);
 };
 
 const prevPage = () => {
@@ -172,22 +162,20 @@ onMounted(() => {
 
 .history-table {
   background: white;
-  padding: 20px;
+  padding: 15px;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   position: relative;
   height: 100%;
-  min-height: 300px;
-  overflow: hidden;
+  min-height: 400px;
+  overflow: auto;
 }
 
-/* Simplified table styles */
 table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  table-layout: fixed;
-  margin-bottom: 20px;
+  table-layout: auto;
 }
 
 th {

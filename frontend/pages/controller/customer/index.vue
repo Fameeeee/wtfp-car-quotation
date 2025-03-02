@@ -47,7 +47,7 @@
                 </NuxtLink>
               </td>
               <td>{{ customer.id }}</td>
-              <td>{{ customer.name }}</td>
+              <td>{{ customer.firstName }}</td>
               <td>{{ customer.lastName }}</td>
             </tr>
           </tbody>
@@ -65,6 +65,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import axios from "axios";
 
 definePageMeta({
   layout: false,
@@ -72,27 +73,22 @@ definePageMeta({
 });
 
 const searchQuery = ref("");
-const customerList = ref([
-  { id: 1, name: "Arnon", lastName: "Sukom" },
-  { id: 2, name: "Assanai", lastName: "Anukulanan" },
-  { id: 3, name: "Kittipong", lastName: "Anukularam" },
-  { id: 4, name: "Kitti", lastName: "Piso" },
-  { id: 5, name: "Nithikorn", lastName: "Bamrungrach" },
-  { id: 6, name: "John", lastName: "Doe" },
-  { id: 7, name: "Jane", lastName: "Smith" },
-  { id: 8, name: "Robert", lastName: "Johnson" },
-  { id: 9, name: "Michael", lastName: "Brown" },
-  { id: 10, name: "William", lastName: "Davis" },
-  { id: 11, name: "David", lastName: "Miller" },
-  { id: 12, name: "Richard", lastName: "Wilson" },
-  { id: 13, name: "Joseph", lastName: "Moore" },
-  { id: 14, name: "Thomas", lastName: "Taylor" },
-  { id: 15, name: "Charles", lastName: "Anderson" },
-]);
-
+const customerList = ref([]);
 const itemsPerPage = 12;
 const currentPage = ref(1);
 const loading = ref(false);
+
+const fetchData = async () => {
+  loading.value = true;
+  try {
+    const response = await axios.get("http://localhost:3001/customer");
+    customerList.value = response.data;
+  } catch (error) {
+    console.error("Error fetching staff data:", error);
+  } finally {
+    loading.value = false;
+  }
+}
 
 const filteredCustomers = computed(() => {
   const query = searchQuery.value.toLowerCase();
@@ -112,27 +108,18 @@ const totalPages = computed(() => Math.ceil(filteredCustomers.value.length / ite
 
 const search = () => {
   currentPage.value = 1;
-  fetchData();
 };
 
-const fetchData = () => {
-  loading.value = true;
-  setTimeout(() => {
-    loading.value = false;
-  }, 1000);
-};
 
 const prevPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--;
-    fetchData();
   }
 };
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++;
-    fetchData();
   }
 };
 
@@ -173,21 +160,20 @@ onMounted(() => {
 
 .customer-table {
   background: white;
-  padding: 20px;
+  padding: 15px;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   position: relative;
   height: 100%;
-  min-height: 300px;
-  overflow: hidden;
+  min-height: 400px;
+  overflow: auto;
 }
 
 table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  table-layout: fixed;
-  margin-bottom: 20px;
+  table-layout: auto;
 }
 
 th {

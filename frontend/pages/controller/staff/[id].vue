@@ -26,14 +26,14 @@
                                 {{ staffData.firstName }} {{ staffData.lastName }}
                             </div>
                             <div class="row-2">
-                                <p><strong>ตำแหน่ง :</strong> {{ staffData.role }}</p>
-                                <p><strong>จังหวัด : เชียงราย</strong></p>
-                                <p><strong>สาขา : บ้านดู่</strong></p>
+                                <p><strong>ตำแหน่ง :</strong> {{ staffData.role }}</p> 
+                                <p><strong>จังหวัด : </strong> {{ staffData.city }}</p>
+                                <p><strong>สาขา : </strong> {{ staffData.branch }}</p>
                             </div>
                             <div class="row-3">
-                                <p><strong>Email:</strong> {{ staffData.email }}</p>
-                                <p><strong>Phone Number:</strong> {{ staffData.phoneNumber }}</p>
-                                <p><strong>Gender:</strong> {{ staffData.gender }}</p>
+                                <p><strong>อีเมลล์ :</strong> {{ staffData.email }}</p>
+                                <p><strong>เบอร์โทรศัพท์ :</strong> {{ staffData.phoneNumber }}</p>
+                                <p><strong>เพศ :</strong> {{ staffData.gender }}</p>
                             </div>
                         </div>
                         <div v-else>
