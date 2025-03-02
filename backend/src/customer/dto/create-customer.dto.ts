@@ -10,5 +10,5 @@ export class CreateCustomerDto {
     lastName: string;
 
     @IsNotEmpty()
-    phoneNumber: number;
+    phoneNumber: string;
 }

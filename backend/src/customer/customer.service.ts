@@ -13,10 +13,10 @@ export class CustomerService {
   ) { }
 
   async createCustomer(createCustomerDto: CreateCustomerDto): Promise<Customer> {
-    const { firstName, lastName } = createCustomerDto;
+    const { firstName, lastName , phoneNumber} = createCustomerDto;
 
     let customer = await this.customerRepository.findOne({
-      where: { firstName, lastName },
+      where: { firstName, lastName , phoneNumber},
       relations: ['quotations']
     });
 

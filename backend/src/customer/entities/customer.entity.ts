@@ -13,7 +13,7 @@ export class Customer {
     lastName: string;
 
     @Column()
-    phoneNumber: number;
+    phoneNumber: string;
 
     @OneToMany(() => Quotation, (quotation) => quotation.customer)
     quotations: Quotation[];
