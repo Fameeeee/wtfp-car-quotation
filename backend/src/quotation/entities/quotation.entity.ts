@@ -52,9 +52,10 @@ export class Quotation {
         price: number;
     }[];
 
-    @ManyToOne(() => Staff, (staff) => staff.quotations)
+    @ManyToOne(() => Staff, (staff) => staff.quotations, { onDelete: 'SET NULL', nullable: true })
     staff: Staff;
 
-    @ManyToOne(() => Customer, (customer) => customer.quotations)
+
+    @ManyToOne(() => Customer, (customer) => customer.quotations, { onDelete: 'SET NULL', nullable: true })
     customer: Customer;
 }

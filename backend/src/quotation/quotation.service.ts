@@ -94,7 +94,7 @@ export class QuotationService {
     const quotation = await this.quotationRepository.findOne({ where: { id } })
 
     if (!quotation) {
-      throw new Error('Qustomer not found')
+      throw new Error('Quotation not found')
     }
 
     await this.quotationRepository.remove(quotation);

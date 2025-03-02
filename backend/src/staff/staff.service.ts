@@ -18,7 +18,7 @@ export class StaffService {
     @InjectRepository(Staff)
     private staffRepository: Repository<Staff>,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   async findByEmail(email: string): Promise<Staff | null> {
     return this.staffRepository.findOne({ where: { email } });
@@ -82,6 +82,8 @@ export class StaffService {
     }
 
     await this.staffRepository.remove(staff);
+
     return 'Staff deleted successfully';
   }
+
 }
