@@ -27,11 +27,11 @@
           <thead>
             <tr>
               <th></th>
-              <th>ID</th>
-              <th>Date</th>
-              <th>Staff Name</th>
-              <th>Customer Name</th>
-              <th>Car Model</th>
+              <th>ไอดี</th>
+              <th>วันที่</th>
+              <th>ชื่อพนักงาน</th>
+              <th>ชื่อลูกค้า</th>
+              <th>รุ่นรถ</th>
             </tr>
           </thead>
           <tbody>

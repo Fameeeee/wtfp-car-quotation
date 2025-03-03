@@ -27,9 +27,10 @@
           <thead>
             <tr>
               <th></th>
-              <th>ID</th>
-              <th>First Name</th>
-              <th>Last Name</th>
+              <th>ไอดี</th>
+              <th>ชื่อจริง</th>
+              <th>นามสกุล</th>
+              <th>เบอร์โทรศัพท์</th>
             </tr>
           </thead>
           <tbody>
@@ -49,6 +50,7 @@
               <td>{{ customer.id }}</td>
               <td>{{ customer.firstName }}</td>
               <td>{{ customer.lastName }}</td>
+              <td>{{ customer.phoneNumber }}</td>
             </tr>
           </tbody>
         </table>
