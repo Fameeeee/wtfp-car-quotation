@@ -15,7 +15,7 @@ export class QuotationService {
     private readonly staffService: StaffService,
   ) { }
 
-  async createQuotation(dto: CreateQuotationDto): Promise<Quotation> {
+  async createQuotation(dto: CreateQuotationDto): Promise<any> {
     let customer = await this.customerService.findByName(dto.customer.firstName, dto.customer.lastName);
 
     if (!customer) {
@@ -26,7 +26,12 @@ export class QuotationService {
       });
     }
 
-    let totalPrice: number | null = dto.totalPrice;
+    const staff = await this.staffService.findById(dto.staffId);
+    if (!staff) {
+      throw new BadRequestException('Staff not found')
+    }
+
+    let cashPlans = null;
     let installmentPlans = null;
 
     if (dto.paymentMethod === PaymentMethod.INSTALLMENT) {
@@ -36,23 +41,16 @@ export class QuotationService {
       if (dto.installmentPlans.length > 3) {
         throw new BadRequestException('A maximum of 3 installment plans is allowed.');
       }
-      totalPrice = null;
       installmentPlans = dto.installmentPlans;
     } else {
-      installmentPlans = null;
-    }
-
-    const staff = await this.staffService.findById(dto.staffId);
-    if (!staff) {
-      throw new BadRequestException('Staff not found')
+      cashPlans = dto.cashPlans || null;
     }
 
     const quotation = this.quotationRepository.create({
       quotationDate: new Date(),
       paymentMethod: dto.paymentMethod,
-      totalPrice,
+      cashPlans,
       installmentPlans,
-      specialDiscount: dto.specialDiscount || null,
       note: dto.note || null,
       carDetails: dto.carDetails,
       accessories: dto.accessories || null,
@@ -60,17 +58,44 @@ export class QuotationService {
       staff,
     });
 
-    return await this.quotationRepository.save(quotation);
+    await this.quotationRepository.save(quotation);
   }
 
   async getAllQuotation() {
-    return this.quotationRepository.find({ relations: ['customer', 'staff'] });
+    try {
+      return await this.quotationRepository
+        .createQueryBuilder('quotation')
+        .leftJoinAndSelect('quotation.customer', 'customer')
+        .leftJoinAndSelect('quotation.staff', 'staff')
+        .select([
+          'quotation.id',
+          'quotation.paymentMethod',
+          'quotation.quotationDate',
+          'quotation.cashPlans',
+          'quotation.installmentPlans',
+          'quotation.note',
+          'quotation.carDetails',
+          'quotation.accessories',
+          'customer.id',
+          'customer.firstName',
+          'customer.lastName',
+          'customer.phoneNumber',
+          'staff.id',
+          'staff.firstName',
+          'staff.lastName',
+        ])
+        .getMany();
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Failed to retrieve quotations');
+    }
   }
+
 
   async findById(id: number): Promise<Quotation> {
     const quotation = await this.quotationRepository.findOne({
       where: { id },
       relations: ['customer', 'staff'],
+
     });
     if (!quotation) {
       throw new NotFoundException('Quotation not found');
@@ -85,7 +110,7 @@ export class QuotationService {
       throw new Error('Quotation not found')
     }
 
-    
+
     Object.assign(quotation, updateData);
     return await this.quotationRepository.save(quotation);
   }

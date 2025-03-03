@@ -8,8 +8,13 @@ export class QuotationController {
   constructor(private readonly quotationService: QuotationService) { }
 
   @Post('create')
-  async create(@Body() createQuotationDto: CreateQuotationDto): Promise<Quotation> {
-    return this.quotationService.createQuotation(createQuotationDto);
+  async create(@Body() dto: CreateQuotationDto): Promise<{ message: string } | { error: string }> {
+    try {
+      await this.quotationService.createQuotation(dto);
+      return { message: 'Created Successfully' };
+    } catch (error) {
+      return { error: error.message || 'An error occurred' };
+    }
   }
 
   @Get()

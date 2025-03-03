@@ -18,22 +18,29 @@ export class Quotation {
     @Column({ type: 'enum', enum: PaymentMethod, default: PaymentMethod.CASH })
     paymentMethod: PaymentMethod
 
-    @Column({ type: 'float', nullable: true })
-    totalPrice?: number;
+    @Column({type: 'json', nullable: true})
+    cashPlans?: {
+        totalPrice?: number;
+        specialDiscount?: number;
+        additionPrice?: number;
+    }
 
     @Column({ type: 'json', nullable: true })
     installmentPlans?: {
+        planNumber: number;
         downPayment: number;
-        interestRate: number;
-        monthlyPayment: number;
+        specialDiscount?: number;
+        additionPrice?: number;
+        orders: {
+            orderNumber: number;
+            period: number;
+            monthlyPayment?: number;
+            interestRate?: number;
+        }
     }[];
-
-    @Column({ type: 'float', nullable: true })
-    specialDiscount?: number;
 
     @Column({ type: 'text', nullable: true })
     note?: string;
-
 
     @Column({ type: 'json' })
     carDetails: {
@@ -54,7 +61,6 @@ export class Quotation {
 
     @ManyToOne(() => Staff, (staff) => staff.quotations, { onDelete: 'SET NULL', nullable: true })
     staff: Staff;
-
 
     @ManyToOne(() => Customer, (customer) => customer.quotations, { onDelete: 'SET NULL', nullable: true })
     customer: Customer;
