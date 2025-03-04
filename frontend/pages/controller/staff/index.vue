@@ -12,8 +12,8 @@
           Filter
         </button>
         <div class="search-bar">
-          <input type="text" v-model="searchQuery" placeholder="ค้นหา" />
-          <button @click="search">
+          <input type="text" v-model="searchQuery" @input="debouncedSearch" placeholder="ค้นหา" />
+          <button @click="searchHistory">
             <img src="/assets/magnifying-glass.png" alt="Search" width="20" />
           </button>
         </div>
@@ -36,14 +36,14 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-if="paginatedStaff.length === 0">
+            <tr v-if="staffList.length === 0">
               <td colspan="5" class="no-data">
                 <div class="no-data-message">
                   <span>ไม่พบข้อมูล</span>
                 </div>
               </td>
             </tr>
-            <tr v-else v-for="staff in paginatedStaff" :key="staff.id">
+            <tr v-else v-for="staff in staffList" :key="staff.id">
               <td>
                 <NuxtLink :to="`/controller/staff/${staff.id}`">
                   <img src="/assets/magnifying-glass.png" alt="Details" width="20" />
@@ -53,16 +53,16 @@
               <td>{{ staff.firstName }}</td>
               <td>{{ staff.lastName }}</td>
               <td>{{ staff.city }}</td>
-              <td>{{ staff.role}}</td>
+              <td>{{ staff.role }}</td>
             </tr>
           </tbody>
         </table>
       </div>
 
       <div class="pagination">
-        <button @click="prevPage" :disabled="currentPage === 1">⬅</button>
+        <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">⬅</button>
         <span>Page {{ currentPage }} of {{ totalPages }}</span>
-        <button @click="nextPage" :disabled="currentPage === totalPages">➡</button>
+        <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">➡</button>
       </div>
     </div>
   </div>
@@ -71,6 +71,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import axios from "axios";
+import _ from 'lodash';
 
 definePageMeta({
   layout: false,
@@ -81,23 +82,13 @@ const searchQuery = ref("");
 const staffList = ref([]);
 const itemsPerPage = 12;
 const currentPage = ref(1);
+const totalPages = ref(1);
+const total = ref(0);
 const loading = ref(false);
 
-const filteredStaff = computed(() => {
-  const query = searchQuery.value.toLowerCase();
-  return staffList.value.filter((staff) =>
-    staff.id.toString().includes(query) ||
-    staff.firstName.toLowerCase().includes(query) ||
-    staff.lastName.toLowerCase().includes(query)
-  );
-});
-
-const paginatedStaff = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage;
-  return filteredStaff.value.slice(start, start + itemsPerPage);
-});
-
-const totalPages = computed(() => Math.ceil(filteredStaff.value.length / itemsPerPage));
+const debouncedSearch = _.debounce((event) => {
+  searchHistory();
+}, 500);
 
 const search = () => {
   currentPage.value = 1;
@@ -107,8 +98,17 @@ const search = () => {
 const fetchData = async () => {
   loading.value = true;
   try {
-    const response = await axios.get("http://localhost:3001/staff");
-    staffList.value = response.data; 
+    const response = await axios.get("http://localhost:3001/staff", {
+      params: {
+        page: currentPage.value,
+        limit: itemsPerPage,
+        search: searchQuery.value
+      }
+    });
+
+    staffList.value = response.data.data;
+    totalPages.value = response.data.totalPages;
+    total.value = response.data.total;
   } catch (error) {
     console.error("Error fetching staff data:", error);
   } finally {
@@ -116,20 +116,17 @@ const fetchData = async () => {
   }
 };
 
+const searchHistory = () => {
+  currentPage.value = 1;
+  fetchData();
+}
 
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--;
+const changePage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
     fetchData();
   }
-};
-
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-    fetchData();
-  }
-};
+}
 
 onMounted(() => {
   fetchData();
@@ -138,10 +135,10 @@ onMounted(() => {
 
 <style scoped>
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
 }
 
 .layout {
@@ -406,4 +403,3 @@ tbody tr:hover td {
   font-weight: 500;
 }
 </style>
-

@@ -11,8 +11,8 @@
           Filter
         </button>
         <div class="search-bar">
-          <input type="text" v-model="searchQuery" placeholder="ค้นหา" />
-          <button @click="search">
+          <input type="text" v-model="searchQuery" @input="debouncedSearch" placeholder="ค้นหา" />
+          <button @click="searchHistory">
             <img src="/assets/magnifying-glass.png" alt="Search" width="20" />
           </button>
         </div>
@@ -35,14 +35,14 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-if="paginatedHistory.length === 0">
+            <tr v-if="historyList.length === 0">
               <td colspan="6" class="no-data">
                 <div class="no-data-message">
                   <span>ไม่พบข้อมูล</span>
                 </div>
               </td>
             </tr>
-            <tr v-else v-for="history in paginatedHistory" :key="history.id">
+            <tr v-else v-for="history in historyList" :key="history.id">
               <td>
                 <NuxtLink :to="`/controller/history/${history.id}`">
                   <img src="/assets/magnifying-glass.png" alt="Details" width="20" />
@@ -59,17 +59,18 @@
       </div>
 
       <div class="pagination">
-        <button @click="prevPage" :disabled="currentPage === 1">⬅</button>
+        <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">⬅</button>
         <span>Page {{ currentPage }} of {{ totalPages }}</span>
-        <button @click="nextPage" :disabled="currentPage === totalPages">➡</button>
+        <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">➡</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed } from "vue";
 import axios from "axios";
+import _ from 'lodash';
 
 definePageMeta({
   layout: false,
@@ -80,50 +81,46 @@ const searchQuery = ref("");
 const historyList = ref([]);
 const itemsPerPage = 12;
 const currentPage = ref(1);
+const totalPages = ref(1);
+const total = ref(0);
 const loading = ref(false);
 
+const debouncedSearch = _.debounce((event) => {
+  searchHistory();
+}, 500);
 
 const fetchData = async () => {
   loading.value = true;
   try {
-    const response = await axios.get("http://localhost:3001/quotation");
-    historyList.value = response.data;
-    console.log("Fetched history data:", historyList.value);
+    const response = await axios.get("http://localhost:3001/quotation", {
+      params: {
+        page: currentPage.value,
+        limit: itemsPerPage,
+        search: searchQuery.value
+      }
+    });
+
+    historyList.value = response.data.data;
+    totalPages.value = response.data.totalPages;
+    total.value = response.data.total;
   } catch (error) {
-    console.error("Error fetching staff data:", error);
+    console.error("Error fetching history data:", error);
   } finally {
     loading.value = false;
   }
 }
 
-const filteredHistory = computed(() => {
-  const query = searchQuery.value.toLowerCase();
-  return historyList.value.filter((history) =>
-    history.id.toString().includes(query) ||
-    history.staffName.toLowerCase().includes(query) ||
-    history.customerName.toLowerCase().includes(query) ||
-    history.carModel.toLowerCase().includes(query)
-  );
-});
-
-const paginatedHistory = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage;
-  return filteredHistory.value.slice(start, start + itemsPerPage);
-});
-
-const totalPages = computed(() => Math.ceil(filteredHistory.value.length / itemsPerPage));
-
-const search = () => {
+const searchHistory = () => {
   currentPage.value = 1;
-};
+  fetchData();
+}
 
-const prevPage = () => {
-  if (currentPage.value > 1) currentPage.value--;
-};
-
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) currentPage.value++;
-};
+const changePage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+    fetchData();
+  }
+}
 
 onMounted(() => {
   fetchData();
@@ -149,7 +146,7 @@ onMounted(() => {
   font-size: 3rem;
 }
 
-.sidebar-collapsed + .content {
+.sidebar-collapsed+.content {
   margin-left: 80px;
 }
 
@@ -403,4 +400,3 @@ td:nth-child(2) {
   font-weight: 500;
 }
 </style>
-

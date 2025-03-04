@@ -11,8 +11,8 @@
           Filter
         </button>
         <div class="search-bar">
-          <input type="text" v-model="searchQuery" placeholder="ค้นหา" />
-          <button @click="search">
+          <input type="text" v-model="searchQuery" @input="debouncedSearch" placeholder="ค้นหา" />
+          <button @click="searchHistory">
             <img src="/assets/magnifying-glass.png" alt="Search" width="20" />
           </button>
         </div>
@@ -34,14 +34,14 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-if="paginatedCustomers.length === 0">
+            <tr v-if="customerList.length === 0">
               <td colspan="4" class="no-data">
                 <div class="no-data-message">
                   <span>ไม่พบข้อมูล</span>
                 </div>
               </td>
             </tr>
-            <tr v-else v-for="customer in paginatedCustomers" :key="customer.id">
+            <tr v-else v-for="customer in customerList" :key="customer.id">
               <td>
                 <NuxtLink :to="`/controller/customer/${customer.id}`">
                   <img src="/assets/magnifying-glass.png " alt="Details" width="20" />
@@ -57,9 +57,9 @@
       </div>
 
       <div class="pagination">
-        <button @click="prevPage" :disabled="currentPage === 1">⬅</button>
+        <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">⬅</button>
         <span>Page {{ currentPage }} of {{ totalPages }}</span>
-        <button @click="nextPage" :disabled="currentPage === totalPages">➡</button>
+        <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">➡</button>
       </div>
     </div>
   </div>
@@ -68,6 +68,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import axios from "axios";
+import _ from 'lodash';
 
 definePageMeta({
   layout: false,
@@ -78,13 +79,29 @@ const searchQuery = ref("");
 const customerList = ref([]);
 const itemsPerPage = 12;
 const currentPage = ref(1);
+const totalPages = ref(1);
+const total = ref(0);
 const loading = ref(false);
+
+const debouncedSearch = _.debounce((event) => {
+  searchHistory();
+}, 500);
 
 const fetchData = async () => {
   loading.value = true;
   try {
-    const response = await axios.get("http://localhost:3001/customer");
-    customerList.value = response.data;
+    const response = await axios.get("http://localhost:3001/customer", {
+      params: {
+        page: currentPage.value,
+        limit: itemsPerPage,
+        search: searchQuery.value
+      }
+    });
+
+    customerList.value = response.data.data;
+    totalPages.value = response.data.totalPages;
+    total.value = response.data.total;
+    console.log(customerList.value);
   } catch (error) {
     console.error("Error fetching staff data:", error);
   } finally {
@@ -92,38 +109,17 @@ const fetchData = async () => {
   }
 }
 
-const filteredCustomers = computed(() => {
-  const query = searchQuery.value.toLowerCase();
-  return customerList.value.filter((customer) =>
-    customer.id.toString().includes(query) ||
-    customer.name.toLowerCase().includes(query) ||
-    customer.lastName.toLowerCase().includes(query)
-  );
-});
-
-const paginatedCustomers = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage;
-  return filteredCustomers.value.slice(start, start + itemsPerPage);
-});
-
-const totalPages = computed(() => Math.ceil(filteredCustomers.value.length / itemsPerPage));
-
-const search = () => {
+const searchHistory = () => {
   currentPage.value = 1;
-};
+  fetchData();
+}
 
-
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--;
+const changePage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+    fetchData();
   }
-};
-
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-  }
-};
+}
 
 onMounted(() => {
   fetchData();
