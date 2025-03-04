@@ -52,8 +52,45 @@ export class StaffService {
     await this.staffRepository.save(staffData);
   }
 
-  async getAllStaff(): Promise<Staff[]> {
-    return await this.staffRepository.find();
+  async getAllStaff(page: number, limit: number, search?: string): Promise<{
+    data: Staff[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    const queryBuilder = this.staffRepository
+      .createQueryBuilder('staff');
+
+    if (search) {
+      queryBuilder.andWhere(
+        `(
+          LOWER(staff.id) LIKE :search OR 
+          LOWER(staff.firstName) LIKE :search OR 
+          LOWER(staff.lastName) LIKE :search OR 
+          LOWER(staff.email) LIKE :search OR 
+          LOWER(staff.phoneNumber) LIKE :search
+        )`,
+        { search: `%${search.toLowerCase()}%` }
+      );
+    }
+
+    const total = await queryBuilder.getCount();
+
+    queryBuilder
+      .take(limit)
+      .skip((page - 1) * limit)
+      .orderBy('staff.id', 'DESC'); 
+
+    const data = await queryBuilder.getMany();
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    };
   }
 
   async findById(id: number): Promise<Staff | null> {

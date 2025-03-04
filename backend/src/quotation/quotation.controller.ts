@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query, DefaultValuePipe, ParseIntPipe } from '@nestjs/common';
 import { QuotationService } from './quotation.service';
 import { CreateQuotationDto } from './dto/create-quotation.dto';
 import { Quotation } from './entities/quotation.entity';
@@ -18,8 +18,12 @@ export class QuotationController {
   }
 
   @Get()
-  async getAllQuotation(): Promise<Quotation[]> {
-    return this.quotationService.getAllQuotation();
+  async getAllQuotation(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(12), ParseIntPipe) limit: number,
+    @Query('search') search?: string
+  ) {
+    return this.quotationService.getAllQuotation(page, limit, search);
   }
 
   @Get(':id')

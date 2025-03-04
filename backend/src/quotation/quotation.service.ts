@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { CreateQuotationDto } from './dto/create-quotation.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaymentMethod, Quotation } from './entities/quotation.entity';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { CustomerService } from 'src/customer/customer.service';
 import { StaffService } from 'src/staff/staff.service';
 
@@ -61,35 +61,40 @@ export class QuotationService {
     await this.quotationRepository.save(quotation);
   }
 
-  async getAllQuotation() {
-    try {
-      return await this.quotationRepository
-        .createQueryBuilder('quotation')
-        .leftJoinAndSelect('quotation.customer', 'customer')
-        .leftJoinAndSelect('quotation.staff', 'staff')
-        .select([
-          'quotation.id',
-          'quotation.paymentMethod',
-          'quotation.quotationDate',
-          'quotation.cashPlans',
-          'quotation.installmentPlans',
-          'quotation.note',
-          'quotation.carDetails',
-          'quotation.accessories',
-          'customer.id',
-          'customer.firstName',
-          'customer.lastName',
-          'customer.phoneNumber',
-          'staff.id',
-          'staff.firstName',
-          'staff.lastName',
-        ])
-        .getMany();
-    } catch (error) {
-      throw new BadRequestException(error.message || 'Failed to retrieve quotations');
-    }
-  }
+  async getAllQuotation(page: number, limit: number, search?: string) {
+    const queryBuilder = this.quotationRepository
+      .createQueryBuilder('quotation')
+      .leftJoinAndSelect('quotation.customer', 'customer')
+      .leftJoinAndSelect('quotation.staff', 'staff');
 
+    if (search) {
+      queryBuilder.andWhere(
+        `(
+          LOWER(CAST(quotation.id AS CHAR)) LIKE :search OR 
+          LOWER(staff.firstName) LIKE :search OR 
+          LOWER(staff.lastName) LIKE :search OR 
+          LOWER(customer.firstName) LIKE :search OR 
+          LOWER(customer.lastName) LIKE :search OR 
+          LOWER(quotation.carDetails) LIKE :search
+        )`,
+        { search: `%${search.toLowerCase()}%` }
+      );
+    }
+
+    queryBuilder
+      .take(limit)
+      .skip((page - 1) * limit);
+
+    const [quotations, total] = await queryBuilder.getManyAndCount();
+
+    return {
+      data: quotations,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    };
+  }
 
   async findById(id: number): Promise<Quotation> {
     const quotation = await this.quotationRepository.findOne({
