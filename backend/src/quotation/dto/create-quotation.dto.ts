@@ -1,21 +1,57 @@
-import { IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, ValidateNested } from "class-validator";
+import { IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
 import { PaymentMethod } from "../entities/quotation.entity";
 import { Type } from "class-transformer";
 import { CreateCustomerDto } from "src/customer/dto/create-customer.dto";
 
+class CashPlansDto {
+    @IsOptional()
+    @IsNumber()
+    totalPrice?: number;
 
-class InstallmentPlanDto {
-    @IsNotEmpty()
+    @IsOptional()
+    @IsNumber()
+    specialDiscount?: number;
+
+    @IsOptional()
+    @IsNumber()
+    additionPrice?: number;
+}
+
+class InstallmentPlansDto {
+    @IsNumber()
+    planNumber: number;
+
     @IsNumber()
     downPayment: number;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsNumber()
-    interestRate: number;
+    specialDiscount?: number;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsNumber()
-    monthlyPayment: number;
+    additionPrice?: number;
+
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => InstallmentOrderDto)
+    orders: InstallmentOrderDto[];
+}
+
+class InstallmentOrderDto {
+    @IsNumber()
+    orderNumber: number;
+
+    @IsNumber()
+    period: number;
+
+    @IsOptional()
+    @IsNumber()
+    monthlyPayment?: number;
+
+    @IsOptional()
+    @IsNumber()
+    interestRate?: number;
 }
 
 class CarDetailsDto {
@@ -57,19 +93,17 @@ export class CreateQuotationDto {
     paymentMethod: PaymentMethod;
 
     @IsOptional()
-    @IsNumber()
-    totalPrice?: number;
+    @ValidateNested()
+    @Type(() => CashPlansDto)
+    cashPlans?: CashPlansDto;
 
     @IsOptional()
     @IsArray()
     @ValidateNested({ each: true })
-    @Type(() => InstallmentPlanDto)
-    installmentPlans?: InstallmentPlanDto[];
+    @Type(() => InstallmentPlansDto)
+    installmentPlans?: InstallmentPlansDto[];
 
-    @IsOptional()
-    @IsNumber()
-    specialDiscount?: number;
-
+    @IsString()
     @IsOptional()
     note?: string;
 

@@ -11,10 +11,7 @@
           Filter
         </button>
         <div class="search-bar">
-          <input type="text" v-model="searchQuery" placeholder="ค้นหา" />
-          <button @click="search">
-            <img src="/assets/magnifying-glass.png" alt="Search" width="20" />
-          </button>
+          <input type="text" v-model="searchQuery" @input="debouncedSearch" placeholder="ค้นหา" />
         </div>
       </div>
 
@@ -27,48 +24,54 @@
           <thead>
             <tr>
               <th></th>
-              <th>ID</th>
-              <th>Date</th>
-              <th>Staff Name</th>
-              <th>Customer Name</th>
-              <th>Car Model</th>
+              <th>ไอดี</th>
+              <th>วันที่</th>
+              <th>ชื่อพนักงาน</th>
+              <th>ชื่อลูกค้า</th>
+              <th>รุ่นรถ</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-if="paginatedHistory.length === 0">
+            <tr v-if="historyList.length === 0">
               <td colspan="6" class="no-data">
                 <div class="no-data-message">
                   <span>ไม่พบข้อมูล</span>
                 </div>
               </td>
             </tr>
-            <tr v-else v-for="history in paginatedHistory" :key="history.id">
+            <tr v-else v-for="history in historyList" :key="history.id">
               <td>
                 <NuxtLink :to="`/controller/history/${history.id}`">
-                  <img src="/assets/magnifying-glass.png" alt="Details" width="20" />
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M10.5 2C9.1446 2.00012 7.80887 2.32436 6.60427 2.94569C5.39966 3.56702 4.3611 4.46742 3.57525 5.57175C2.78939 6.67609 2.27902 7.95235 2.08672 9.29404C1.89442 10.6357 2.02576 12.004 2.46979 13.2846C2.91382 14.5652 3.65766 15.7211 4.63925 16.6557C5.62084 17.5904 6.81171 18.2768 8.11252 18.6576C9.41333 19.0384 10.7864 19.1026 12.117 18.8449C13.4477 18.5872 14.6975 18.015 15.762 17.176L19.414 20.828C19.6026 21.0102 19.8552 21.111 20.1174 21.1087C20.3796 21.1064 20.6304 21.0012 20.8158 20.8158C21.0012 20.6304 21.1064 20.3796 21.1087 20.1174C21.111 19.8552 21.0102 19.6026 20.828 19.414L17.176 15.762C18.164 14.5086 18.7792 13.0024 18.9511 11.4157C19.123 9.82905 18.8448 8.22602 18.1482 6.79009C17.4517 5.35417 16.3649 4.14336 15.0123 3.29623C13.6597 2.44911 12.096 1.99989 10.5 2ZM4.00001 10.5C4.00001 8.77609 4.68483 7.12279 5.90382 5.90381C7.1228 4.68482 8.7761 4 10.5 4C12.2239 4 13.8772 4.68482 15.0962 5.90381C16.3152 7.12279 17 8.77609 17 10.5C17 12.2239 16.3152 13.8772 15.0962 15.0962C13.8772 16.3152 12.2239 17 10.5 17C8.7761 17 7.1228 16.3152 5.90382 15.0962C4.68483 13.8772 4.00001 12.2239 4.00001 10.5Z"
+                      fill="black" />
+                  </svg>
                 </NuxtLink>
               </td>
               <td>{{ history.id }}</td>
-              <td>{{ history.createAt }}</td>
-              <td>{{ history.staffName }}</td>
-              <td>{{ history.customerName }}</td>
-              <td>{{ history.carModel }}</td>
+              <td>{{ history.quotationDate }}</td>
+              <td>{{ history.staff.firstName }}</td>
+              <td>{{ history.customer.firstName }}</td>
+              <td>{{ history.carDetails.modelGName }}</td>
             </tr>
           </tbody>
         </table>
       </div>
 
       <div class="pagination">
-        <button @click="prevPage" :disabled="currentPage === 1">⬅</button>
+        <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">⬅</button>
         <span>Page {{ currentPage }} of {{ totalPages }}</span>
-        <button @click="nextPage" :disabled="currentPage === totalPages">➡</button>
+        <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">➡</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed } from "vue";
+import axios from "axios";
+import _ from 'lodash';
 
 definePageMeta({
   layout: false,
@@ -76,64 +79,49 @@ definePageMeta({
 });
 
 const searchQuery = ref("");
-const historyList = ref([
-  { id: 1, createAt: "2025-02-01", staffName: "John", customerName: "Arnon Sukom", carModel: "Isuzu MU-X" },
-  { id: 2, createAt: "2025-02-02", staffName: "Mash", customerName: "Assanai Anukulanan", carModel: "Isuzu D-Max" },
-  { id: 3, createAt: "2025-02-03", staffName: "Lee", customerName: "Kittipong Anukularam", carModel: "Isuzu V-Cross" },
-  { id: 4, createAt: "2025-02-04", staffName: "Brown", customerName: "Kitti Piso", carModel: "Isuzu MU-X" },
-  { id: 5, createAt: "2025-02-05", staffName: "White", customerName: "Nithikorn Bamrungrach", carModel: "Isuzu D-Max" },
-  { id: 6, createAt: "2025-02-06", staffName: "John", customerName: "John Doe", carModel: "Isuzu MU-X" },
-  { id: 7, createAt: "2025-02-07", staffName: "Mash", customerName: "Jane Smith", carModel: "Isuzu D-Max" },
-  { id: 8, createAt: "2025-02-08", staffName: "Lee", customerName: "Robert Johnson", carModel: "Isuzu V-Cross" },
-  { id: 9, createAt: "2025-02-09", staffName: "Brown", customerName: "Michael Brown", carModel: "Isuzu MU-X" },
-  { id: 10, createAt: "2025-02-10", staffName: "White", customerName: "William Davis", carModel: "Isuzu D-Max" },
-  { id: 11, createAt: "2025-02-11", staffName: "John", customerName: "David Miller", carModel: "Isuzu MU-X" },
-  { id: 12, createAt: "2025-02-12", staffName: "Mash", customerName: "Richard Wilson", carModel: "Isuzu D-Max" },
-  { id: 13, createAt: "2025-02-13", staffName: "Lee", customerName: "Joseph Moore", carModel: "Isuzu V-Cross" },
-  { id: 14, createAt: "2025-02-14", staffName: "Brown", customerName: "Thomas Taylor", carModel: "Isuzu MU-X" },
-  { id: 15, createAt: "2025-02-15", staffName: "White", customerName: "Charles Anderson", carModel: "Isuzu D-Max" },
-]);
-
+const historyList = ref([]);
 const itemsPerPage = 12;
 const currentPage = ref(1);
+const totalPages = ref(1);
+const total = ref(0);
 const loading = ref(false);
 
-const filteredHistory = computed(() => {
-  const query = searchQuery.value.toLowerCase();
-  return historyList.value.filter((history) =>
-    history.id.toString().includes(query) ||
-    history.staffName.toLowerCase().includes(query) ||
-    history.customerName.toLowerCase().includes(query) ||
-    history.carModel.toLowerCase().includes(query)
-  );
-});
+const debouncedSearch = _.debounce((event) => {
+  searchHistory();
+}, 500);
 
-const paginatedHistory = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage;
-  return filteredHistory.value.slice(start, start + itemsPerPage);
-});
+const fetchData = async () => {
+  loading.value = true;
+  try {
+    const response = await axios.get("http://localhost:3001/quotation", {
+      params: {
+        page: currentPage.value,
+        limit: itemsPerPage,
+        search: searchQuery.value
+      }
+    });
 
-const totalPages = computed(() => Math.ceil(filteredHistory.value.length / itemsPerPage));
+    historyList.value = response.data.data;
+    totalPages.value = response.data.totalPages;
+    total.value = response.data.total;
+  } catch (error) {
+    console.error("Error fetching history data:", error);
+  } finally {
+    loading.value = false;
+  }
+}
 
-const search = () => {
+const searchHistory = () => {
   currentPage.value = 1;
   fetchData();
-};
+}
 
-const fetchData = () => {
-  loading.value = true;
-  setTimeout(() => {
-    loading.value = false;
-  }, 1000);
-};
-
-const prevPage = () => {
-  if (currentPage.value > 1) currentPage.value--;
-};
-
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) currentPage.value++;
-};
+const changePage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+    fetchData();
+  }
+}
 
 onMounted(() => {
   fetchData();
@@ -159,7 +147,7 @@ onMounted(() => {
   font-size: 3rem;
 }
 
-.sidebar-collapsed + .content {
+.sidebar-collapsed+.content {
   margin-left: 80px;
 }
 
@@ -172,22 +160,20 @@ onMounted(() => {
 
 .history-table {
   background: white;
-  padding: 20px;
+  padding: 15px;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   position: relative;
   height: 100%;
-  min-height: 300px;
-  overflow: hidden;
+  min-height: 400px;
+  overflow: auto;
 }
 
-/* Simplified table styles */
 table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  table-layout: fixed;
-  margin-bottom: 20px;
+  table-layout: auto;
 }
 
 th {
@@ -211,28 +197,22 @@ tbody tr {
   transition: background-color 0.2s ease;
 }
 
-tbody tr:hover {
-  background-color: #f8fafc;
-}
-
-/* Magnifying glass icon styles */
-.history-table img {
-  width: 24px;
-  height: 24px;
+.history-table svg {
+  width: 28px;
+  height: 28px;
   opacity: 0.7;
   transition: all 0.2s ease;
   padding: 4px;
   border-radius: 6px;
 }
 
-.history-table img:hover {
+.history-table svg:hover {
   opacity: 1;
   background-color: #e2e8f0;
   transform: scale(1.15);
   cursor: pointer;
 }
 
-/* Enhanced pagination styles */
 .pagination {
   display: flex;
   justify-content: center;
@@ -280,7 +260,6 @@ tbody tr:hover {
   text-align: center;
 }
 
-/* Loading state styles */
 .spinner-container {
   position: absolute;
   top: 50%;
@@ -318,7 +297,6 @@ tbody tr:hover {
   }
 }
 
-/* Column specific widths */
 th:nth-child(1),
 td:nth-child(1) {
   width: 100px;
@@ -385,12 +363,6 @@ td:nth-child(2) {
   margin-left: 5px;
 }
 
-.magnifying-icon {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-}
-
 .no-data {
   text-align: center;
   height: 200px;
@@ -406,13 +378,16 @@ td:nth-child(2) {
   color: #94a3b8;
 }
 
-.no-data-message img {
-  opacity: 0.5;
-}
-
 .no-data-message span {
   font-size: 1rem;
   font-weight: 500;
 }
-</style>
 
+tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+</style>

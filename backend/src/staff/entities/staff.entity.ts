@@ -30,6 +30,12 @@ export class Staff {
     @Column({unique: true})
     phoneNumber: string;
 
+    @Column({default: 'เชียงราย'})
+    city: string;
+
+    @Column({ default: 'สำนักงานใหญ่'})
+    branch: string;
+
     @Column({ type: 'enum', enum: StaffRole, default: StaffRole.STAFF })
     role: StaffRole;
 
