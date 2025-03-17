@@ -8,11 +8,6 @@
             <button @click="selectedPayment = 'installment'" :class="{ active: selectedPayment === 'installment' }"
                 class="installment">คำนวณเงินผ่อน</button>
         </div>
-
-        <div class="car-details">
-            V-Cross
-        </div>
-
         <div class="content">
             <cashPayment v-if="selectedPayment === 'cash'" />
             <installmentPayment v-if="selectedPayment === 'installment'" />
@@ -23,8 +18,16 @@
             <div class="confirm-btn" @click="goNext">ต่อไป</div>
         </div>
     </div>
+    <div v-if="showModal" class="modal-overlay">
+    <div class="modal">
+      <p class="modal-text">คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการเปลี่ยนแปลงของคุณ?</p>
+      <div class="modal-btn">
+        <button @click="discardChanges" class="confirm-btn">ยืนยัน</button>
+        <button @click="closeModal" class="back-btn">กลับ</button>
+      </div>
+    </div>
+  </div>
 </template>
-
 
 <script setup>
 import { ref } from 'vue';
@@ -33,20 +36,41 @@ import cashPayment from '~/components/user/cashPayment.vue';
 import installmentPayment from '~/components/user/installmentPayment.vue';
 
 const router = useRouter();
+const selectedPayment = ref('cash');
+const showModal = ref(false);
 
 const goBack = async () => {
-    router.push('/confirm-car');
+    openModal();
 };
 
 const goNext = async () => {
-    router.push('/select-accessories')
-}
+    let dataToSend;
+    if (selectedPayment.value === 'cash') {
+        dataToSend = JSON.parse(localStorage.getItem('cashPlan'));
+        localStorage.removeItem('installmentPlans');
+    } else if (selectedPayment.value === 'installment') {
+        dataToSend = JSON.parse(localStorage.getItem('installmentPlans'));
+        localStorage.removeItem('cashPlan');
+    }
+    router.push('/select-accessories');
+};
+
+const openModal = () => {
+    showModal.value = true;
+};
+
+const closeModal = () => {
+    showModal.value = false;
+};
+
+const discardChanges = () => {
+    showModal.value = false;
+    router.push('/confirm-car');
+};
 
 definePageMeta({
     middleware: 'staff-auth'
 });
-
-const selectedPayment = ref('cash');
 </script>
 
 
@@ -166,5 +190,43 @@ const selectedPayment = ref('cash');
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
+}
+
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background-color: white;
+    position: absolute;
+    display: block;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0.2);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    animation: fadeIn 0.3s ease-in-out;
+    height: 200px;
+}
+
+.modal-btn {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-top: 1rem;
 }
 </style>
