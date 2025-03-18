@@ -26,7 +26,7 @@
                                 {{ staffData.firstName }} {{ staffData.lastName }}
                             </div>
                             <div class="row-2">
-                                <p><strong>ตำแหน่ง :</strong> {{ staffData.role }}</p> 
+                                <p><strong>ตำแหน่ง :</strong> {{ staffData.role }}</p>
                                 <p><strong>จังหวัด : </strong> {{ staffData.city }}</p>
                                 <p><strong>สาขา : </strong> {{ staffData.branch }}</p>
                             </div>
@@ -55,11 +55,24 @@
                     </div>
                 </div>
                 <div class="history-data">
-                    <div v-if="staffData && staffData.quotations">
-                        <p v-for="(quotation, index) in staffData.quotations" :key="index">
-                            {{ quotation.id }} {{ quotation.customer.firstname }} {{ quotation.customer.lastname }}
-                        </p>
-                    </div>
+                    <table v-if="staffData && staffData.quotations.length" class="history-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>ชื่อลูกค้า</th>
+                                <th>ใบเสนอราคา</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(quotation, index) in staffData.quotations" :key="index"
+                                @click="goToHistory(quotation.id)" class="clickable-row">
+                                <td>{{ quotation.id }}</td>
+                                <td>{{ quotation.customer.firstName }}</td>
+                                <td>{{ quotation.carDetails.modelClass }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p v-else>ไม่มีข้อมูลใบเสนอราคา</p>
                 </div>
                 <div class="pagination">
                     <- 1 ->
@@ -75,7 +88,6 @@ import { useRouter, useRoute } from 'vue-router';
 import { ref, onMounted } from 'vue';
 import axios from "axios";
 
-
 const route = useRoute();
 const router = useRouter();
 const staffId = route.params.id;
@@ -83,24 +95,10 @@ const staffData = ref(null);
 const loading = ref(true);
 const searchQuery = ref("");
 
-// const fetchStaffById = async () => {
-//     loading.value = true;
-//     try {
-//         const response = await axios.get(`http://localhost:3001/staff/${staffId}`);
-//         staffData.value = response.data;
-//         console.log(staffData)
-//     } catch (error) {
-//         console.error("Error fetching staff data:", error);
-//     } finally {
-//         loading.value = false;
-//     }
-// };
-
 const fetchStaffData = async () => {
     try {
         const response = await axios.get(`http://localhost:3001/staff/${staffId}`);
         staffData.value = response.data;
-        console.log(staffData)
     } catch (error) {
         console.error("Error fetching staff data:", error);
     } finally {
@@ -108,40 +106,13 @@ const fetchStaffData = async () => {
     }
 };
 
-
-// async function fetchQuotationsByStaffId() {
-//     try {
-//         // Fetch staff details from localhost
-//         const staffResponse = await axios.get(`http://localhost:3001/staff/${staffId}`);
-//         const staffData = staffResponse.data;
-
-//         // Extract quotation IDs
-//         const quotationIds = staffData.data?.quotations || [];
-
-//         if (quotationIds.length === 0) {
-//             console.log("No quotations found for this staff.");
-//             return [];
-//         }
-
-//         // Fetch quotation details for each ID
-//         const quotations = await Promise.all(
-//             quotationIds.map(async (quotationId) => {
-//                 const response = await axios.get(`http://localhost:3001/quotation/${quotationId}`);
-//                 return response.data;
-//             })
-//         );
-
-//         console.log("Fetched quotations:", quotations);
-//         return quotations;
-//     } catch (error) {
-//         console.error("Error fetching quotations:", error);
-//         return [];
-//     }
-// }
-
 const goBack = () => {
-    router.push('/controller/staff')
-}
+    router.push('/controller/staff');
+};
+
+const goToHistory = (quotationId) => {
+    router.push(`/controller/history/${quotationId}`);
+};
 
 onMounted(() => {
     fetchStaffData();
@@ -150,9 +121,41 @@ onMounted(() => {
 definePageMeta({
     middleware: 'staff-auth',
     layout: false
-})
+});
 </script>
+
 <style scoped>
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.history-table th,
+.history-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.history-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.history-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.history-table tr:hover {
+    background-color: #e0e0e0;
+    cursor: pointer;
+}
+
+.clickable-row {
+    cursor: pointer;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -231,18 +234,13 @@ hr {
     align-items: center;
 }
 
-
 .staff-details {
-    background: #606060;
+    background: #ECECEC;
     padding: 10px;
 }
 
 .action-btn {
     background: #7bff29;
-}
-
-.history-data {
-    background: #8a58ff;
 }
 
 .pagination {
