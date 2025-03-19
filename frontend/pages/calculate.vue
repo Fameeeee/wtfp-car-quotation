@@ -19,14 +19,14 @@
         </div>
     </div>
     <div v-if="showModal" class="modal-overlay">
-    <div class="modal">
-      <p class="modal-text">คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการเปลี่ยนแปลงของคุณ?</p>
-      <div class="modal-btn">
-        <button @click="discardChanges" class="confirm-btn">ยืนยัน</button>
-        <button @click="closeModal" class="back-btn">กลับ</button>
-      </div>
+        <div class="modal">
+            <p class="modal-text">คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการเปลี่ยนแปลงของคุณ?</p>
+            <div class="modal-btn">
+                <button @click="discardChanges" class="confirm-btn">ยืนยัน</button>
+                <button @click="closeModal" class="back-btn">กลับ</button>
+            </div>
+        </div>
     </div>
-  </div>
 </template>
 
 <script setup>

@@ -193,7 +193,7 @@ const closeModal = () => {
 };
 
 const comfirm = () => {
-  router.push('/confirm-accessories')
+  router.push('/add-cost')
 }
 
 definePageMeta({
