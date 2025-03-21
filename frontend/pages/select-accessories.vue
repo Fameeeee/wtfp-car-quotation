@@ -37,7 +37,7 @@
       </div>
     </div>
     <div class="header">
-      <button class="goback-btn" @click="goBack"> &lt; </button>
+
       <div class="title">อุปกรณ์ตกแต่ง</div>
     </div>
     <div class="content">
@@ -65,7 +65,8 @@
 
       </div>
     </div>
-    <div class="confirm">
+    <div class="btn">
+      <button class="goback-btn" @click="goBack"> กลับ </button>
       <button class="confirm-btn" @click="comfirm">ยืนยัน</button>
     </div>
   </div>
@@ -192,7 +193,7 @@ const closeModal = () => {
 };
 
 const comfirm = () => {
-  router.push('/confirm-accessories')
+  router.push('/add-cost')
 }
 
 definePageMeta({
@@ -225,24 +226,6 @@ definePageMeta({
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-.goback-btn {
-  position: absolute;
-  left: 20px;
-  background: linear-gradient(135deg, #980000 0%, #800000 100%);
-  color: white;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  padding: 8px 20px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(152, 0, 0, 0.2);
-}
-
-.goback-btn:hover {
-  transform: translateX(-3px);
-  box-shadow: 0 4px 12px rgba(152, 0, 0, 0.3);
-}
 
 .title {
   font-weight: 800;
@@ -436,6 +419,29 @@ definePageMeta({
 
 .cart-table tr:last-child td {
   border-bottom: none;
+}
+
+.btn {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 400px;
+    padding: 1rem;
+    background: white;
+}
+
+.goback-btn {
+    flex: 1;
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #4b5563;
+    background-color: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .confirm {

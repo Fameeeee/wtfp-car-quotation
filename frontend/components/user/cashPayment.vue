@@ -1,30 +1,43 @@
 <template>
     <div class="main">
+        <div class="car-price">
+            <div class="car-price-title">ราคารถ</div>
+            <div class="car-price-details">
+                <div class="price-box">{{ selectedCar?.price ? Number(selectedCar.price).toLocaleString() : 'N/A' }} บาท</div>
+            </div>
+        </div>
         <div class="special-dis">
-            <div class="special-title">ส่วนลดพิเศษ</div>
+            <div class="special-title">ส่วนลด</div>
             <div class="special-details">
-                <input type="text" placeholder="ส่วนลดพิเศษ" />
+                <input type="number" v-model.number="specialDiscount" placeholder="ส่วนลดราคารถ" />
             </div>
         </div>
         <div class="special-plus">
             <div class="special-title">ส่วนเพิ่ม</div>
             <div class="special-details">
-                <input type="text" placeholder="ส่วนเพิ่ม" />
+                <input type="number" v-model.number="specialAddition" placeholder="ส่วนเพิ่มราคารถ" />
             </div>
         </div>
         <div class="total-price">
             <div class="total-title">ราคาสุทธิ</div>
             <div class="total-details">
-                <div class="price-box">{{ selectedCar?.price ? Number(selectedCar.price).toLocaleString() : 'N/A' }} บาท
-                </div>
+                <input type="number" v-model="totalPrice" placeholder="ราคาสุทธิ" readonly />
             </div>
         </div>
-
     </div>
 </template>
 
 <script setup>
+import { ref, computed, watch, onMounted } from 'vue';
+
 const selectedCar = ref({});
+
+const specialDiscount = ref(null);
+const specialAddition = ref(null);
+
+const totalPrice = computed(() => {
+    return (selectedCar.value?.price || 0) - (specialDiscount.value || 0) + (specialAddition.value || 0);
+});
 
 onMounted(() => {
     const storedCar = localStorage.getItem('selectedCar');
@@ -33,7 +46,15 @@ onMounted(() => {
     }
 });
 
-
+watch([specialDiscount, specialAddition, totalPrice], () => {
+    const cashPlan = {
+        carPrice: selectedCar.value?.price || 0,
+        specialDiscount: specialDiscount.value,
+        specialAddition: specialAddition.value ,
+        totalPrice: totalPrice.value
+    };
+    localStorage.setItem('cashPlan', JSON.stringify(cashPlan));
+});
 </script>
 
 <style scoped>
@@ -51,8 +72,7 @@ onMounted(() => {
     align-items: center;
 }
 
-
-
+.car-price,
 .special-plus,
 .special-dis,
 .total-price {
@@ -62,6 +82,7 @@ onMounted(() => {
     gap: 10px;
 }
 
+.car-price-title,
 .special-title,
 .total-title {
     font-size: 18px;
@@ -84,6 +105,7 @@ onMounted(() => {
     border: 1px solid #ccc;
 }
 
+.car-price-details,
 .special-details,
 .total-details {
     display: flex;
