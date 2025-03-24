@@ -3,6 +3,8 @@
     <div class="card">
       <div class="card-body">
         <h1 class="card-title">เข้าสู่ระบบ</h1>
+        <UAlert title="Heads up!" description="You can change the primary color in your app config."
+          icon="i-lucide-terminal" />
         <form @submit.prevent="handleLogin">
           <div class="form">
             <label for="email" class="form-label">อีเมลล์</label>
@@ -27,7 +29,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router'; 
+import { useRouter } from 'vue-router';
 import axios from 'axios';
 
 
@@ -60,7 +62,7 @@ const handleLogin = async () => {
 
   try {
     const response = await axios.post('http://localhost:3001/auth/login', form.value);
-    
+
     if (response.data.access_token) {
       localStorage.setItem('access_token', response.data.access_token);
       router.push('/home');
@@ -68,7 +70,7 @@ const handleLogin = async () => {
       errorMessage.value = 'Login failed: No token received.';
     }
   } catch (error) {
-    console.error(error.response || error); 
+    console.error(error.response || error);
     errorMessage.value = error.response?.data?.message || 'การเข้าสู่ระบบล้มเหลว กรุณาลองใหม่';
   } finally {
     isLoading.value = false;
@@ -87,35 +89,35 @@ const handleLogin = async () => {
   margin-top: 20px;
 }
 
-.card{
+.card {
   padding: 15px;
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.card-body{
+.card-body {
   gap: 10px;
 }
 
-.card-title{
+.card-title {
   text-align: center;
   padding: 5px;
   font-size: 2rem;
 }
 
-.form{
+.form {
   margin-bottom: 20px;
 }
 
-.form-label{
+.form-label {
   font-size: 1.2rem;
 }
 
-.form-control{
+.form-control {
   padding: 8px;
 }
 
-.form-btn{
+.form-btn {
   border: none;
   font-size: 1.2rem;
   background: #146aff;
@@ -125,12 +127,10 @@ const handleLogin = async () => {
   border-radius: 5px;
 }
 
-.register-link{
+.register-link {
   margin-top: 15px;
   text-align: center;
   font-size: 1rem;
 }
-
-
 </style>
 >>>>>>> Stashed changes
