@@ -1,9 +1,9 @@
-export default function ({ route, redirect }) {
+export default function ({ to, from }) {
   if (process.client) {
     const token = localStorage.getItem("access_token");
 
     if (!token) {
-      return redirect("/");
+      return navigateTo("/");
     }
 
     try {
@@ -11,11 +11,11 @@ export default function ({ route, redirect }) {
       const { role } = decodedToken;
 
       if (role !== "staff" && role !== "manager") {
-        return redirect("/");
+        return navigateTo("/");
       }
     } catch (error) {
       console.error("Error decoding token:", error);
-      return redirect("/");
+      return navigateTo("/");
     }
   }
 }
