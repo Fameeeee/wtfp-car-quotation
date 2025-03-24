@@ -101,7 +101,7 @@ const registerUser = async () => {
   }
 
   try {
-    await axios.post('http://localhost:3001/staff/register', form.value);
+    await axios.post('http://localhost:3001/auth/register', form.value);
     successMessage.value = 'สมัครสมาชิกสำเร็จ!';
     console.log(successMessage.value);
     router.push('/');

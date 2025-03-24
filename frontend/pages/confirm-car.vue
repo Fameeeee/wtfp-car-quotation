@@ -2,52 +2,97 @@
     <div class="container">
         <div class="card">
             <div class="card-title">
-                <h2 class="title">Confirm Your Selection</h2>
+                <h2 class="title">ยืนยันรายการที่เลือก</h2>
             </div>
             <div class="card-body">
                 <div class="info">
-                    <p><strong>Unit Type:</strong> {{ selectedCar.unitType }}</p>
-                    <p><strong>Model Class:</strong> {{ selectedCar.modelClass }}</p>
-                    <p><strong>Model Code Name:</strong> {{ selectedCar.modelCodeName }}</p>
-                    <p><strong>Model Gname:</strong> {{ selectedCar.modelGname }}</p>
-                    <p><strong>Price:</strong> {{ selectedCar.price }}</p>
-                    <p><strong>Color:</strong> {{ selectedCar.color }}</p>
+                    <p><strong>Unit Type :</strong> {{ selectedCar.unitType }}</p>
+                    <p><strong>Model Class :</strong> {{ selectedCar.modelClass }}</p>
+                    <p><strong>Model Code Name :</strong> {{ selectedCar.modelCodeName }}</p>
+                    <p><strong>Model G name :</strong> {{ selectedCar.modelGname }}</p>
+                    <p><strong>Price :</strong> {{ selectedCar.price }}</p>
+                    <p><strong>Color :</strong> {{ selectedCar.color }}</p>
                 </div>
             </div>
             <div class="btn">
-                <button @click="confirmSelection" class="confirm-btn">Confirm</button>
-                <button @click="goBack" class="back-btn">Back</button>
+                <button @click="confirmSelection" class="confirm-btn">ยืนยัน</button>
+                <button @click="goBack" class="back-btn">กลับ</button>
+            </div>
+        </div>
+    </div>
+    <div v-if="showModal" class="modal-overlay">
+        <div class="modal">
+            <p class="modal-text">คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการเปลี่ยนแปลงของคุณ?</p>
+            <div class="modal-btn">
+                <button @click="discardChanges" class="confirm-btn">ยืนยัน</button>
+                <button @click="closeModal" class="back-btn">กลับ</button>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
 
 const router = useRouter();
 const selectedCar = ref({});
+const showModal = ref(false);
+const config = useRuntimeConfig();
+const apiUrl = config.public.apiUrl;
 
-onMounted(() => {
+onMounted(async () => {
     const storedCar = localStorage.getItem('selectedCar');
     if (storedCar) {
-        selectedCar.value = JSON.parse(storedCar)
+        selectedCar.value = JSON.parse(storedCar);
+        if (!selectedCar.value.id) {
+            await fetchUnitId(selectedCar.value.unitType);
+        }
     }
-})
-
-const confirmSelection = () => {
-    router.push('/select-accessories')
+});
+const fetchUnitId = async (unitType) => {
+    try {
+        const response = await axios.get(`${apiUrl}/standard-base?filter=unitType||$eq||${unitType}&filter=status||$eq||1`);
+        if (response.data && response.data.length > 0) {
+            selectedCar.value = { ...selectedCar.value, id: response.data[0].id };
+            localStorage.setItem('selectedCar', JSON.stringify(selectedCar.value));
+        }
+    } catch (error) {
+        console.error('Error fetching unit ID:', error);
+    }
 };
 
-const goBack = () => {
-    localStorage.removeItem('selectedCar')
-    router.push('/select')
-}
+const confirmSelection = async () => {
+    try {
+        router.push('/calculate');
+    } catch (error) {
+        console.error('Error confirming selection:', error);
+    }
+};
+
+const goBack = async () => {
+    if (selectedCar.value) {
+        showModal.value = true;
+    } else {
+        localStorage.removeItem('selectedCar');
+        router.push('/select-car');
+    }
+};
+
+const discardChanges = () => {
+    localStorage.removeItem('selectedCar');
+    router.push('/select-car');
+    closeModal();
+};
+
+const closeModal = () => {
+    showModal.value = false;
+};
 
 definePageMeta({
     middleware: 'staff-auth'
-})
+});
 </script>
 
 <style scoped>
@@ -67,7 +112,7 @@ body {
     justify-content: center;
     min-height: 100%;
     padding: 2rem;
-    background-color: #f4f7fc;
+    height: fit-content;
 }
 
 .card {
@@ -79,6 +124,9 @@ body {
     padding: 2rem;
     margin-top: 2rem;
     transition: transform 0.2s ease;
+    height: fit-content;
+    display: flex;
+    align-items: center
 }
 
 .card:hover {
@@ -99,7 +147,6 @@ body {
 
 .card-body {
     text-align: left;
-    margin-bottom: 2rem;
 }
 
 .info {
@@ -132,6 +179,7 @@ body {
     display: flex;
     gap: 1rem;
     margin-top: 2rem;
+    width: 100%;
 }
 
 .confirm-btn {
@@ -173,6 +221,43 @@ body {
 .back-btn:hover {
     background-color: #e5e7eb;
     color: #374151;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background-color: white;
+    position: absolute;
+    display: block;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0.2);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    animation: fadeIn 0.3s ease-in-out;
+    height: 200px;
+}
+
+.modal-btn {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-top: 1rem;
 }
 
 @media (max-width: 640px) {

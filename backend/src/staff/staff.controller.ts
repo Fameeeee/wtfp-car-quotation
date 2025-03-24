@@ -3,56 +3,44 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
+  Put,
+  Query,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { StaffService } from './staff.service';
 import { CreateStaffDto } from './dto/create-staff.dto';
 import { UpdateStaffDto } from './dto/update-staff.dto';
 import { StaffLoginDto } from './dto/staff-login.dto';
-
-
+import { Staff } from './entities/staff.entity';
 
 @Controller('staff')
 export class StaffController {
-  constructor(private readonly staffService: StaffService) {}
-
-  @Post('register')
-  async register(@Body() createStaffDto: CreateStaffDto) {
-    const newStaff = await this.staffService.register(createStaffDto);
-    return {
-      message: 'Staff registered successfully',
-      staff: {
-        id: newStaff.id,
-        firstName: newStaff.firstName,
-        email: newStaff.email,
-      },
-    };
-  }
-
-  @Post('login')
-  async login(@Body() staffLoginDto: StaffLoginDto) {
-    return this.staffService.login(staffLoginDto);  
-  }
+  constructor(private readonly staffService: StaffService) { }
 
   @Get()
-  findAll() {
-    return this.staffService.findAll();
+  async getAllStaff(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(12), ParseIntPipe) limit: number,
+    @Query('search') search?: string
+  ) {
+    return await this.staffService.getAllStaff(page, limit, search);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.staffService.findOne(+id);
+  async findById(@Param('id') id: number) {
+    return await this.staffService.findById(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateStaffDto: UpdateStaffDto) {
-    return this.staffService.update(+id, updateStaffDto);
+  @Put(':id')
+  async updateStaff(@Param('id') id: number, @Body() updateData: Partial<Staff>) {
+    return await this.staffService.updateStaff(id, updateData);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.staffService.remove(+id);
+  async deleteStaff(@Param('id') id: number) {
+    return await this.staffService.deleteStaff(+id);
   }
 }

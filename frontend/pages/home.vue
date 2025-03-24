@@ -2,7 +2,7 @@
     <div class="container">
         <div class="topic">หน้าหลัก</div>
         <div class="content">
-            <NuxtLink to="/select" class="link">
+            <NuxtLink to="/select-car" class="link">
                 <button class="group-button">
                     <span class="button-title">สร้างใบเสนอราคา</span>
                 </button>

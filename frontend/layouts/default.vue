@@ -39,8 +39,10 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const handleLogout = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('role')
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('selectedCar')
+  localStorage.removeItem('installmentPlans')
+  localStorage.removeItem('selectedAccessories')
   router.push('/');
 };
 </script>
