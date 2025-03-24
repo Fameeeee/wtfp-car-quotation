@@ -1,80 +1,27 @@
 <template>
-    <div class="container">
-        <div class="topic">หน้าหลัก</div>
-        <div class="content">
-            <NuxtLink to="/select-car" class="link">
-                <button class="group-button">
-                    <span class="button-title">สร้างใบเสนอราคา</span>
+    <div class="flex flex-col items-center p-4">
+        <div class="text-4xl font-extrabold text-[#696969] mb-5">หน้าหลัก</div>
+
+        <div class="flex flex-col gap-5"> 
+            <NuxtLink to="/select-car" class="w-full">
+                <button
+                    class="flex justify-center items-center w-full h-24 px-5 bg-white border border-gray-500 rounded-2xl shadow-md hover:bg-gray-100 transition">
+                    <span class="text-2xl font-semibold text-[#696969]">สร้างใบเสนอราคา</span>
                 </button>
             </NuxtLink>
 
-            <NuxtLink to="/history" class="link">
-                <button class="group-button">
-                    <span class="button-title">ประวัติการทำรายการ</span>
+            <NuxtLink to="/history" class="w-full">
+                <button
+                    class="flex justify-center items-center w-full h-24 px-5 bg-white border border-gray-500 rounded-2xl shadow-md hover:bg-gray-100 transition">
+                    <span class="text-2xl font-semibold text-[#696969]">ประวัติการทำรายการ</span>
                 </button>
             </NuxtLink>
         </div>
-       
-
-
     </div>
 </template>
 
 <script setup>
-    definePageMeta({
-        middleware: 'staff-auth'
-    })
+definePageMeta({
+    middleware: 'staff-auth'
+})
 </script>
-
-<style scoped>
-.container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 16px;
-}
-
-.content {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.topic {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 800;
-    font-size: 32px;
-    color: #696969;
-    margin-bottom: 20px;
-}
-
-.group-button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 90vw;
-    height: 100px;
-    padding: 10px 20px;
-    background: #FFFFFF;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 20px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.button-title {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 600;
-    font-size: 32px;
-    color: #696969;
-}
-
-.link {
-    text-decoration: none;
-}
-
-@media (min-width: 768px) {
-    .group-button {
-        width: 95vw;
-    }
-}
-</style>

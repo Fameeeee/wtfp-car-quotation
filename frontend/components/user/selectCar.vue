@@ -1,89 +1,86 @@
 <template>
-    <div class="form-container">
-        <!-- Unit Type Dropdown -->
-        <div class="form-group">
-            <label class="form-label" for="unit-type">Select Unit Type:</label>
-            <div class="group">
-                <select v-model="selectedUnitType" @change="fetchModelClasses" id="unit-type" class="form-select">
-                    <option value="" disabled>Select a unit type</option>
-                    <option v-for="unit in unitTypes" :key="unit" :value="unit">{{ unit }}</option>
-                </select>
-                <button v-if="selectedUnitType" @click="clearSelection('unitType')" class="remove-btn">Remove</button>
-            </div>
+    <div class="w-full max-w-2xl mx-auto p-8 bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg transition-all duration-300 ease-in-out">
+      
+      <!-- Unit Type Dropdown -->
+      <div class="mb-6 relative">
+        <label for="unit-type" class="block text-sm font-semibold text-gray-700 mb-2">Select Unit Type:</label>
+        <div class="flex items-center gap-3">
+          <select v-model="selectedUnitType" @change="fetchModelClasses" id="unit-type" class="w-full p-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black">
+            <option value="" disabled>Select a unit type</option>
+            <option v-for="unit in unitTypes" :key="unit" :value="unit">{{ unit }}</option>
+          </select>
+          <button v-if="selectedUnitType" @click="clearSelection('unitType')" class="p-2 text-sm bg-gray-200 rounded-lg hover:bg-gray-300 transition text-black">Remove</button>
         </div>
-
-        <!-- Model Class Dropdown -->
-        <div class="form-group" v-if="modelClasses.length > 0">
-            <label class="form-label" for="model-class">Select Model Class:</label>
-            <div class="group">
-                <select v-model="selectedModelClass" @change="fetchModelCodeName" id="model-class" class="form-select">
-                    <option value="" disabled>Select a model class</option>
-                    <option v-for="model in modelClasses" :key="model" :value="model">{{ model }}</option>
-                </select>
-                <button v-if="selectedModelClass" @click="clearSelection('modelClass')"
-                    class="remove-btn">Remove</button>
-            </div>
+      </div>
+  
+      <!-- Model Class Dropdown -->
+      <div v-if="modelClasses.length > 0" class="mb-6 relative">
+        <label for="model-class" class="block text-sm font-semibold text-gray-700 mb-2">Select Model Class:</label>
+        <div class="flex items-center gap-3">
+          <select v-model="selectedModelClass" @change="fetchModelCodeName" id="model-class" class="w-full p-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black">
+            <option value="" disabled>Select a model class</option>
+            <option v-for="model in modelClasses" :key="model" :value="model">{{ model }}</option>
+          </select>
+          <button v-if="selectedModelClass" @click="clearSelection('modelClass')" class="p-2 text-sm bg-gray-200 rounded-lg hover:bg-gray-300 transition text-black">Remove</button>
         </div>
-
-        <!-- Model Code Name Dropdown -->
-        <div class="form-group" v-if="modelDetails.modelCodeNames.length > 0">
-            <label class="form-label" for="model-code-name">Select Model Code Name:</label>
-            <div class="group">
-                <select v-model="selectedModelCodeName" @change="fetchModelGname" id="model-code-name"
-                    class="form-select">
-                    <option value="" disabled>Select a model code name</option>
-                    <option v-for="code in modelDetails.modelCodeNames" :key="code" :value="code">{{ code }}</option>
-                </select>
-                <button v-if="selectedModelCodeName" @click="clearSelection('modelCodeName')"
-                    class="remove-btn">Remove</button>
-            </div>
+      </div>
+  
+      <!-- Model Code Name Dropdown -->
+      <div v-if="modelDetails.modelCodeNames.length > 0" class="mb-6 relative">
+        <label for="model-code-name" class="block text-sm font-semibold text-gray-700 mb-2">Select Model Code Name:</label>
+        <div class="flex items-center gap-3">
+          <select v-model="selectedModelCodeName" @change="fetchModelGname" id="model-code-name" class="w-full p-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black">
+            <option value="" disabled>Select a model code name</option>
+            <option v-for="code in modelDetails.modelCodeNames" :key="code" :value="code">{{ code }}</option>
+          </select>
+          <button v-if="selectedModelCodeName" @click="clearSelection('modelCodeName')" class="p-2 text-sm bg-gray-200 rounded-lg hover:bg-gray-300 transition text-black">Remove</button>
         </div>
-
-        <!-- Model Gname Dropdown -->
-        <div class="form-group" v-if="modelDetails.modelGnames.length > 0">
-            <label class="form-label" for="model-gname">Select Model Gname:</label>
-            <div class="group">
-                <select v-model="selectedModelGname" @change="handleGnameChange" id="model-gname" class="form-select">
-                    <option value="" disabled>Select a model gname</option>
-                    <option v-for="gname in modelDetails.modelGnames" :key="gname" :value="gname">{{ gname }}</option>
-                </select>
-                <button v-if="selectedModelGname" @click="clearSelection('modelGname')"
-                    class="remove-btn">Remove</button>
-            </div>
+      </div>
+  
+      <!-- Model Gname Dropdown -->
+      <div v-if="modelDetails.modelGnames.length > 0" class="mb-6 relative">
+        <label for="model-gname" class="block text-sm font-semibold text-gray-700 mb-2">Select Model Gname:</label>
+        <div class="flex items-center gap-3">
+          <select v-model="selectedModelGname" @change="handleGnameChange" id="model-gname" class="w-full p-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black">
+            <option value="" disabled>Select a model gname</option>
+            <option v-for="gname in modelDetails.modelGnames" :key="gname" :value="gname">{{ gname }}</option>
+          </select>
+          <button v-if="selectedModelGname" @click="clearSelection('modelGname')" class="p-2 text-sm bg-gray-200 rounded-lg hover:bg-gray-300 transition text-black">Remove</button>
         </div>
-
-        <!-- Price Dropdown -->
-        <div class="form-group" v-if="modelDetails.prices.length > 0">
-            <label class="form-label" for="price">Select Price:</label>
-            <div class="group">
-                <select v-model="selectedPrice" @change="fetchColor" id="price" class="form-select">
-                    <option value="" disabled>Select a price</option>
-                    <option v-for="price in modelDetails.prices" :key="price" :value="price">{{ price }}</option>
-                </select>
-                <button v-if="selectedPrice" @click="clearSelection('price')" class="remove-btn">Remove</button>
-            </div>
+      </div>
+  
+      <!-- Price Dropdown -->
+      <div v-if="modelDetails.prices.length > 0" class="mb-6 relative">
+        <label for="price" class="block text-sm font-semibold text-gray-700 mb-2">Select Price:</label>
+        <div class="flex items-center gap-3">
+          <select v-model="selectedPrice" @change="fetchColor" id="price" class="w-full p-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black">
+            <option value="" disabled>Select a price</option>
+            <option v-for="price in modelDetails.prices" :key="price" :value="price">{{ price }}</option>
+          </select>
+          <button v-if="selectedPrice" @click="clearSelection('price')" class="p-2 text-sm bg-gray-200 rounded-lg hover:bg-gray-300 transition text-black">Remove</button>
         </div>
-
-        <!-- Color Dropdown -->
-        <div class="form-group" v-if="modelDetails.colors.length > 0 && selectedPrice">
-            <label class="form-label" for="color">Select Color:</label>
-            <div class="group">
-                <select v-model="selectedColor" id="color" class="form-select">
-                    <option value="" disabled>Select a color</option>
-                    <option v-for="color in modelDetails.colors" :key="color" :value="color">{{ color }}</option>
-                </select>
-                <button v-if="selectedPrice" @click="clearSelection('color')" class="remove-btn">Remove</button>
-            </div>
+      </div>
+  
+      <!-- Color Dropdown -->
+      <div v-if="modelDetails.colors.length > 0 && selectedPrice" class="mb-6 relative">
+        <label for="color" class="block text-sm font-semibold text-gray-700 mb-2">Select Color:</label>
+        <div class="flex items-center gap-3">
+          <select v-model="selectedColor" id="color" class="w-full p-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black">
+            <option value="" disabled>Select a color</option>
+            <option v-for="color in modelDetails.colors" :key="color" :value="color">{{ color }}</option>
+          </select>
+          <button v-if="selectedColor" @click="clearSelection('color')" class="p-2 text-sm bg-gray-200 rounded-lg hover:bg-gray-300 transition text-black">Remove</button>
         </div>
-
-
-        <!-- Next Button -->
-        <button v-if="nextButtonVisible" @click="goToConfirmPage" class="next-btn">Next</button>
-
-        <div v-if="loading">Loading...</div>
-        <div v-if="error" class="error">{{ error }}</div>
+      </div>
+  
+      <!-- Next Button -->
+      <button v-if="nextButtonVisible" @click="goToConfirmPage" class="w-full py-3 text-lg font-semibold text-white bg-[#980000] rounded-lg hover:bg-[#744040] transition">Next</button>
+  
+      <!-- Loading and Error Messages -->
+      <div v-if="loading" class="text-gray-500 mt-4">Loading...</div>
+      <div v-if="error" class="text-red-600 mt-4">{{ error }}</div>
     </div>
-</template>
+  </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
@@ -281,140 +278,3 @@ const goToConfirmPage = () => {
 onMounted(fetchUnitTypes);
 </script>
 
-<style scoped>
-.form-container {
-    width: 90vw;
-    max-width: 600px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background: linear-gradient(to bottom right, #ffffff, #f8f9fa);
-    border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-}
-
-.form-group {
-    margin-bottom: 1.5rem;
-    position: relative;
-}
-
-.form-label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 0.5rem;
-    transition: color 0.2s ease;
-}
-
-.form-select {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    color: #1f2937;
-    background-color: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    transition: all 0.2s ease;
-    appearance: none;
-    background-position: right 0.5rem center;
-    background-repeat: no-repeat;
-    background-size: 1.5em 1.5em;
-}
-
-.form-select:focus {
-    outline: none;
-    border-color: #980000;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.form-select:disabled {
-    background-color: #f3f4f6;
-    cursor: not-allowed;
-}
-
-.group {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.remove-btn {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #4b5563;
-    background-color: #f3f4f6;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    flex-shrink: 0;
-}
-
-.remove-btn:hover {
-    background-color: #e5e7eb;
-    color: #374151;
-}
-
-.next-btn {
-    width: 100%;
-    padding: 0.75rem 1.5rem;
-    margin-top: 2rem;
-    font-size: 1rem;
-    font-weight: 600;
-    color: #ffffff;
-    background: linear-gradient(135deg, #980000 0%, #980000 100%);
-    border: none;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
-}
-
-.next-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
-}
-
-.next-btn:active {
-    transform: translateY(0);
-}
-
-.error {
-    margin-top: 0.5rem;
-    padding: 0.75rem 1rem;
-    font-size: 0.875rem;
-    color: #dc2626;
-    background-color: #fee2e2;
-    border-radius: 0.5rem;
-    border: 1px solid #fecaca;
-}
-
-.loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    color: #6b7280;
-    font-size: 0.875rem;
-}
-
-@media (max-width: 640px) {
-    .form-container {
-        width: 95vw;
-        padding: 1.5rem;
-        margin: 1rem auto;
-    }
-
-    .group {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .remove-btn {
-        width: 100%;
-    }
-}
-</style>
