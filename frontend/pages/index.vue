@@ -1,32 +1,28 @@
 <template>
-  <div class="flex justify-center bg-gray-100 p-8">
-    <div class="w-full max-w-lg p-8 bg-white rounded-2xl border shadow-xl">
-      <h1 class="text-3xl font-bold text-center text-gray-800">เข้าสู่ระบบ</h1>
-      <form @submit.prevent="handleLogin" class="flex flex-col gap-6 mt-6">
-        <div>
-          <label for="email" class="block text-lg text-gray-700 font-medium">อีเมลล์</label>
-          <input type="email" id="email" v-model="form.email" placeholder="Ex. john.doe@gmail.com"
-            class="w-full px-5 py-3 mt-2 text-lg border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none" />
-        </div>
-
-        <div>
-          <label for="password" class="block text-lg text-gray-700 font-medium">รหัสผ่าน</label>
-          <input type="password" id="password" v-model="form.password" placeholder="Ex. password1234"
-            class="w-full px-5 py-3 mt-2 text-lg border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none" />
-        </div>
-
-        <button type="submit" :disabled="isLoading"
-          class="w-full py-3 mt-6 text-lg font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition">
-          {{ isLoading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ" }}
-        </button>
-      </form>
-
-      <p class="mt-6 text-lg text-center text-gray-600">
-        ยังไม่มีบัญชี ?
-        <NuxtLink to="/register" class="text-blue-500 hover:underline">สมัครสมาชิก</NuxtLink>
-      </p>
-
-      <p v-if="errorMessage" class="mt-4 text-lg text-center text-red-500">{{ errorMessage }}</p>
+  <div class="container">
+    <div class="card">
+      <div class="card-body">
+        <h1 class="card-title">เข้าสู่ระบบ</h1>
+        <UAlert title="Heads up!" description="You can change the primary color in your app config."
+          icon="i-lucide-terminal" />
+        <form @submit.prevent="handleLogin">
+          <div class="form">
+            <label for="email" class="form-label">อีเมลล์</label>
+            <input type="email" class="form-control" id="email" v-model="form.email"
+              placeholder="Ex. john.doe@gmail.com" />
+          </div>
+          <div class="form">
+            <label for="password" class="form-label">รหัสผ่าน</label>
+            <input type="password" class="form-control" id="password" v-model="form.password"
+              placeholder="Ex. password1234" />
+          </div>
+          <button type="submit" class="form-btn" :disabled="isLoading">เข้าสู่ระบบ</button>
+        </form>
+        <p class="register-link">
+          ยังไม่มีบัญชื ? <NuxtLink to="/register" class="text-primary">สมัครสมาชิก</NuxtLink>
+        </p>
+        <p v-if="errorMessage" class="text-center text-danger">{{ errorMessage }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -93,35 +89,35 @@ const handleLogin = async () => {
   margin-top: 20px;
 }
 
-.card{
+.card {
   padding: 15px;
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.card-body{
+.card-body {
   gap: 10px;
 }
 
-.card-title{
+.card-title {
   text-align: center;
   padding: 5px;
   font-size: 2rem;
 }
 
-.form{
+.form {
   margin-bottom: 20px;
 }
 
-.form-label{
+.form-label {
   font-size: 1.2rem;
 }
 
-.form-control{
+.form-control {
   padding: 8px;
 }
 
-.form-btn{
+.form-btn {
   border: none;
   font-size: 1.2rem;
   background: #146aff;
@@ -131,11 +127,10 @@ const handleLogin = async () => {
   border-radius: 5px;
 }
 
-.register-link{
+.register-link {
   margin-top: 15px;
   text-align: center;
   font-size: 1rem;
 }
-
-
-</style> -->
+</style>
+>>>>>>> Stashed changes
