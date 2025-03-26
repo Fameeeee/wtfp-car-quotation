@@ -1,15 +1,20 @@
 <template>
-    <aside class="sidebar" :class="{ 'sidebar-open': isSidebarOpen, 'sidebar-collapsed': !isSidebarOpen }">
-        <div class="first-row">
+    <aside
+        class="sidebar w-[300px] min-w-[300px] h-screen shadow-md flex flex-col fixed left-0 top-0 bg-white transition-all duration-300 ease-in-out z-[100]"
+        :class="{ 'sidebar-open ': isSidebarOpen, 'sidebar-collapsed': !isSidebarOpen }">
+        <div class="first-row first-row flex items-center justify-between" style="padding: 20px;">
             <div class="logo" v-if="isSidebarOpen">
-                <img src="../../public/assets/IsuzuLogo.png" alt="Isuzu Logo" />
+                <img class="max-w-[150px] my-5 transition-all duration-300 ease-in-out"
+                    src="../../public/assets/IsuzuLogo.png" alt="Isuzu Logo" />
             </div>
-            <div class="hamburger" @click="toggleSidebar">
+            <div class="hamburger cursor-pointer text-4xl text-center" style="padding: 10px;" @click="toggleSidebar">
                 ☰
             </div>
         </div>
-        <nav class="link">
-            <NuxtLink to="/controller/dashboard" :class="{ 'active': $route.path.startsWith('/controller/dashboard') }">
+        <nav class="link flex flex-col gap-2.5 w-full " style="padding: 10px;">
+            <NuxtLink to="/controller/dashboard" :class="{ 'active': $route.path.startsWith('/controller/dashboard') }"
+                class="flex items-center text-black text-base transition-all duration-300 ease-in-out hover:bg-gray-100"
+                style="gap: 10px; font-weight: bold; padding-block: 12px; padding-inline: 10px;">
                 <span v-if="isSidebarOpen">Dashboard</span>
                 <i v-else class="icon-dashboard">
                     <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -19,7 +24,9 @@
                     </svg>
                 </i>
             </NuxtLink>
-            <NuxtLink to="/controller/staff" :class="{ 'active': $route.path.startsWith('/controller/staff') }">
+            <NuxtLink to="/controller/staff" :class="{ 'active': $route.path.startsWith('/controller/staff') }"
+                class="flex items-center gap-2.5 text-black text-base font-bold transition-all duration-300 ease-in-out py-3 px-2.5 hover:bg-gray-100"
+                style="gap: 10px; font-weight: bold; padding-block: 12px; padding-inline: 10px;">
                 <span v-if="isSidebarOpen">Staff</span>
                 <i v-else class="icon-staff">
                     <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -29,7 +36,9 @@
                     </svg>
                 </i>
             </NuxtLink>
-            <NuxtLink to="/controller/customer" :class="{ 'active': $route.path.startsWith('/controller/customer') }">
+            <NuxtLink to="/controller/customer" :class="{ 'active': $route.path.startsWith('/controller/customer') }"
+                class="flex items-center gap-2.5 text-black text-base font-bold transition-all duration-300 ease-in-out py-3 px-2.5 hover:bg-gray-100"
+                style="gap: 10px; font-weight: bold; padding-block: 12px; padding-inline: 10px;">
                 <span v-if="isSidebarOpen">Customer</span>
                 <i v-else class="icon-customer">
                     <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -39,7 +48,9 @@
                     </svg>
                 </i>
             </NuxtLink>
-            <NuxtLink to="/controller/history" :class="{ 'active': $route.path.startsWith('/controller/history') }">
+            <NuxtLink to="/controller/history" :class="{ 'active': $route.path.startsWith('/controller/history') }"
+                class="flex items-center gap-2.5 text-black text-base font-bold transition-all duration-300 ease-in-out py-3 px-2.5 hover:bg-gray-100"
+                style="gap: 10px; font-weight: bold; padding-block: 12px; padding-inline: 10px;">
                 <span v-if="isSidebarOpen">History</span>
                 <i v-else class="icon-history">
                     <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -50,15 +61,25 @@
                 </i>
             </NuxtLink>
         </nav>
-        <button class="logout" @click="Logout">
+        <button
+            class="logout bg-[#d32f2f] text-white rounded-md cursor-pointer flex items-center justify-center mx-auto"
+            style="margin-top: auto; margin-bottom: 10px; margin-left: auto; margin-right: auto; border-radius: 5px; padding-block: 12px; padding-inline: 15px; gap: 10px; width: 90%;"
+            @click="Logout">
             <span v-if="isSidebarOpen">Log Out</span>
-            <i v-else class="icon-logout">L</i>
+            <i v-else class="icon-logout">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M5 21C4.45 21 3.97933 20.8043 3.588 20.413C3.19667 20.0217 3.00067 19.5507 3 19V5C3 4.45 3.196 3.97933 3.588 3.588C3.98 3.19667 4.45067 3.00067 5 3H11C11.2833 3 11.521 3.096 11.713 3.288C11.905 3.48 12.0007 3.71733 12 4C11.9993 4.28267 11.9033 4.52033 11.712 4.713C11.5207 4.90567 11.2833 5.00133 11 5H5V19H11C11.2833 19 11.521 19.096 11.713 19.288C11.905 19.48 12.0007 19.7173 12 20C11.9993 20.2827 11.9033 20.5203 11.712 20.713C11.5207 20.9057 11.2833 21.0013 11 21H5ZM17.175 13H10C9.71667 13 9.47933 12.904 9.288 12.712C9.09667 12.52 9.00067 12.2827 9 12C8.99933 11.7173 9.09533 11.48 9.288 11.288C9.48067 11.096 9.718 11 10 11H17.175L15.3 9.125C15.1167 8.94167 15.025 8.71667 15.025 8.45C15.025 8.18333 15.1167 7.95 15.3 7.75C15.4833 7.55 15.7167 7.44567 16 7.437C16.2833 7.42833 16.525 7.52433 16.725 7.725L20.3 11.3C20.5 11.5 20.6 11.7333 20.6 12C20.6 12.2667 20.5 12.5 20.3 12.7L16.725 16.275C16.525 16.475 16.2877 16.571 16.013 16.563C15.7383 16.555 15.5007 16.4507 15.3 16.25C15.1167 16.05 15.0293 15.8127 15.038 15.538C15.0467 15.2633 15.1423 15.034 15.325 14.85L17.175 13Z"
+                        fill="white" />
+                </svg>
+            </i>
         </button>
     </aside>
     <slot></slot>
 </template>
 
 <script setup>
+import { Style } from '#components';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -76,26 +97,9 @@ const Logout = () => {
 </script>
 
 <style scoped>
-.sidebar {
-    width: 300px;
-    min-width: 300px;
-    height: 100vh;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    left: 0;
-    top: 0;
-    background: white;
-    transition: width 0.3s ease;
-    z-index: 100;
-}
-
-
 .sidebar-open+.content {
     margin-left: 300px;
 }
-
 
 .sidebar-collapsed+.content {
     margin-left: 80px;
@@ -104,46 +108,6 @@ const Logout = () => {
 .sidebar-collapsed {
     width: 80px;
     min-width: 80px;
-}
-
-.logo img {
-    max-width: 150px;
-    margin: 20px 0;
-    transition: max-width 0.3s ease;
-}
-
-.hamburger {
-    cursor: pointer;
-    font-size: 2rem;
-    padding: 10px;
-    text-align: center;
-}
-
-.first-row {
-    display: flex;
-    align-items: center;
-    padding: 20px;
-    justify-content: space-between;
-}
-
-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-    padding: 10px;
-}
-
-nav a {
-    padding: 12px 10px;
-    text-decoration: none;
-    color: #000;
-    font-size: 1rem;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: background-color 0.3s ease, padding 0.3s ease;
 }
 
 nav a i {
@@ -158,26 +122,6 @@ nav a.active {
 
 nav a:hover {
     background-color: #e8e8e8;
-}
-
-.logout {
-    margin-top: auto;
-    width: 90%;
-    padding: 12px 15px;
-    background-color: #d32f2f;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    text-decoration: none;
-    font-size: 1rem;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-left: auto;
-    margin-right: auto;
 }
 
 .sidebar-collapsed nav a {
