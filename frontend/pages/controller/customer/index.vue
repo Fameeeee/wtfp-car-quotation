@@ -1,17 +1,17 @@
 <template>
   <div class="flex min-h-screen w-screen bg-[#ececec]">
-    <AdminSidebar class="w-64" />
+    <AdminSidebar/>
     <div class="flex flex-col flex-1 p-6 overflow-hidden h-200"
       style="margin-left: 100px; margin-right: 20px; margin-top: 45px;">
 
       <div class="flex justify-between items-center px-5 py-4 " style="margin-bottom: 20px;">
-        <div class="text-5xl font-bold">Customer</div>
+        <div class="text-5xl font-bold text-black">Customer</div>
       </div>
 
       <div class="flex items-center gap-4 mb-6">
         <div class="relative w-full max-w-[230px] " style="margin-bottom: 10px;">
           <input type="text" v-model="searchQuery" @input="debouncedSearch" placeholder="ค้นหา"
-            class="w-full pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 bg-white h-10 !pl-3" />
+            class="w-full pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 bg-white h-10 !pl-3 text-gray-500" />
         </div>
       </div>
 
@@ -132,7 +132,6 @@ const fetchData = async () => {
     customerList.value = response.data.data;
     totalPages.value = response.data.totalPages;
     total.value = response.data.total;
-    console.log(customerList.value);
   } catch (error) {
     console.error("Error fetching staff data:", error);
   } finally {

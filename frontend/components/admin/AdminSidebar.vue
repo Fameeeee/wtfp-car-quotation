@@ -7,23 +7,14 @@
                 <img class="max-w-[150px] my-5 transition-all duration-300 ease-in-out"
                     src="../../public/assets/IsuzuLogo.png" alt="Isuzu Logo" />
             </div>
-            <div class="hamburger cursor-pointer text-4xl text-center" style="padding: 10px;" @click="toggleSidebar">
-                ☰
+            <div class="hamburger cursor-pointer text-4xl text-center text-black" style="padding: 10px;"
+                @click="toggleSidebar">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 18H21V16H3V18ZM3 13H21V11H3V13ZM3 6V8H21V6H3Z" fill="black" />
+                </svg>
             </div>
         </div>
         <nav class="link flex flex-col gap-2.5 w-full " style="padding: 10px;">
-            <NuxtLink to="/controller/dashboard" :class="{ 'active': $route.path.startsWith('/controller/dashboard') }"
-                class="flex items-center text-black text-base transition-all duration-300 ease-in-out hover:bg-gray-100"
-                style="gap: 10px; font-weight: bold; padding-block: 12px; padding-inline: 10px;">
-                <span v-if="isSidebarOpen">Dashboard</span>
-                <i v-else class="icon-dashboard">
-                    <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M16.5 11.5V4H26.5V11.5H16.5ZM4 16.5V4H14V16.5H4ZM16.5 26.5V14H26.5V26.5H16.5ZM4 26.5V19H14V26.5H4ZM6.5 14H11.5V6.5H6.5V14ZM19 24H24V16.5H19V24ZM19 9H24V6.5H19V9ZM6.5 24H11.5V21.5H6.5V24Z"
-                            fill="black" />
-                    </svg>
-                </i>
-            </NuxtLink>
             <NuxtLink to="/controller/staff" :class="{ 'active': $route.path.startsWith('/controller/staff') }"
                 class="flex items-center gap-2.5 text-black text-base font-bold transition-all duration-300 ease-in-out py-3 px-2.5 hover:bg-gray-100"
                 style="gap: 10px; font-weight: bold; padding-block: 12px; padding-inline: 10px;">

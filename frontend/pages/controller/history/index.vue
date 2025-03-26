@@ -1,18 +1,20 @@
 <template>
   <div class="flex min-h-screen w-screen bg-[#ececec]">
-    <AdminSidebar class="w-64" />
+    <AdminSidebar />
     <div class="flex flex-col flex-1 p-6 overflow-hidden h-200"
       style="margin-left: 100px; margin-right: 20px; margin-top: 45px;">
 
       <div class="flex justify-between items-center px-5 py-4 " style="margin-bottom: 20px;">
-        <div class="text-5xl font-bold">History</div>
+        <div class="text-5xl font-bold text-black">History</div>
       </div>
 
       <div class="flex items-center gap-4 mb-6">
         <div class="relative inline-block text-left items-center" style=" margin-bottom: 10px;">
           <button @click="toggleDropdown"
-            class="flex items-center !pl-6 px-3 py-2 w-28 bg-white border border-gray-300 rounded-md transition-all duration-300 ease-in-out h-10 hover:bg-gray-100">
-            <img src="/assets/sort.png" alt="Filter" class="w-4 h-4 " style="margin-right: 5px;" />
+            class="flex items-center !pl-6 px-3 py-2 w-28 bg-white border border-gray-300 rounded-md transition-all duration-300 ease-in-out h-10 hover:bg-gray-100 text-black">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 6H21M6 12H18M9 18H15" stroke="black" stroke-width="2" stroke-linecap="round" />
+            </svg>
             Filter
           </button>
           <div v-if="isOpen"
@@ -35,7 +37,7 @@
         </div>
         <div class="relative w-full max-w-[230px] " style="margin-bottom: 10px;">
           <input type="text" v-model="searchQuery" @input="debouncedSearch" placeholder="ค้นหา"
-            class="w-full pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 bg-white h-10 !pl-3" />
+            class="w-full pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 bg-white h-10 !pl-3 text-gray-500" />
         </div>
       </div>
 
@@ -180,7 +182,7 @@ const filteredHistoryList = computed(() => {
 
 const applyFilter = () => {
   if (!selectedFilter.value) {
-    filteredHistoryList.value = historyList.value; 
+    filteredHistoryList.value = historyList.value;
     return;
   }
 
