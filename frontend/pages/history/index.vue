@@ -1,148 +1,93 @@
 <template>
-    <div class="container">
-        <div class="header">
-            <div class="topic-container">
-                <div class="topic">ประวัติ</div>
-            </div>
+    <div class="flex flex-col items-center h-full p-4">
+        <h2 class="text-4xl font-extrabold text-[#696969] mb-5">ประวัติ</h2>
 
-            <div class="search"><svg width="40" height="40" viewBox="0 0 40 40" fill="none"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path
-                        d="M35 35L27.75 27.75M31.6667 18.3333C31.6667 25.6971 25.6971 31.6667 18.3333 31.6667C10.9695 31.6667 5 25.6971 5 18.3333C5 10.9695 10.9695 5 18.3333 5C25.6971 5 31.6667 10.9695 31.6667 18.3333Z"
-                        stroke="#1E1E1E" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-            </div>
+        <input v-model="searchQuery" type="text" placeholder="ค้นหาใบเสนอราคา"
+            class="w-full p-3 mb-4 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 text-black placeholder-gray-500" />
+
+        <!-- Scrollable container for quotations -->
+        <div class="w-full max-h-[70vh] overflow-y-auto border border-black/20 rounded-lg">
+            <NuxtLink v-for="quotation in filteredQuotations" :key="quotation.id" :to="`/history/${quotation.id}`"
+                class="w-full flex flex-col items-center gap-3 mt-4 text-black no-underline">
+                <div class="w-11/12 bg-white border border-black/20 shadow-md rounded-lg p-4">
+                    <div class="flex justify-between">
+                        <span class="text-lg font-extrabold">ใบเสนอราคา</span>
+                        <span class="text-sm font-light">{{ formatDate(quotation.quotationDate) || 'วันที่ไม่ระบุ'
+                            }}</span>
+                    </div>
+                    <hr class="my-2">
+                    <div class="flex flex-col gap-1 ml-2">
+                        <span class="text-base font-semibold">{{ quotation.carDetails.modelClass || 'โมเดลไม่ระบุ'
+                            }}</span>
+                        <span class="text-sm font-medium">{{ quotation.carDetails.modelGName || 'รายละเอียดไม่ระบุ'
+                            }}</span>
+                        <span class="text-sm font-semibold">{{ quotation.customer?.firstName || 'ลูกค้าไม่ระบุ'
+                            }}</span>
+                    </div>
+                </div>
+            </NuxtLink>
         </div>
-        <NuxtLink to='/history/{{ $id }}' class="content">
-            <div class="rectangle">
-                <div class="title">
-                    <div class="quote-title">ใบเสนอราคา</div>
-                    <div class="quote-date">วันที่ 12 ตุลาคม 2567</div>
-                </div>
-                <hr>
-                <div class="car-details">
-                    <div class="model">V-CROSS</div>
-                    <div class="details">3.0 Ddi M 4-door A/T</div>
-                    <div class="customer-name">คุณ ธีธัช ธีรวโรภาส</div>
-                </div>
-            </div>
-        </NuxtLink>
     </div>
 </template>
 
+
 <script setup>
+import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
+
+const quotations = ref([]);
+const searchQuery = ref("");
+const router = useRouter();
+
+const getStaffId = () => {
+    const token = localStorage.getItem("access_token");
+    if (!token) return null;
+    try {
+        const decodedToken = atob(token.split(".")[1]);
+        const parsedToken = JSON.parse(decodedToken);
+        return parsedToken.id;
+    } catch (error) {
+        console.error("Invalid token", error);
+        return null;
+    }
+};
+
+const fetchQuotations = async () => {
+    const id = getStaffId();
+    if (!id) {
+        console.error("No valid staff ID found");
+        return;
+    }
+    try {
+        const response = await axios.get(`http://localhost:3001/staff/${id}`);
+        quotations.value = response.data.quotations;
+        console.log("Quotations fetched:", quotations.value);
+    } catch (error) {
+        console.error("Error fetching quotations:", error);
+    }
+};
+
+const formatDate = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+};
+
+const filteredQuotations = computed(() => {
+    if (!searchQuery.value) return quotations.value;
+    return quotations.value.filter((quotation) =>
+        quotation.carDetails.modelClass.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        quotation.customer?.firstName.toLowerCase().includes(searchQuery.value.toLowerCase())
+    );
+});
+
+onMounted(fetchQuotations);
+
 definePageMeta({
     middleware: 'staff-auth'
-})
+});
 </script>
-
-<style scoped>
-body,
-html {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-.container {
-    display: flex;
-    flex-direction: column;
-    align-self: center;
-    padding: 16px;
-}
-
-.header {
-    display: flex;
-    justify-content: end;
-    align-items: center;
-    position: relative;
-}
-
-.topic-container {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-}
-
-.topic {
-    font-family: 'Roboto', sans-serif;
-    font-style: normal;
-    font-weight: 800;
-    font-size: 32px;
-    color: #696969;
-}
-
-.search img {
-    width: 45px;
-    color: #696969;
-}
-
-.content {
-    margin: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    gap: 10px;
-    text-decoration: none;
-}
-
-.rectangle {
-    margin-top: 10px;
-    width: 90vw;
-    height: fit-content;
-    background: #ffffff;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-    border-radius: 10px;
-    padding: 8px;
-}
-
-.title {
-    display: flex;
-    justify-content: space-between;
-    margin: auto 5px;
-}
-
-.quote-title {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 800;
-    font-size: 18px;
-    color: #000000;
-}
-
-.quote-date {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 300;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    color: #000000;
-}
-
-hr {
-    margin: 5px;
-}
-
-.car-details {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    margin-left: 10px;
-}
-
-.model,
-.details,
-.customer-name {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 600;
-    font-size: 16px;
-    align-items: center;
-    color: #000000;
-}
-
-.details {
-    font-weight: 500;
-}
-</style>
