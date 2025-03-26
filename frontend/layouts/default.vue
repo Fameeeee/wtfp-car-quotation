@@ -13,21 +13,21 @@
                         <path d="M3 18H21V16H3V18ZM3 13H21V11H3V13ZM3 6V8H21V6H3Z" fill="black" />
                     </svg>
                 </button>
-                <div class="absolute right-0 w-48 mt-2 bg-white shadow-lg rounded-lg text-black z-50" v-if="isDropdownOpen">
+                <div class="absolute right-0 w-48 mt-2 bg-white shadow-lg rounded-lg text-black z-50 border border-gray-400" v-if="isDropdownOpen">
                     <ul @click="closeDropdown">
                         <li>
-                            <NuxtLink to="/home" class="block px-4 py-2 text-sm hover:bg-gray-100">
+                            <NuxtLink to="/home" class="block px-4 py-4 text-sm hover:bg-gray-100 border-b border-gray-400"> 
                                 Home
                             </NuxtLink>
                         </li>
                         <li>
-                            <NuxtLink to="/history" class="block px-4 py-2 text-sm hover:bg-gray-100">
+                            <NuxtLink to="/history" class="block px-4 py-4 text-sm hover:bg-gray-100 border-b border-gray-400">
                                 History
                             </NuxtLink>
                         </li>
                         <li>
                             <button @click="handleLogout"
-                                class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left">
+                                class="block px-4 py-4 text-sm text-red-600 hover:bg-gray-100 w-full text-left">
                                 Log Out
                             </button>
                         </li>

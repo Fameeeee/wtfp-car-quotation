@@ -1,8 +1,6 @@
 <template>
   <div class="flex flex-col items-center h-full p-4 space-y-6">
     <h2 class="text-4xl font-extrabold text-[#696969] mb-5">อุปกรณ์ตกแต่ง</h2>
-
-    <!-- Search Bar -->
     <input v-model="searchQuery" type="text" placeholder="ค้นหาอุปกรณ์"
       class="w-full p-3 mb-4 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 text-black placeholder-gray-500" />
 
@@ -12,19 +10,16 @@
         <span class="text-black font-medium">{{ item.assName }}</span>
         <span class="text-black">{{ item.price.toLocaleString() }} ฿</span>
       </div>
-      <!-- If no results -->
       <div v-if="filteredAccessories.length === 0" class="p-3 text-gray-500 text-center">
         ไม่พบอุปกรณ์ที่ค้นหา
       </div>
     </div>
 
-    <!-- Accessories List -->
     <div class="w-full bg-white shadow-lg rounded-lg p-4">
       <table class="min-w-full table-auto border-collapse">
         <thead>
           <tr class="bg-gray-100 border-b">
             <th class="px-4 py-3 text-left text-sm text-black">
-              <!-- Select All Checkbox -->
               <input type="checkbox" v-model="selectAll" @change="toggleSelectAll"
                 class="h-4 w-4 text-red-500 border-gray-300 rounded focus:ring-red-500" />
             </th>

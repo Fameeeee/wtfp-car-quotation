@@ -31,7 +31,7 @@
                     <input v-model.number="activePlan.downPaymentPercent" type="number" placeholder="%"
                         @input="updateDownPayment"
                         class="w-1/3 p-2 border rounded-lg text-gray-700 placeholder-gray-400" />
-                    <span>หรือ</span>
+                    <span class="text-black">หรือ</span>
                     <input v-model.number="activePlan.downPayment" type="number" placeholder="บาท"
                         @input="updateDownPaymentPercent"
                         class="w-1/3 p-2 border rounded-lg text-gray-700 placeholder-gray-400" />
