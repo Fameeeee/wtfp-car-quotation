@@ -1,23 +1,29 @@
 <template>
-  <div class="main-container">
-    <nav class="navbar">
-      <img class="logo" src="../../../public/assets/IsuzuLogo.png" alt="">
+  <div class="main-container flex flex-col h-screen " style="margin: 0;">
+    <nav class="navbar h-fit bg-white flex justify-center items-center shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
+      <img class="logo h-[5vh] object-contain" style="margin-block: 10px;" src="../../../public/assets/IsuzuLogo.png"
+        alt="">
     </nav>
-    <div class="login-container">
-      <div class="login-box">
-        <h1 class="login-title">เข้าสู่ระบบ</h1>
+    <div class="login-container flex-1 flex justify-center items-center bg-[#f5f5f5]" style="padding: 1rem;">
+      <div class="login-box w-[90%] max-w-[700px] bg-white shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-md h-fit"
+        style="padding: 2rem;">
+        <h1 class="login-title text-center" style="font-size: 2.5rem; margin-bottom: 1rem;">เข้าสู่ระบบ</h1>
         <form @submit.prevent="handleLogin">
-          <div class="form-group">
-            <label for="email">อีเมล</label>
-            <input type="email" id="email" v-model="email" placeholder="กรอกอีเมล" required />
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 1.5rem;" for="email">อีเมล</label>
+            <input class="w-full text-base border border-[#cccccc] rounded-sm" style="padding: 0.8rem;" type="email"
+              id="email" v-model="email" placeholder="กรอกอีเมล" required />
           </div>
-          <div class="form-group">
-            <label for="password">รหัสผ่าน</label>
-            <input type="password" id="password" v-model="password" placeholder="กรอกรหัสผ่าน" required />
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 1.5rem;" for="password">รหัสผ่าน</label>
+            <input class="w-full text-base border border-[#cccccc] rounded-sm" style="padding: 0.8rem;" type="password"
+              id="password" v-model="password" placeholder="กรอกรหัสผ่าน" required />
           </div>
-          <button type="submit" class="submit-button">เข้าสู่ระบบ</button>
+          <button type="submit"
+            class="submit-button block w-full bg-[#007bff] text-white border-none rounded-md cursor-pointer transition-colors duration-300 hover:bg-[#0056b3]"
+            style="font-size: 1.25rem; margin-top: 2rem; font-weight: bold; padding: 1rem;">เข้าสู่ระบบ</button>
         </form>
-        <div class="register">
+        <div class="register text-center text-[#666666]" style="margin-top: 1rem; font-size: 1rem;">
           ยังไม่มีบัญชี ? <NuxtLink to="/controller/register">ลงทะเบียน</NuxtLink>
         </div>
       </div>
@@ -28,7 +34,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router'; 
+import { useRouter } from 'vue-router';
 import axios from 'axios';
 
 const email = ref('');
@@ -62,7 +68,7 @@ const handleLogin = async () => {
       email: email.value,
       password: password.value
     });
-    
+
     if (response.data.access_token) {
       localStorage.setItem('access_token', response.data.access_token);
       router.push('/controller/dashboard');
@@ -70,7 +76,7 @@ const handleLogin = async () => {
       errorMessage.value = 'Login failed: No token received.';
     }
   } catch (error) {
-    console.error(error.response || error); 
+    console.error(error.response || error);
     errorMessage.value = error.response?.data?.message || 'การเข้าสู่ระบบล้มเหลว กรุณาลองใหม่';
   } finally {
     isLoading.value = false;
@@ -81,96 +87,4 @@ definePageMeta({
 });
 </script>
 
-<style scoped>
-.main-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  margin: 0;
-}
-
-img {
-  height: 5vh;
-  object-fit: contain;
-  margin: 10px 0px;
-}
-
-nav {
-  height: fit-content;
-  background: #ffffff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-}
-
-.login-container {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #f5f5f5;
-  padding: 1rem;
-}
-
-.login-box {
-  width: 90%;
-  max-width: 700px;
-  padding: 2rem;
-  background: #ffffff;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  border-radius: 5px;
-  height: fit-content;
-}
-
-.login-title {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-size: 1.5rem;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 0.8rem;
-  font-size: 1rem;
-  border: 1px solid #cccccc;
-  border-radius: 4px;
-}
-
-.submit-button {
-  display: block;
-  width: 100%;
-  padding: 1rem;
-  background-color: #007bff;
-  color: #ffffff;
-  font-size: 1.25rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin-top: 2rem;
-}
-
-.submit-button:hover {
-  background-color: #0056b3;
-}
-
-.register {
-  text-align: center;
-  font-size: 1rem;
-  color: #666666;
-  margin-top: 1rem;
-}
-
-</style>
+<style scoped></style>

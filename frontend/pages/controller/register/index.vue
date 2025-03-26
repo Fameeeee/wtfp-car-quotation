@@ -1,47 +1,66 @@
 <template>
-  <div class="main-container">
-    <nav class="navbar">
-      <img class="logo" src="../../../public/assets/IsuzuLogo.png" alt="Isuzu Logo">
+  <div class="main-container flex flex-col h-screen m-0" style="margin: 0px;">
+    <nav class="navbar h-fit bg-white flex justify-center items-center shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
+      <img class="logo h-[5vh] object-contain my-2" src="../../../public/assets/IsuzuLogo.png" alt="Isuzu Logo"
+        style="height: 5vh; margin-block: 10px;">
     </nav>
-    <div class="register-container">
-      <div class="register-box">
-        <h1 class="register-title">ลงทะเบียน</h1>
+    <div class="register-container flex-1 flex justify-center items-center bg-[#f5f5f5]" style="padding: 1rem;">
+      <div class="register-box w-full max-w-[700px] p-8 bg-white shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-md h-fit"
+        style="padding: 2rem;">
+        <h1 class="register-title text-center" style="font-size: 2.5rem; margin-bottom: 1rem">ลงทะเบียน</h1>
         <form @submit.prevent="handleRegister">
-          <div class="form-group">
-            <label for="email">อีเมล</label>
-            <input type="email" id="email" v-model="email" placeholder="กรอกอีเมล" required />
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="email" style="margin-bottom: 0.5rem; font-size: 1.5rem; display: block;">อีเมล</label>
+            <input class="w-full p-4 text-base border border-[#cccccc] rounded-sm"
+              style="padding: 1rem; font-size: 1rem;" type="email" id="email" v-model="email" placeholder="กรอกอีเมล"
+              required />
           </div>
-          <div class="form-group">
-            <label for="password">รหัสผ่าน</label>
-            <input type="password" id="password" v-model="password" placeholder="กรอกรหัสผ่าน" required />
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="password" style="margin-bottom: 0.5rem; font-size: 1.5rem; display: block">รหัสผ่าน</label>
+            <input class="w-full p-4 text-base border border-[#cccccc] rounded-sm"
+              style="padding: 1rem; font-size: 1rem;" type="password" id="password" v-model="password"
+              placeholder="กรอกรหัสผ่าน" required />
           </div>
-          <div class="form-group">
-            <label for="confirmPassword">ยืนยันรหัสผ่าน</label>
-            <input type="password" id="confirmPassword" v-model="confirmPassword" placeholder="กรอกรหัสผ่าน" required />
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="confirmPassword"
+              style="margin-bottom: 0.5rem; font-size: 1.5rem; display: block">ยืนยันรหัสผ่าน</label>
+            <input class="w-full p-4 text-base border border-[#cccccc] rounded-sm"
+              style="padding: 1rem; font-size: 1rem;" type="password" id="confirmPassword" v-model="confirmPassword"
+              placeholder="กรอกรหัสผ่าน" required />
           </div>
-          <div class="form-group">
-            <label for="firstname">ชื่อจริง</label>
-            <input type="text" id="firstName" v-model="firstname" placeholder="กรอกชื่อจริง" required />
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="firstname" style="margin-bottom: 0.5rem; font-size: 1.5rem; display: block">ชื่อจริง</label>
+            <input class="w-full p-4 text-base border border-[#cccccc] rounded-sm"
+              style="padding: 1rem; font-size: 1rem;" type="text" id="firstName" v-model="firstname"
+              placeholder="กรอกชื่อจริง" required />
           </div>
-          <div class="form-group">
-            <label for="lastname">นามสกุล</label>
-            <input type="text" id="lastName" v-model="lastname" placeholder="กรอกนามสกุล" required />
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="lastname" style="margin-bottom: 0.5rem; font-size: 1.5rem; display: block">นามสกุล</label>
+            <input class="w-full p-4 text-base border border-[#cccccc] rounded-sm"
+              style="padding: 1rem; font-size: 1rem;" type="text" id="lastName" v-model="lastname"
+              placeholder="กรอกนามสกุล" required />
           </div>
-          <div class="form-group">
-            <label for="gender">เพศ</label>
-            <select id="gender" v-model="gender" required>
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="gender" style="margin-bottom: 0.5rem; font-size: 1.5rem; display: block">เพศ</label>
+            <select class="w-full p-4 text-base border border-[#cccccc] rounded-sm"
+              style="padding: 1rem; font-size: 1rem;" id="gender" v-model="gender" required>
               <option value="" disabled>เพศ</option>
               <option value="male">ชาย</option>
               <option value="female">หญิง</option>
             </select>
           </div>
-          <div class="form-group">
-            <label for="phoneNumber">เบอร์โทรศัพท์</label>
-            <input type="tel" id="phoneNumber" v-model="phone" placeholder="กรอกเบอร์โทรศัพท์" required />
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="phoneNumber"
+              style="margin-bottom: 0.5rem; font-size: 1.5rem; display: block">เบอร์โทรศัพท์</label>
+            <input class="w-full p-4 text-base border border-[#cccccc] rounded-sm"
+              style="padding: 1rem; font-size: 1rem;" type="tel" id="phoneNumber" v-model="phone"
+              placeholder="กรอกเบอร์โทรศัพท์" required />
           </div>
-          <button type="submit" class="submit-button">ลงทะเบียน</button>
+          <button type="submit"
+            class="submit-button block w-full p-4 bg-[#007bff] text-white text-xl font-bold border-none rounded-md cursor-pointer transition-colors duration-300 hover:bg-[#0056b3]"
+            style="display: block; padding: 1rem; font-size: 1.5rem; font-weight: bold">ลงทะเบียน</button>
         </form>
-        <div class="login">
+        <div class="login text-center" style="margin-top: 1rem; font-size: 1rem; padding-bottom: 1rem;">
           มีบัญชีอยู่แล้ว ? <NuxtLink to="/controller/login">เข้าสู่ระบบ</NuxtLink>
         </div>
       </div>
@@ -98,101 +117,4 @@ definePageMeta({
 </script>
 
 <style scoped>
-.main-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  margin: 0;
-}
-
-
-img {
-  height: 5vh;
-  object-fit: contain;
-  margin: 10px 0px;
-}
-
-nav {
-  height: fit-content;
-  background: #ffffff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-}
-
-
-.register-container {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #f5f5f5;
-  padding: 1rem;
-}
-
-
-.register-box {
-  width: 100%;
-  max-width: 700px;
-  padding: 2rem;
-  background: #ffffff;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  border-radius: 5px;
-  height: fit-content;
-}
-
-
-.register-title {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-size: 1.5rem;
-}
-
-.form-group input,
-.form-group select {
-  width: 100%;
-  padding: 1rem;
-  font-size: 1rem;
-  border: 1px solid #cccccc;
-  border-radius: 4px;
-}
-
-
-.submit-button {
-  display: block;
-  width: 100%;
-  padding: 1rem;
-  background-color: #007bff;
-  color: #ffffff;
-  font-size: 1.5rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.submit-button:hover {
-  background-color: #0056b3;
-}
-
-
-.login {
-  text-align: center;
-  margin-top: 1rem;
-  font-size: 1rem;
-  padding-bottom: 1rem;
-}
-
 </style>
