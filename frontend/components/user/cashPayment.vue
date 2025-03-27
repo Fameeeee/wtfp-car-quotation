@@ -1,27 +1,27 @@
 <template>
-    <div class="main">
-        <div class="car-price">
-            <div class="car-price-title">ราคารถ</div>
-            <div class="car-price-details">
-                <div class="price-box">{{ selectedCar?.price ? Number(selectedCar.price).toLocaleString() : 'N/A' }} บาท</div>
+    <div class="flex flex-col items-center w-full p-4">
+        <div class="w-full max-w-md space-y-4">
+            <div class="flex items-center gap-4">
+                <span class="font-semibold w-1/3 text-black">ราคารถ</span>
+                <div class="w-2/3 p-2 bg-gray-100 border rounded-lg text-gray-700">{{ selectedCar?.price ? Number(selectedCar.price).toLocaleString() : 'N/A' }} บาท</div>
             </div>
-        </div>
-        <div class="special-dis">
-            <div class="special-title">ส่วนลด</div>
-            <div class="special-details">
-                <input type="number" v-model.number="specialDiscount" placeholder="ส่วนลดราคารถ" />
+
+            <div class="flex items-center gap-4">
+                <span class="font-semibold w-1/3 text-black">ส่วนลด</span>
+                <input type="number" v-model.number="specialDiscount" placeholder="ส่วนลดราคารถ" 
+                    class="w-2/3 p-2 border rounded-lg text-gray-700" />
             </div>
-        </div>
-        <div class="special-plus">
-            <div class="special-title">ส่วนเพิ่ม</div>
-            <div class="special-details">
-                <input type="number" v-model.number="specialAddition" placeholder="ส่วนเพิ่มราคารถ" />
+
+            <div class="flex items-center gap-4">
+                <span class="font-semibold w-1/3 text-black">ส่วนเพิ่ม</span>
+                <input type="number" v-model.number="specialAddition" placeholder="ส่วนเพิ่มราคารถ" 
+                    class="w-2/3 p-2 border rounded-lg text-gray-700" />
             </div>
-        </div>
-        <div class="total-price">
-            <div class="total-title">ราคาสุทธิ</div>
-            <div class="total-details">
-                <input type="number" v-model="totalPrice" placeholder="ราคาสุทธิ" readonly />
+
+            <div class="flex items-center gap-4">
+                <span class="font-semibold w-1/3 text-black">ราคาสุทธิ</span>
+                <input type="number" v-model="totalPrice" placeholder="ราคาสุทธิ" readonly 
+                    class="w-2/3 p-2 border rounded-lg text-gray-700 bg-gray-100" />
             </div>
         </div>
     </div>
@@ -31,7 +31,6 @@
 import { ref, computed, watch, onMounted } from 'vue';
 
 const selectedCar = ref({});
-
 const specialDiscount = ref(null);
 const specialAddition = ref(null);
 
@@ -50,77 +49,9 @@ watch([specialDiscount, specialAddition, totalPrice], () => {
     const cashPlan = {
         carPrice: selectedCar.value?.price || 0,
         specialDiscount: specialDiscount.value,
-        specialAddition: specialAddition.value ,
+        specialAddition: specialAddition.value,
         totalPrice: totalPrice.value
     };
     localStorage.setItem('cashPlan', JSON.stringify(cashPlan));
 });
 </script>
-
-<style scoped>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Roboto', sans-serif;
-}
-
-.main {
-    width: 80vw;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.car-price,
-.special-plus,
-.special-dis,
-.total-price {
-    display: flex;
-    width: 100%;
-    padding: 10px;
-    gap: 10px;
-}
-
-.car-price-title,
-.special-title,
-.total-title {
-    font-size: 18px;
-    font-weight: bold;
-    width: 35%;
-}
-
-.down-payment-title {
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.price-box {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    color: #4b5563;
-    background-color: #f9fafb;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-}
-
-.car-price-details,
-.special-details,
-.total-details {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    width: 65%;
-}
-
-input {
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-}
-
-
-</style>

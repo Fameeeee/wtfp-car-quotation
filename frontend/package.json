@@ -18,15 +18,18 @@
     "@pinia/nuxt": "^0.9.0",
     "@tailwindcss/vite": "^4.0.14",
     "chartjs": "^0.3.24",
+    "dayjs": "^1.11.13",
     "nuxt": "^3.16.1",
     "nuxt-app": "file:",
-    "tailwindcss": "^4.0.14",
     "vue": "latest",
     "vue-router": "latest"
   },
   "devDependencies": {
     "@fortawesome/free-brands-svg-icons": "^6.7.2",
     "@fortawesome/free-regular-svg-icons": "^6.7.2",
-    "@fortawesome/free-solid-svg-icons": "^6.7.2"
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.0.16"
   }
 }

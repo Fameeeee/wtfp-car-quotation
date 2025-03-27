@@ -1,33 +1,43 @@
 <template>
-    <div class="layout">
-        <nav class="navbar">
-            <NuxtLink to="/home">
-                <img class="logo" src="../public/assets/IsuzuLogo.png" alt="">
+    <div class="flex flex-col min-h-screen bg-white">
+        <!-- Navbar -->
+        <nav class="h-[100px] w-full bg-white shadow-md flex justify-between items-center px-4">
+            <NuxtLink to="/home" class="flex items-center">
+                <img class="h-[30px] w-auto" src="/assets/IsuzuLogo.png" alt="Logo" />
             </NuxtLink>
-            <div class="btn-group">
-                <button class="ham btn dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <svg width="30" height="23" viewBox="0 0 30 23" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <line y1="1.5" x2="30" y2="1.5" stroke="black" stroke-width="3" />
-                        <line y1="11.5" x2="30" y2="11.5" stroke="black" stroke-width="3" />
-                        <line y1="21.5" x2="30" y2="21.5" stroke="black" stroke-width="3" />
+
+            <!-- Dropdown Menu -->
+            <div class="relative">
+                <button class="text-gray-700 hover:text-gray-900 focus:outline-none" @click="toggleDropdown">
+                    <svg width="35" height="35" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 18H21V16H3V18ZM3 13H21V11H3V13ZM3 6V8H21V6H3Z" fill="black" />
                     </svg>
                 </button>
-                <ul class="dropdown-menu">
-                    <NuxtLink to="/home" class="menu">
-                        <li class="list">Home</li>
-                    </NuxtLink>
-                    <hr>
-                    <NuxtLink to="/history" class="menu">
-                        <li class="list">History</li>
-                    </NuxtLink>
-                    <hr>
-                    <NuxtLink to="#" class="menu" @click.prevent="handleLogout">
-                        <li class="list logout btn btn-danger">Log Out</li>
-                    </NuxtLink>
-                </ul>
+                <div class="absolute right-0 w-48 mt-2 bg-white shadow-lg rounded-lg text-black z-50 border border-gray-400" v-if="isDropdownOpen">
+                    <ul @click="closeDropdown">
+                        <li>
+                            <NuxtLink to="/home" class="block px-4 py-4 text-sm hover:bg-gray-100 border-b border-gray-400"> 
+                                Home
+                            </NuxtLink>
+                        </li>
+                        <li>
+                            <NuxtLink to="/history" class="block px-4 py-4 text-sm hover:bg-gray-100 border-b border-gray-400">
+                                History
+                            </NuxtLink>
+                        </li>
+                        <li>
+                            <button @click="handleLogout"
+                                class="block px-4 py-4 text-sm text-red-600 hover:bg-gray-100 w-full text-left">
+                                Log Out
+                            </button>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </nav>
-        <main class="content">
+
+        <!-- Page Content -->
+        <main class="flex-1">
             <slot />
         </main>
     </div>
@@ -35,92 +45,23 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
+import { ref } from 'vue';
 
 const router = useRouter();
+const isDropdownOpen = ref(false);
 
 const handleLogout = () => {
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('selectedCar')
-  localStorage.removeItem('installmentPlans')
-  localStorage.removeItem('selectedAccessories')
-  router.push('/');
+    console.log('Logging out...');
+    localStorage.clear();
+    isDropdownOpen.value = false;
+    router.push('/');
+};
+
+const closeDropdown = () => {
+    isDropdownOpen.value = false;
+};
+
+const toggleDropdown = () => {
+    isDropdownOpen.value = !isDropdownOpen.value;
 };
 </script>
-
-
-<style scoped>
-.layout {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    width: 100vw;
-}
-
-.navbar {
-    height: 100px;
-    width: 100%;
-    background: white;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 16px;
-    z-index: 100;
-}
-
-.logo {
-    height: 30px;
-    width: auto;
-}
-
-.content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 1rem;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-}
-
-.dropdown-menu {
-    padding: 5px;
-    background: white;
-    right: 0;
-    left: auto;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-    margin: 5px;
-    min-width: 150px;
-}
-
-.menu {
-    color: black;
-    text-decoration: none;
-    display: block;
-}
-
-.list {
-    border-radius: 5px;
-    padding: 10px 10px;
-    font-size: 16px;
-}
-
-.list:hover {
-    background-color: rgb(184, 184, 184);
-}
-
-hr {
-    margin: 5px;
-}
-
-.ham {
-    border: none;
-    padding: 8px;
-    background: none;
-}
-
-.logout {
-    width: 100%;
-    border: none;
-    color: white;
-}
-</style>

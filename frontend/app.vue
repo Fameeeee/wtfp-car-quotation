@@ -1,10 +1,8 @@
 <template>
   <div>
-    <UApp>
       <NuxtLayout>
         <NuxtPage />
       </NuxtLayout>
-    </UApp>
   </div>
 </template>
 
@@ -16,12 +14,5 @@
   font-family: sans-serif;
   font-style: normal;
   font-weight: 500;
-}
-
-html,
-body {
-  height: 100%;
-  width: 100%;
-  overflow-x: hidden;
 }
 </style>

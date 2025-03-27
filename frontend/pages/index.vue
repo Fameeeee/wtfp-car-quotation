@@ -1,28 +1,50 @@
 <template>
-  <div class="container">
-    <div class="card">
-      <div class="card-body">
-        <h1 class="card-title">เข้าสู่ระบบ</h1>
-        <UAlert title="Heads up!" description="You can change the primary color in your app config."
-          icon="i-lucide-terminal" />
-        <form @submit.prevent="handleLogin">
-          <div class="form">
-            <label for="email" class="form-label">อีเมลล์</label>
-            <input type="email" class="form-control" id="email" v-model="form.email"
-              placeholder="Ex. john.doe@gmail.com" />
-          </div>
-          <div class="form">
-            <label for="password" class="form-label">รหัสผ่าน</label>
-            <input type="password" class="form-control" id="password" v-model="form.password"
-              placeholder="Ex. password1234" />
-          </div>
-          <button type="submit" class="form-btn" :disabled="isLoading">เข้าสู่ระบบ</button>
-        </form>
-        <p class="register-link">
-          ยังไม่มีบัญชื ? <NuxtLink to="/register" class="text-primary">สมัครสมาชิก</NuxtLink>
-        </p>
-        <p v-if="errorMessage" class="text-center text-danger">{{ errorMessage }}</p>
-      </div>
+  <div class="flex mt-10 items-center justify-center bg-white px-4">
+    <div class="w-full max-w-md p-6 shadow-lg bg-white flex flex-col text-black">
+      <h1 class="text-2xl font-semibold text-center text-gray-800 mb-6">เข้าสู่ระบบ</h1>
+
+      <form @submit.prevent="handleLogin" class="space-y-4">
+        <div class="space-y-2">
+          <label for="email" class="text-black">อีเมลล์</label>
+          <input
+            v-model="form.email"
+            type="email"
+            id="email"
+            placeholder="Ex. john.doe@gmail.com"
+            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            :class="{'border-red-500': emailError}"
+          />
+          <p v-if="emailError" class="text-red-500 text-sm">กรุณากรอกอีเมลล์</p>
+        </div>
+
+        <div class="space-y-2">
+          <label for="password" class="text-black">รหัสผ่าน</label>
+          <input
+            v-model="form.password"
+            type="password"
+            id="password"
+            placeholder="Ex. password1234"
+            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            :class="{'border-red-500': passwordError}"
+          />
+          <p v-if="passwordError" class="text-red-500 text-sm">กรุณากรอกรหัสผ่าน</p>
+        </div>
+
+        <button
+          type="submit"
+          :disabled="isLoading"
+          class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400"
+        >
+          เข้าสู่ระบบ
+        </button>
+      </form>
+
+      <p class="mt-4 text-center text-sm text-gray-600">
+        ยังไม่มีบัญชี?
+        <NuxtLink to="/register" class="text-blue-500 font-medium hover:underline">สมัครสมาชิก</NuxtLink>
+      </p>
+
+      <p v-if="errorMessage" class="mt-2 text-center text-red-500">{{ errorMessage }}</p>
     </div>
   </div>
 </template>
@@ -32,31 +54,19 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
-
-const form = ref({
-  email: '',
-  password: ''
-});
+const form = ref({ email: '', password: '' });
 const emailError = ref(false);
 const passwordError = ref(false);
 const isLoading = ref(false);
 const errorMessage = ref('');
-
 const router = useRouter();
 
 const handleLogin = async () => {
-  emailError.value = false;
-  passwordError.value = false;
+  emailError.value = !form.value.email;
+  passwordError.value = !form.value.password;
   errorMessage.value = '';
 
-  if (!form.value.email) {
-    emailError.value = true;
-    return;
-  }
-  if (!form.value.password) {
-    passwordError.value = true;
-    return;
-  }
+  if (emailError.value || passwordError.value) return;
 
   isLoading.value = true;
 
@@ -70,67 +80,9 @@ const handleLogin = async () => {
       errorMessage.value = 'Login failed: No token received.';
     }
   } catch (error) {
-    console.error(error.response || error);
     errorMessage.value = error.response?.data?.message || 'การเข้าสู่ระบบล้มเหลว กรุณาลองใหม่';
   } finally {
     isLoading.value = false;
   }
 };
 </script>
-
-<!-- <style scoped>
-* {
-  margin: 0;
-  padding: 0;
-  font-family: 'Roboto', sans-serif;
-}
-
-.container {
-  margin-top: 20px;
-}
-
-.card {
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.card-body {
-  gap: 10px;
-}
-
-.card-title {
-  text-align: center;
-  padding: 5px;
-  font-size: 2rem;
-}
-
-.form {
-  margin-bottom: 20px;
-}
-
-.form-label {
-  font-size: 1.2rem;
-}
-
-.form-control {
-  padding: 8px;
-}
-
-.form-btn {
-  border: none;
-  font-size: 1.2rem;
-  background: #146aff;
-  color: white;
-  width: 100%;
-  padding: 5px;
-  border-radius: 5px;
-}
-
-.register-link {
-  margin-top: 15px;
-  text-align: center;
-  font-size: 1rem;
-}
-</style>
->>>>>>> Stashed changes

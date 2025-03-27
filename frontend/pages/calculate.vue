@@ -1,29 +1,43 @@
 <template>
-    <div class="container">
-        <div class="topic">กรอกข้อมูล</div>
-
-        <div class="select-payment">
-            <button @click="selectedPayment = 'cash'" :class="{ active: selectedPayment === 'cash' }"
-                class="cash">ราคาซื้อสด</button>
-            <button @click="selectedPayment = 'installment'" :class="{ active: selectedPayment === 'installment' }"
-                class="installment">คำนวณเงินผ่อน</button>
+    <div class="flex flex-col items-center h-full p-4">
+        <h2 class="text-4xl font-extrabold text-[#696969] mb-5">กรอกข้อมูล</h2>
+        <div class="flex space-x-4 mb-6">
+            <button @click="selectedPayment = 'cash'"
+                :class="{ 'bg-black text-white': selectedPayment === 'cash', 'bg-white text-black border': selectedPayment !== 'cash' }"
+                class="px-6 py-2 rounded-lg border transition">
+                ราคาซื้อสด
+            </button>
+            <button @click="selectedPayment = 'installment'"
+                :class="{ 'bg-black text-white': selectedPayment === 'installment', 'bg-white text-black border': selectedPayment !== 'installment' }"
+                class="px-6 py-2 rounded-lg border transition">
+                คำนวณเงินผ่อน
+            </button>
         </div>
-        <div class="content">
+
+        <div class="w-full max-w-md">
             <cashPayment v-if="selectedPayment === 'cash'" />
             <installmentPayment v-if="selectedPayment === 'installment'" />
         </div>
 
-        <div class="btn">
-            <div class="back-btn" @click="goBack">กลับ</div>
-            <div class="confirm-btn" @click="goNext">ต่อไป</div>
+        <div class="flex flex-col space-y-4 w-full max-w-md mt-6">
+            <button @click="goBack"
+                class="py-3 px-4 text-[#696969] bg-gray-200 rounded-lg border hover:bg-gray-300">กลับ</button>
+            <button @click="goNext" class="py-3 px-4 text-white bg-red-700 rounded-lg hover:bg-red-800">ต่อไป</button>
         </div>
     </div>
-    <div v-if="showModal" class="modal-overlay">
-        <div class="modal">
-            <p class="modal-text">คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการเปลี่ยนแปลงของคุณ?</p>
-            <div class="modal-btn">
-                <button @click="discardChanges" class="confirm-btn">ยืนยัน</button>
-                <button @click="closeModal" class="back-btn">กลับ</button>
+
+    <div v-if="showModal" class="fixed inset-0 flex justify-center items-center bg-opacity-50 z-50">
+        <div class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center">
+            <p class="text-lg text-[#696969] mb-4">คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการเปลี่ยนแปลงของคุณ?</p>
+            <div class="flex gap-4 justify-center">
+                <button @click="discardChanges"
+                    class="py-3 px-6 text-lg font-semibold text-white bg-gradient-to-r from-red-600 to-red-500 rounded-lg hover:from-red-500 hover:to-red-400 transform transition-transform duration-200 hover:scale-105">
+                    ยืนยัน
+                </button>
+                <button @click="closeModal"
+                    class="py-3 px-6 text-lg font-medium text-gray-600 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transform transition-transform duration-200 hover:scale-105">
+                    กลับ
+                </button>
             </div>
         </div>
     </div>
@@ -39,194 +53,20 @@ const router = useRouter();
 const selectedPayment = ref('cash');
 const showModal = ref(false);
 
-const goBack = async () => {
-    openModal();
-};
-
-const goNext = async () => {
-    let dataToSend;
+const goBack = () => showModal.value = true;
+const goNext = () => {
     if (selectedPayment.value === 'cash') {
-        dataToSend = JSON.parse(localStorage.getItem('cashPlan'));
         localStorage.removeItem('installmentPlans');
-    } else if (selectedPayment.value === 'installment') {
-        dataToSend = JSON.parse(localStorage.getItem('installmentPlans'));
+    } else {
         localStorage.removeItem('cashPlan');
     }
     router.push('/select-accessories');
 };
-
-const openModal = () => {
-    showModal.value = true;
-};
-
-const closeModal = () => {
-    showModal.value = false;
-};
-
+const closeModal = () => showModal.value = false;
 const discardChanges = () => {
     showModal.value = false;
     router.push('/confirm-car');
 };
 
-definePageMeta({
-    middleware: 'staff-auth'
-});
+definePageMeta({ middleware: 'staff-auth' });
 </script>
-
-
-<style scoped>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Roboto', sans-serif;
-}
-
-.container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 100%;
-}
-
-.topic {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 800;
-    font-size: 32px;
-    color: #696969;
-    margin-bottom: 10px;
-}
-
-.select-payment {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    max-width: 300px;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.cash,
-.installment {
-    flex: 1;
-    text-align: center;
-    font-size: 20px;
-    padding: 10px 0;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: 0.3s ease;
-    border: 1px solid #000;
-    border: none;
-}
-
-.cash {
-    background: #FFFFFF;
-    color: #000000;
-}
-
-.installment {
-    background: #FFFFFF;
-    color: #000000;
-}
-
-.cash.active {
-    background: #000000;
-    color: #FFFFFF;
-}
-
-.installment.active {
-    background: #000000;
-    color: #FFFFFF;
-}
-
-.car-details {
-    width: 100%;
-    max-width: 335px;
-    padding: 15px;
-    background: #FFFFFF;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-    border-radius: 10px;
-    text-align: center;
-    font-family: 'Lexend Exa', sans-serif;
-    font-weight: 600;
-    font-size: 16px;
-    color: #000000;
-    margin-bottom: 20px;
-}
-
-.btn {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    width: 100%;
-    max-width: 400px;
-    padding: 1rem;
-    background: white;
-}
-
-
-.confirm-btn {
-    flex: 2;
-    padding: 0.875rem 1.5rem;
-    font-size: 1rem;
-    font-weight: 600;
-    color: white;
-    background: linear-gradient(135deg, #980000 0%, #980000 100%);
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.back-btn {
-    flex: 1;
-    padding: 0.875rem 1.5rem;
-    font-size: 1rem;
-    font-weight: 500;
-    color: #4b5563;
-    background-color: #f3f4f6;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.modal {
-    background-color: white;
-    position: absolute;
-    display: block;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0.2);
-    text-align: center;
-    max-width: 400px;
-    width: 90%;
-    animation: fadeIn 0.3s ease-in-out;
-    height: 200px;
-}
-
-.modal-btn {
-    display: flex;
-    gap: 1rem;
-    justify-content: space-between;
-    margin-top: 1rem;
-}
-</style>

@@ -1,17 +1,20 @@
 <template>
-    <div class="layout">
+    <div class="flex min-h-screen bg-[#ececec] w-full">
         <AdminSidebar />
-        <div class="content">
-            <div class="header">
-                <div class="title">Staff</div>
+        <div class="content flex flex-col flex-1" style="padding: 20px;">
+            <div class="header flex justify-between items-center px-5 py-2.5"
+                style="padding-inline: 20px; padding-block: 10px;">
+                <div class="text-6xl">Staff</div>
             </div>
-            <div class="staff-table">
-                <div class="back">
-                    <button @click="goBack" class="back-btn">
+            <div class="staff-table bg-white p-5 rounded-lg shadow-md relative min-h-[300px] overflow-hidden"
+                style=" border-collapse:collapse ; margin-top: 10px; width: 100%;">
+                <div class="back mb-4">
+                    <button @click="goBack" class="w-24 h-10 bg-red-600 text-white  rounded-md mb-2 "
+                        style="margin-bottom: 10px;">
                         < กลับ</button>
                 </div>
-                <div class="staff">
-                    <div class="staff-img">
+                <div class="staff bg-[#ECECEC] rounded-lg p-2.5 flex gap-2.5">
+                    <div class="staff-img h-[150px] bg-white w-[150px] flex justify-center items-center">
                         <svg width="100" height="100" viewBox="0 0 24 24" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
                             <path
@@ -19,18 +22,18 @@
                                 fill="#1E1E1E" />
                         </svg>
                     </div>
-                    <div class="staff-details">
-                        <div v-if="loading">Loading staff details...</div>
+                    <div class="staff-details ml-4 bg-[#ECECEC] p-2.5">
+                        <div v-if="loading" class="text-gray-500">Loading staff details...</div>
                         <div v-else-if="staffData">
-                            <div class="row-1">
+                            <div class="row-1 flex gap-3.5 my-1.5 text-xl font-bold">
                                 {{ staffData.firstName }} {{ staffData.lastName }}
                             </div>
-                            <div class="row-2">
-                                <p><strong>ตำแหน่ง :</strong> {{ staffData.role }}</p> 
+                            <div class="row-2 flex gap-3.5 my-1.5 text-lg">
+                                <p><strong>ตำแหน่ง :</strong> {{ staffData.role }}</p>
                                 <p><strong>จังหวัด : </strong> {{ staffData.city }}</p>
                                 <p><strong>สาขา : </strong> {{ staffData.branch }}</p>
                             </div>
-                            <div class="row-3">
+                            <div class="row-3 flex gap-3.5 my-1.5 text-lg">
                                 <p><strong>อีเมลล์ :</strong> {{ staffData.email }}</p>
                                 <p><strong>เบอร์โทรศัพท์ :</strong> {{ staffData.phoneNumber }}</p>
                                 <p><strong>เพศ :</strong> {{ staffData.gender }}</p>
@@ -41,28 +44,51 @@
                         </div>
                     </div>
                 </div>
-                <hr>
-                <div class="table-controls">
-                    <button class="filter-button">
-                        <img src="/assets/sort.png" alt="Filter" />
-                        Filter
-                    </button>
-                    <div class="search-bar">
-                        <input type="text" v-model="searchQuery" placeholder="ค้นหา" />
-                        <button @click="search">
-                            <img src="/assets/magnifying-glass.png" alt="Search" width="20" />
-                        </button>
+                <hr class="border-black" style="margin: 10px;">
+                <div class="table-controls flex items-center mb-2.5">
+                    <div class="relative w-full max-w-[230px]">
+                        <input type="text" v-model="searchQuery" @input="debouncedSearch" placeholder="ค้นหา"
+                            class="w-full pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 bg-white h-10 !pl-3" />
                     </div>
                 </div>
                 <div class="history-data">
-                    <div v-if="staffData && staffData.quotations">
-                        <p v-for="(quotation, index) in staffData.quotations" :key="index">
-                            {{ quotation.id }} {{ quotation.customer.firstname }} {{ quotation.customer.lastname }}
-                        </p>
-                    </div>
+                    <table v-if="staffData && staffData.quotations.length" class="history-table w-full border-collapse "
+                        style="margin-top: 8px;">
+                        <thead>
+                            <tr class="bg-gray-100 font-bold text-center">
+                                <th class="border text-left border-gray-300 p-2">ID</th>
+                                <th class="border text-left border-gray-300 p-2">ชื่อลูกค้า</th>
+                                <th class="border text-left border-gray-300 p-2">ใบเสนอราคา</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(quotation, index) in staffData.quotations" :key="index"
+                                @click="goToHistory(quotation.id)"
+                                class="hover:bg-gray-200 cursor-pointer clickable-row">
+                                <td class="border border-gray-300 p-2 text-center">{{ quotation.id }}</td>
+                                <td class="border border-gray-300 p-2 text-center">{{ quotation.customer.firstName }}
+                                </td>
+                                <td class="border border-gray-300 p-2 text-center">{{ quotation.carDetails.modelClass }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p v-else>ไม่มีข้อมูลใบเสนอราคา</p>
                 </div>
-                <div class="pagination">
-                    <- 1 ->
+                <div class="flex justify-center items-center gap-4 mt-6">
+                    <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1"
+                        class="px-4 py-2 bg-blue-500 text-white font-medium rounded-lg cursor-pointer transition-all duration-200 ease-in-out min-w-[42px] h-[38px] flex items-center justify-center shadow-md hover:bg-blue-600 hover:shadow-lg disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed">
+                        ⬅
+                    </button>
+
+                    <span class="text-gray-700 font-medium text-sm px-2 min-w-[120px] text-center">
+                        Page {{ currentPage }} of {{ totalPages }}
+                    </span>
+
+                    <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages"
+                        class="px-4 py-2 bg-blue-500 text-white font-medium rounded-lg cursor-pointer transition-all duration-200 ease-in-out min-w-[42px] h-[38px] flex items-center justify-center shadow-md hover:bg-blue-600 hover:shadow-lg disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed">
+                        ➡
+                    </button>
                 </div>
             </div>
         </div>
@@ -75,7 +101,6 @@ import { useRouter, useRoute } from 'vue-router';
 import { ref, onMounted } from 'vue';
 import axios from "axios";
 
-
 const route = useRoute();
 const router = useRouter();
 const staffId = route.params.id;
@@ -83,24 +108,11 @@ const staffData = ref(null);
 const loading = ref(true);
 const searchQuery = ref("");
 
-// const fetchStaffById = async () => {
-//     loading.value = true;
-//     try {
-//         const response = await axios.get(`http://localhost:3001/staff/${staffId}`);
-//         staffData.value = response.data;
-//         console.log(staffData)
-//     } catch (error) {
-//         console.error("Error fetching staff data:", error);
-//     } finally {
-//         loading.value = false;
-//     }
-// };
-
 const fetchStaffData = async () => {
     try {
         const response = await axios.get(`http://localhost:3001/staff/${staffId}`);
         staffData.value = response.data;
-        console.log(staffData)
+        console.log(staffData.value)
     } catch (error) {
         console.error("Error fetching staff data:", error);
     } finally {
@@ -108,40 +120,20 @@ const fetchStaffData = async () => {
     }
 };
 
-
-// async function fetchQuotationsByStaffId() {
-//     try {
-//         // Fetch staff details from localhost
-//         const staffResponse = await axios.get(`http://localhost:3001/staff/${staffId}`);
-//         const staffData = staffResponse.data;
-
-//         // Extract quotation IDs
-//         const quotationIds = staffData.data?.quotations || [];
-
-//         if (quotationIds.length === 0) {
-//             console.log("No quotations found for this staff.");
-//             return [];
-//         }
-
-//         // Fetch quotation details for each ID
-//         const quotations = await Promise.all(
-//             quotationIds.map(async (quotationId) => {
-//                 const response = await axios.get(`http://localhost:3001/quotation/${quotationId}`);
-//                 return response.data;
-//             })
-//         );
-
-//         console.log("Fetched quotations:", quotations);
-//         return quotations;
-//     } catch (error) {
-//         console.error("Error fetching quotations:", error);
-//         return [];
-//     }
-// }
+const changePage = (page) => {
+    if (page >= 1 && page <= totalPages.value) {
+        currentPage.value = page;
+        fetchData();
+    }
+};
 
 const goBack = () => {
-    router.push('/controller/staff')
-}
+    router.push('/controller/staff');
+};
+
+const goToHistory = (quotationId) => {
+    router.push(`/controller/history/${quotationId}`);
+};
 
 onMounted(() => {
     fetchStaffData();
@@ -150,47 +142,33 @@ onMounted(() => {
 definePageMeta({
     middleware: 'staff-auth',
     layout: false
-})
+});
 </script>
+
 <style scoped>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Roboto', sans-serif;
+.history-table th,
+.history-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
 }
 
-hr {
-    margin: 10px 0;
+.history-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
 }
 
-.layout {
-    display: flex;
-    min-height: 100vh;
-    background: #ececec;
-    width: 100vw;
+.history-table tr:nth-child(even) {
+    background-color: #f9f9f9;
 }
 
-.content {
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    flex: 1;
-}
-
-.title {
-    font-size: 3rem;
+.history-table tr:hover {
+    background-color: #e0e0e0;
+    cursor: pointer;
 }
 
 .sidebar-collapsed+.content {
     margin-left: 80px;
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
 }
 
 .staff-table {
@@ -204,16 +182,6 @@ hr {
     overflow: hidden;
 }
 
-.back-btn {
-    width: 100px;
-    height: 40px;
-    background: #E83842;
-    color: white;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    border-radius: 5px;
-    margin-bottom: 10px;
-}
-
 .staff {
     background: #ECECEC;
     border-radius: 5px;
@@ -222,31 +190,8 @@ hr {
     gap: 10px;
 }
 
-.staff-img {
-    height: 150px;
-    background: white;
-    width: 150px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-
-.staff-details {
-    background: #606060;
-    padding: 10px;
-}
-
 .action-btn {
     background: #7bff29;
-}
-
-.history-data {
-    background: #8a58ff;
-}
-
-.pagination {
-    background: #ff70bf;
 }
 
 .row-1,
@@ -259,7 +204,6 @@ hr {
 
 .row-1 {
     font-size: 22px;
-    font-weight: bold;
 }
 
 .row-2,
@@ -271,53 +215,5 @@ hr {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
-}
-
-.filter-button {
-    background: #fff;
-    border: 1px solid #0000001A;
-    padding: 8px 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    border-radius: 5px;
-    margin-right: 10px;
-    transition: all 0.3s ease;
-    height: 40px;
-}
-
-.filter-button img {
-    width: 16px;
-    height: 16px;
-    margin-right: 5px;
-}
-
-.filter-button:hover {
-    color: white;
-}
-
-.search-bar {
-    display: flex;
-    align-items: center;
-    padding: 5px;
-    border-radius: 5px;
-    transition: all 0.3s ease;
-}
-
-.search-bar input {
-    padding: 5px 10px;
-    outline: none;
-    border-radius: 5px;
-    width: 200px;
-    font-size: 1rem;
-}
-
-.search-bar button {
-    padding: 5px;
-    border: none;
-    color: white;
-    cursor: pointer;
-    border-radius: 5px;
-    margin-left: 5px;
 }
 </style>
