@@ -1,5 +1,5 @@
 <template>
-  <div class="layout">
+  <div class="layout text-black">
     <AdminSidebar />
     <div class="content">
       <div class="header">
