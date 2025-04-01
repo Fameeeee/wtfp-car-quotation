@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-center h-full p-4 space-y-6">
-    <h2 class="text-4xl font-extrabold text-[#696969] mb-5">อุปกรณ์ตกแต่ง</h2>
+    <h2 class="text-4xl font-extrabold text-[#696969] my-4">อุปกรณ์ตกแต่ง</h2>
     <input v-model="searchQuery" type="text" placeholder="ค้นหาอุปกรณ์"
       class="w-full p-3 mb-4 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 text-black placeholder-gray-500" />
 

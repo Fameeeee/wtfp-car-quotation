@@ -1,6 +1,6 @@
 <template>
     <div class="flex flex-col items-center p-4">
-        <h2 class="text-4xl font-extrabold text-[#696969] mb-5">ข้อมูลลูกค้า</h2>
+        <h2 class="text-4xl font-extrabold text-[#696969] my-4">ข้อมูลลูกค้า</h2>
         <div class="flex flex-col w-full max-w-lg">
             <div class="flex flex-col bg-white p-6 rounded-lg shadow-lg gap-4">
                 <div class="flex flex-col items-center justify-between text-lg font-medium text-gray-800">

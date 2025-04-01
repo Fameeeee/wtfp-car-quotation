@@ -1,6 +1,6 @@
 <template>
     <div class="flex justify-center p-8">
-        <div class="bg-white rounded-2xl shadow-lg w-full max-w-md p-8 mt-8 border">
+        <div class="bg-white rounded-2xl shadow-lg w-full max-w-md p-8 border">
             <div class="text-center mb-8">
                 <h2 class="text-2xl font-semibold text-gray-800">ยืนยันรายการที่เลือก</h2>
             </div>

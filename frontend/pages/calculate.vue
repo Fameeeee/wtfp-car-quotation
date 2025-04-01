@@ -1,6 +1,6 @@
 <template>
     <div class="flex flex-col items-center h-full p-4">
-        <h2 class="text-4xl font-extrabold text-[#696969] mb-5">กรอกข้อมูล</h2>
+        <h2 class="text-4xl font-extrabold text-[#696969] my-4">กรอกข้อมูล</h2>
         <div class="flex space-x-4 mb-6">
             <button @click="selectedPayment = 'cash'"
                 :class="{ 'bg-black text-white': selectedPayment === 'cash', 'bg-white text-black border': selectedPayment !== 'cash' }"
