@@ -22,7 +22,7 @@
         <div class="flex flex-col space-y-4 w-full max-w-md mt-6">
             <button @click="goBack"
                 class="py-3 px-4 text-[#696969] bg-gray-200 rounded-lg border hover:bg-gray-300">กลับ</button>
-            <button @click="goNext" class="py-3 px-4 text-white bg-red-700 rounded-lg hover:bg-red-800">ต่อไป</button>
+            <button @click="goNext" class="py-3 px-4 text-white bg-[#980000] rounded-lg hover:bg-red-800">ต่อไป</button>
         </div>
     </div>
 
@@ -31,7 +31,7 @@
             <p class="text-lg text-[#696969] mb-4">คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการเปลี่ยนแปลงของคุณ?</p>
             <div class="flex gap-4 justify-center">
                 <button @click="discardChanges"
-                    class="py-3 px-6 text-lg font-semibold text-white bg-gradient-to-r from-red-600 to-red-500 rounded-lg hover:from-red-500 hover:to-red-400 transform transition-transform duration-200 hover:scale-105">
+                    class="py-3 px-6 text-lg font-semibold text-white bg-[#980000] from-red-600 to-red-500 rounded-lg hover:from-red-500 hover:to-red-400 transform transition-transform duration-200 hover:scale-105">
                     ยืนยัน
                 </button>
                 <button @click="closeModal"

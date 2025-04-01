@@ -1,6 +1,6 @@
 <template>
-    <div class="flex justify-center mt-8 p-8 bg-gray-100">
-        <div class="bg-white rounded-2xl shadow-lg w-full max-w-md p-8 mt-8">
+    <div class="flex justify-center p-8">
+        <div class="bg-white rounded-2xl shadow-lg w-full max-w-md p-8 mt-8 border">
             <div class="text-center mb-8">
                 <h2 class="text-2xl font-semibold text-gray-800">ยืนยันรายการที่เลือก</h2>
             </div>
@@ -28,7 +28,7 @@
             </div>
             <div class="flex gap-4 mt-8">
                 <button @click="confirmSelection"
-                    class="flex-1 py-3 text-lg font-semibold text-white bg-gradient-to-r from-red-600 to-red-500 rounded-lg hover:from-red-500 hover:to-red-400 transform transition-transform duration-200 hover:scale-105">
+                    class="flex-1 py-3 text-lg font-semibold text-white bg-[#980000] from-red-600 to-red-500 rounded-lg hover:from-red-500 hover:to-red-400 transform transition-transform duration-200 hover:scale-105">
                     ยืนยัน
                 </button>
                 <button @click="goBack"
@@ -44,7 +44,7 @@
             <p class="text-lg text-[#696969] mb-4">คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการเปลี่ยนแปลงของคุณ?</p>
             <div class="flex gap-4 justify-center">
                 <button @click="discardChanges"
-                    class="py-3 px-6 text-lg font-semibold text-white bg-gradient-to-r from-red-600 to-red-500 rounded-lg hover:from-red-500 hover:to-red-400 transform transition-transform duration-200 hover:scale-105">
+                    class="py-3 px-6 text-lg font-semibold text-white bg-[#980000] from-red-600 to-red-500 rounded-lg hover:from-red-500 hover:to-red-400 transform transition-transform duration-200 hover:scale-105">
                     ยืนยัน
                 </button>
                 <button @click="closeModal"
