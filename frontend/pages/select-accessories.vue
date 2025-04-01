@@ -42,30 +42,15 @@
 
     <div class="mt-4 text-lg font-bold text-black">ราคารวม: {{ totalPrice.toLocaleString() }} ฿</div>
 
-    <div class="flex flex-col space-y-4 w-full max-w-md mt-6">
-      <button @click="goBack"
-        class="py-3 px-4 text-[#696969] bg-gray-200 rounded-lg border hover:bg-gray-300">กลับ</button>
-      <button @click="confirm" class="py-3 px-4 text-white bg-red-700 rounded-lg hover:bg-red-800">ต่อไป</button>
-    </div>
+    <buttonGroup :goBack="goBack" :goNext="goNext" />
   </div>
-  <div v-if="showModal" class="fixed inset-0 flex justify-center items-center bg-opacity-50 z-50">
-    <div class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center">
-      <p class="text-lg text-[#696969] mb-4">คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการเปลี่ยนแปลงของคุณ?</p>
-      <div class="flex gap-4 justify-center">
-        <button @click="discardChanges"
-          class="py-3 px-6 text-lg font-semibold text-white bg-gradient-to-r from-red-600 to-red-500 rounded-lg hover:from-red-500 hover:to-red-400 transform transition-transform duration-200 hover:scale-105">
-          ยืนยัน
-        </button>
-        <button @click="closeModal"
-          class="py-3 px-6 text-lg font-medium text-gray-600 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transform transition-transform duration-200 hover:scale-105">
-          กลับ
-        </button>
-      </div>
-    </div>
-  </div>
+  <modalConfirm v-if="showModal" message="คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการเปลี่ยนแปลงของคุณ?" confirmText="ยืนยัน"
+    cancelText="กลับ" @confirm="discardChanges" @cancel="closeModal" />
 </template>
 
 <script setup>
+import buttonGroup from '~/components/user/buttonGroup.vue';
+import modalConfirm from '~/components/user/modalConfirm.vue';
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -164,7 +149,7 @@ const closeModal = () => {
   showModal.value = false;
 };
 
-const confirm = () => {
+const goNext = () => {
   router.push('/add-cost')
 }
 
