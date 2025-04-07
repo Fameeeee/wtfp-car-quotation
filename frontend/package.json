@@ -19,6 +19,8 @@
     "@tailwindcss/vite": "^4.0.14",
     "chartjs": "^0.3.24",
     "dayjs": "^1.11.13",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.1",
     "nuxt": "^3.16.1",
     "nuxt-app": "file:",
     "vue": "latest",

@@ -98,11 +98,7 @@ const validateForm = () => {
     return !errors.value.firstName && !errors.value.lastName && !errors.value.phoneNumber;
 };
 
-const saveToLocalStorage = () => {
-    localStorage.setItem('customerDetails', JSON.stringify(customer.value));
-};
-
-const goBack = async () => {
+const goBack = () => {
     showModal.value = true;
 };
 
