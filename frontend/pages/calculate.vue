@@ -53,11 +53,8 @@ const goNext = () => {
 const closeModal = () => showModal.value = false;
 const discardChanges = () => {
     showModal.value = false;
-    if (selectedPayment.value === 'installment') {
-        localStorage.removeItem('installmentPlans');
-    } else {
-        localStorage.removeItem('cashPlan');
-    }
+    localStorage.removeItem('cashPlan');
+    localStorage.removeItem('installmentPlans');
     router.push('/confirm-car');
 };
 
