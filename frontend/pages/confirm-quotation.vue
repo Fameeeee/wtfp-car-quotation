@@ -21,13 +21,14 @@
         <buttonGroup :goBack="goBack" :goNext="goNext" />
     </div>
 
-    <modalConfirm v-if="showModal" message="ยืนยันรายการ" confirmText="ยืนยัน" cancelText="กลับ"
-        @confirm="confirm" @cancel="closeModal" />
+    <modalConfirm v-if="showModal" message="ยืนยันรายการ" confirmText="ยืนยัน" cancelText="กลับ" @confirm="confirm"
+        @cancel="closeModal" />
 
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import axios from 'axios';
 import carDetailsTable from '~/components/user/carDetailsTable.vue';
 import cashTable from '~/components/user/cashTable.vue';
 import installmentTable from '~/components/user/installmentTable.vue';
@@ -44,6 +45,7 @@ const paymentPlan = ref('');
 const cashPlan = ref({});
 const installmentPlans = ref([]);
 const showModal = ref(false);
+const staffId = ref(null);
 
 onMounted(() => {
     const storedCashPlan = localStorage.getItem('cashPlan');
@@ -75,9 +77,70 @@ const goNext = () => {
     showModal.value = true;
 };
 
-const confirm = () => {
+onMounted(() => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+        try {
+            const decodedToken = atob(token.split(".")[1]);
+            const parsedToken = JSON.parse(decodedToken);
+            staffId.value = parsedToken.id;
+        } catch (error) {
+            console.error("Invalid token", error);
+        }
+    }
+});
+
+const confirm = async () => {
     showModal.value = false;
-    router.push('/quotation-success');
+
+    const selectedCar = JSON.parse(localStorage.getItem('selectedCar') || '{}');
+    const storedCashPlan = localStorage.getItem('cashPlan');
+    const storedInstallmentPlans = localStorage.getItem('installmentPlans');
+    const selectedAccessories = JSON.parse(localStorage.getItem('selectedAccessories') || '[]');
+    const additionCost = JSON.parse(localStorage.getItem('additionCost') || '{}');
+    const customerDetails = JSON.parse(localStorage.getItem('customerDetails') || '{}');
+
+
+    const dataToSend = {
+        customer: customerDetails,
+        paymentMethod: storedCashPlan ? 'cash' : (storedInstallmentPlans ? 'installment' : null),
+        additionCosts: {
+            cmi: additionCost.cmiCheck ? true : false,
+            insurance: additionCost.insuranceCheck ? true : false,
+            fuelValue: additionCost.fuelValue || null,
+            note: additionCost.note || null
+        },
+        carDetails: {
+            unitType: selectedCar.unitType,
+            modelClass: selectedCar.modelClass,
+            modelCodeName: selectedCar.modelCodeName,
+            modelGName: selectedCar.modelGName,
+            price: selectedCar.price,
+            color: selectedCar.color
+        },
+        accessories: selectedAccessories.map((item) => ({ assType: item.assType, assName: item.assName, price: item.price })),
+        staffId: staffId.value
+    }
+
+    if (storedCashPlan) {
+        dataToSend.paymentMethod = 'cash';
+        dataToSend.cashPlans = JSON.parse(storedCashPlan);
+    } else if (storedInstallmentPlans) {
+        dataToSend.paymentMethod = 'installment';
+        dataToSend.installmentPlans = JSON.parse(storedInstallmentPlans);
+    }
+
+    axios.post('http://localhost:3001/quotation/create', dataToSend)
+        .then(response => {
+            const quotationId = response.data.quotationId;
+            showModal.value = false;
+            router.push(`/quotation-success/${quotationId}`);
+        })
+        .catch(error => {
+            console.error('Error creating quotation:', error);
+            showModal.value = false;
+        }
+        );
 }
 
 const closeModal = () => {

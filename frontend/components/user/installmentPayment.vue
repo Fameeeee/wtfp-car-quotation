@@ -49,7 +49,9 @@
                 <div v-if="activePlan?.planDetails?.length">
                     <p class="text-center font-bold text-black">อัตราดอกเบี้ย</p>
                     <div v-for="(plan, index) in activePlan.planDetails" :key="index" class="mt-2">
-                        <input v-model.number="plan.interestRate" type="number"
+                        <input v-model.number="plan.interestRate"
+                            @blur="handleInterestRateBlur(plan, index)"
+                            type="number"
                             class="w-full p-2 border border-black rounded-lg text-center text-black placeholder-gray-400"
                             placeholder="%" />
                     </div>
@@ -170,4 +172,9 @@ const calculateMonthlyPayments = () => {
     }) || [];
 };
 
+const handleInterestRateBlur = (plan, index) => {
+    if (plan.interestRate === '') {
+        plan.interestRate = null;  
+    }
+};
 </script>

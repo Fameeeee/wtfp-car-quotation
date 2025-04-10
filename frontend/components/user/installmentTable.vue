@@ -18,7 +18,7 @@
                         <td class="border scale-text">{{ order.specialDiscount ?? '0' }}</td>
                         <td class="border scale-text">{{ order.additionPrice ?? '0' }}</td>
                         <td class="border scale-text">{{ calculateNetPrice(order) ?? '0' }}</td>
-                        <td class="border scale-text">{{ order.downPayment }}</td>
+                        <td class="border scale-text">{{ calculateDownPayment(order) }}</td>
                         <td class="border scale-text">
                             <div v-for="(plan, i) in order.planDetails" :key="i" class="relative">
                                 {{ plan.period }}
@@ -34,10 +34,10 @@
                         <td class="border scale-text">
                             <div v-for="(plan, i) in order.planDetails" :key="i" class="relative">
                                 {{ calculateMonthlyInstallment(order, plan) ?? '0' }}
-                                <hr v-if="calculateMonthlyInstallment(order, plan) && i !== order.planDetails.length - 1"
-                                    class="my-1 border-t-1" />
+                                <hr v-if="i !== order.planDetails.length - 1" class="my-1 border-t-1" />
                             </div>
                         </td>
+
                     </tr>
                 </tbody>
                 <tbody v-if="index !== installmentPlans.length - 1">
@@ -53,34 +53,89 @@
 
 
 <script setup>
-defineProps({
-    installmentPlans: {
-        type: Array,
-        required: true
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+import { useRoute } from 'vue-router';
+
+const installmentPlans = ref([]);
+const carPrice = ref(0);
+const activePlan = ref({});
+
+const route = useRoute();
+const quotationId = route.params.id;
+
+const fetchInstallmentPlansFromLocalStorage = () => {
+    const plansFromLocalStorage = JSON.parse(localStorage.getItem('installmentPlans') || '[]');
+    installmentPlans.value = plansFromLocalStorage;
+};
+
+const fetchInstallmentPlansFromApi = async () => {
+    try {
+        const response = await axios.get(`http://localhost:3001/quotation/${quotationId}`);
+        installmentPlans.value = response.data.installmentPlans || [];
+        carPrice.value = response.data.carDetails?.price || 0;
+
+        if (response.data.carDetails?.downPaymentPercent) {
+            activePlan.value.downPaymentPercent = response.data.carDetails.downPaymentPercent;
+        }
+
+    } catch (error) {
+        console.error('Error fetching data from API:', error);
+    }
+};
+
+onMounted(() => {
+    if (quotationId) {
+        fetchInstallmentPlansFromApi();  
+    } else {
+        fetchInstallmentPlansFromLocalStorage();  
+        setCarPrice(); 
     }
 });
 
+const setCarPrice = () => {
+    const storedCar = localStorage.getItem('selectedCar');
+    if (storedCar) {
+        const carData = JSON.parse(storedCar);
+        carPrice.value = carData?.price || 0;  
+    }
+};
+
 const calculateNetPrice = (order) => {
-    const discount = order.specialDiscount ?? 0;
-    const additionPrice = order.additionPrice ?? 0;
-    return (order.downPayment + discount + additionPrice).toLocaleString();
+  const discount = order.specialDiscount ?? 0;
+  const additionPrice = order.additionPrice ?? 0;
+  return carPrice.value - discount + additionPrice;
+};
+
+const calculateDownPayment = (order) => {
+  const downPaymentPercent = order.downPaymentPercent ?? 0;
+  const netPrice = calculateNetPrice(order);
+  return Math.round((downPaymentPercent / 100) * netPrice);
 };
 
 const calculateMonthlyInstallment = (order, plan) => {
-    if (!plan.interestRate) {
-        return '0';
-    }
+  const interestRate = plan.interestRate ?? 0;
+  const period = plan.period;
 
-    const period = plan.period;
-    const downPayment = order.downPayment;
-    const interestRate = plan.interestRate ?? 0;
+  const netPrice = calculateNetPrice(order);
+  const downPayment = calculateDownPayment(order);
+  const loanAmount = netPrice - downPayment;
 
-    const loanAmount = order.downPayment;
-    const totalLoanWithInterest = loanAmount + (loanAmount * (interestRate / 100));
-    const monthlyInstallment = Math.round(totalLoanWithInterest / period);
+  if (interestRate === 0) {
+    return Math.round(loanAmount / period);
+  }
 
-    return `${monthlyInstallment}`;
+  const monthlyRate = (interestRate / 100) / 12;
+  const factor = Math.pow(1 + monthlyRate, period);
+
+  const monthlyPayment = loanAmount * ((monthlyRate * factor) / (factor - 1));
+
+  return Math.round(monthlyPayment);
 };
+
+watch(() => activePlan.value.downPaymentPercent, (newDownPaymentPercent) => {
+    activePlan.value.downPayment = calculateDownPayment(newDownPaymentPercent);
+});
 </script>
 
 <style scoped>

@@ -20,11 +20,35 @@
 </template>
 
 <script setup>
-defineProps({
-    cashPlan: {
-        type: Object,
-        required: true
-    }
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+import { useRoute } from 'vue-router';
+
+const cashPlan = ref({});
+
+const route = useRoute();
+const quotationId = route.params.id;
+
+const fetchDataFromLocalStorage = () => {
+  const cashPlanFromLocalStorage = JSON.parse(localStorage.getItem('cashPlan') || '{}');
+  cashPlan.value = cashPlanFromLocalStorage;
+};
+
+const fetchDataFromApi = async () => {
+  try {
+    const response = await axios.get(`http://localhost:3001/quotation/${quotationId}`);
+    cashPlan.value = response.data.cashPlans || {};
+  } catch (error) {
+    console.error('Error fetching data from API:', error);
+  }
+};
+
+onMounted(() => {
+  if (quotationId) {
+    fetchDataFromApi(); 
+  } else {
+    fetchDataFromLocalStorage(); 
+  }
 });
 </script>
 

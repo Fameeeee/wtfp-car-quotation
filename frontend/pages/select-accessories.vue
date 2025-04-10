@@ -40,7 +40,7 @@
       </table>
     </div>
 
-    <div class="mt-4 text-lg font-bold text-black">ราคารวม: {{ totalPrice.toLocaleString() }} ฿</div>
+    <div class="mt-2 text-lg font-bold text-black">ราคารวม: {{ totalPrice.toLocaleString() }} ฿</div>
 
     <buttonGroup :goBack="goBack" :goNext="goNext" />
   </div>
@@ -53,6 +53,7 @@ import buttonGroup from '~/components/user/buttonGroup.vue';
 import modalDiscard from '~/components/user/modalDiscard.vue';
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import axios from 'axios';
 
 const router = useRouter();
 const config = useRuntimeConfig();
@@ -68,8 +69,8 @@ const fetchAccessories = async () => {
   const selectedCar = JSON.parse(localStorage.getItem('selectedCar'));
   if (selectedCar?.id) {
     try {
-      const response = await fetch(`${apiUrl}/standard-base/standard-name/${selectedCar.id}`);
-      const data = await response.json();
+      const response = await axios.get(`${apiUrl}/standard-base/standard-name/${selectedCar.id}`);
+      const data = await response.data;
       accessories.value = data[0].StandardAccBase.map(item => ({
         assType: item.accBase.assType,
         assName: item.accBase.assName,
