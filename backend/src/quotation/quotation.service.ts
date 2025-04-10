@@ -55,18 +55,6 @@ export class QuotationService {
       cashPlans = dto.cashPlans || null;
     }
 
-    console.log('Mapped Quotation:', {
-      quotationDate: new Date(),
-      paymentMethod: dto.paymentMethod,
-      cashPlans,
-      installmentPlans,
-      additionCosts: dto.additionCosts,
-      carDetails: dto.carDetails,
-      accessories: dto.accessories || null,
-      customer,
-      staff,
-  });
-
     const quotation = this.quotationRepository.create({
       quotationDate: new Date(),
       paymentMethod: dto.paymentMethod,
