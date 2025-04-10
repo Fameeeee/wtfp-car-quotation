@@ -69,7 +69,7 @@ export class QuotationService {
 
     await this.quotationRepository.save(quotation);
 
-    return 'Create Successfully';
+    return { quotationId: quotation.id };
   }
 
   async getAllQuotation(page: number, limit: number, search?: string) {

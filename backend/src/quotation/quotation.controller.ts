@@ -8,9 +8,14 @@ export class QuotationController {
   constructor(private readonly quotationService: QuotationService) { }
 
   @Post('create')
-  async create(@Body() dto: CreateQuotationDto): Promise<{ message: string } | { error: string }> {
+  async create(@Body() dto: CreateQuotationDto): Promise<{ message: string, quotationId?: number } | { error: string }> {
     try {
-      await this.quotationService.createQuotation(dto);
+      const result = await this.quotationService.createQuotation(dto);
+
+      if (result && result.quotationId) {
+        return { message: 'Quotation created successfully', quotationId: result.quotationId };
+
+      }
       return { message: 'Created Successfully' };
     } catch (error) {
       return { error: error.message || 'An error occurred' };
