@@ -20,6 +20,10 @@
         </div>
         <buttonGroup :goBack="goBack" :goNext="goNext" />
     </div>
+
+    <modalConfirm v-if="showModal" message="ยืนยันรายการ" confirmText="ยืนยัน" cancelText="กลับ"
+        @confirm="confirm" @cancel="closeModal" />
+
 </template>
 
 <script setup>
@@ -30,15 +34,16 @@ import installmentTable from '~/components/user/installmentTable.vue';
 import accessoriesTable from '~/components/user/accessoriesTable.vue';
 import noteField from '~/components/user/noteField.vue';
 import buttonGroup from '~/components/user/buttonGroup.vue';
+import modalConfirm from '~/components/user/modalConfirm.vue';
 import { useRouter } from 'vue-router';
+import ModalConfirm from '~/components/user/modalConfirm.vue';
 
 const router = useRouter();
 const customer = ref('');
 const paymentPlan = ref('');
-const isCashPlan = ref(false);
-const isInstallmentPlan = ref(false);
 const cashPlan = ref({});
 const installmentPlans = ref([]);
+const showModal = ref(false);
 
 onMounted(() => {
     const storedCashPlan = localStorage.getItem('cashPlan');
@@ -67,8 +72,19 @@ const goBack = () => {
 };
 
 const goNext = () => {
-    router.push('/quotation-success');
+    showModal.value = true;
 };
+
+const confirm = () => {
+    showModal.value = false;
+    router.push('/quotation-success');
+}
+
+const closeModal = () => {
+    showModal.value = false;
+};
+
+
 
 definePageMeta({
     middleware: 'staff-auth'

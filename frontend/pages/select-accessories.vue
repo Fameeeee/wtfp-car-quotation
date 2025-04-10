@@ -44,13 +44,13 @@
 
     <buttonGroup :goBack="goBack" :goNext="goNext" />
   </div>
-  <modalConfirm v-if="showModal" message="คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการเปลี่ยนแปลงของคุณ?" confirmText="ยืนยัน"
+  <modalDiscard v-if="showModal" message="คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการเปลี่ยนแปลงของคุณ?" confirmText="ยืนยัน"
     cancelText="กลับ" @confirm="discardChanges" @cancel="closeModal" />
 </template>
 
 <script setup>
 import buttonGroup from '~/components/user/buttonGroup.vue';
-import modalConfirm from '~/components/user/modalConfirm.vue';
+import modalDiscard from '~/components/user/modalDiscard.vue';
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
