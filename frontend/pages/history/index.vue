@@ -62,7 +62,6 @@ const fetchQuotations = async () => {
     try {
         const response = await axios.get(`http://localhost:3001/staff/${id}`);
         quotations.value = response.data.quotations;
-        console.log("Quotations fetched:", quotations.value);
     } catch (error) {
         console.error("Error fetching quotations:", error);
     }
