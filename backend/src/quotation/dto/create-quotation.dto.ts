@@ -3,6 +3,7 @@ import { PaymentMethod } from "../entities/quotation.entity";
 import { Type } from "class-transformer";
 import { CreateCustomerDto } from "src/customer/dto/create-customer.dto";
 
+
 class CashPlansDto {
     @IsOptional()
     @IsNumber()
@@ -19,10 +20,7 @@ class CashPlansDto {
 
 class InstallmentPlansDto {
     @IsNumber()
-    planNumber: number;
-
-    @IsNumber()
-    downPayment: number;
+    orderNumber: number;
 
     @IsOptional()
     @IsNumber()
@@ -32,27 +30,24 @@ class InstallmentPlansDto {
     @IsNumber()
     additionPrice?: number;
 
+    @IsOptional()
+    @IsNumber()
+    downPaymentPercent?: number;
+
     @IsArray()
     @ValidateNested({ each: true })
-    @Type(() => InstallmentOrderDto)
-    orders: InstallmentOrderDto[];
+    @Type(() => InstallmentPlanDetailDto)
+    planDetails: InstallmentPlanDetailDto[];
 }
 
-class InstallmentOrderDto {
-    @IsNumber()
-    orderNumber: number;
-
+class InstallmentPlanDetailDto {
     @IsNumber()
     period: number;
 
-    @IsOptional()
     @IsNumber()
-    monthlyPayment?: number;
-
-    @IsOptional()
-    @IsNumber()
-    interestRate?: number;
+    interestRate: number;
 }
+
 
 class CarDetailsDto {
     @IsNotEmpty()
@@ -87,6 +82,22 @@ class AccessoryDto {
     price: number;
 }
 
+class AdditionCostsDto {
+    @IsOptional()
+    cmi: boolean;
+
+    @IsOptional()
+    insurance: boolean;
+
+    @IsOptional()
+    @IsNumber()
+    fuelValue?: number;
+
+    @IsOptional()
+    @IsString()
+    note?: string;
+}
+
 export class CreateQuotationDto {
     @IsNotEmpty()
     @IsEnum(PaymentMethod)
@@ -103,9 +114,11 @@ export class CreateQuotationDto {
     @Type(() => InstallmentPlansDto)
     installmentPlans?: InstallmentPlansDto[];
 
-    @IsString()
+
     @IsOptional()
-    note?: string;
+    @ValidateNested()
+    @Type(() => AdditionCostsDto)
+    additionCosts?: AdditionCostsDto;
 
     @IsNotEmpty()
     @ValidateNested()

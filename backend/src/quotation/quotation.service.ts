@@ -34,24 +34,45 @@ export class QuotationService {
     let cashPlans = null;
     let installmentPlans = null;
 
-    if (dto.paymentMethod === PaymentMethod.INSTALLMENT) {
+    if (PaymentMethod.INSTALLMENT) {
       if (!dto.installmentPlans || dto.installmentPlans.length === 0) {
         throw new BadRequestException('Installment plans are required for installment payments.');
       }
       if (dto.installmentPlans.length > 3) {
         throw new BadRequestException('A maximum of 3 installment plans is allowed.');
       }
-      installmentPlans = dto.installmentPlans;
+      installmentPlans = dto.installmentPlans.map(plan => ({
+        orderNumber: plan.orderNumber,
+        specialDiscount: plan.specialDiscount,
+        additionPrice: plan.additionPrice,
+        downPaymentPercent: plan.downPaymentPercent,
+        planDetails: plan.planDetails.map(detail => ({
+          period: detail.period,
+          interestRate: detail.interestRate,
+        })),
+      }));
     } else {
       cashPlans = dto.cashPlans || null;
     }
+
+    console.log('Mapped Quotation:', {
+      quotationDate: new Date(),
+      paymentMethod: dto.paymentMethod,
+      cashPlans,
+      installmentPlans,
+      additionCosts: dto.additionCosts,
+      carDetails: dto.carDetails,
+      accessories: dto.accessories || null,
+      customer,
+      staff,
+  });
 
     const quotation = this.quotationRepository.create({
       quotationDate: new Date(),
       paymentMethod: dto.paymentMethod,
       cashPlans,
       installmentPlans,
-      note: dto.note || null,
+      additionCosts: dto.additionCosts,
       carDetails: dto.carDetails,
       accessories: dto.accessories || null,
       customer,
@@ -59,6 +80,8 @@ export class QuotationService {
     });
 
     await this.quotationRepository.save(quotation);
+
+    return 'Create Successfully';
   }
 
   async getAllQuotation(page: number, limit: number, search?: string) {
