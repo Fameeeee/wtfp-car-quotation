@@ -34,7 +34,7 @@ export class QuotationService {
     let cashPlans = null;
     let installmentPlans = null;
 
-    if (PaymentMethod.INSTALLMENT) {
+    if (dto.paymentMethod === PaymentMethod.INSTALLMENT) {
       if (!dto.installmentPlans || dto.installmentPlans.length === 0) {
         throw new BadRequestException('Installment plans are required for installment payments.');
       }
@@ -58,7 +58,7 @@ export class QuotationService {
     const quotation = this.quotationRepository.create({
       quotationDate: new Date(),
       paymentMethod: dto.paymentMethod,
-      cashPlans,
+      cashPlans: dto.cashPlans || null,
       installmentPlans,
       additionCosts: dto.additionCosts,
       carDetails: dto.carDetails,
