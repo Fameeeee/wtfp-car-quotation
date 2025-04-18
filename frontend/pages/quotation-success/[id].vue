@@ -1,7 +1,8 @@
 <template>
     <div class="flex flex-col items-center h-full p-2">
         <h2 class="text-3xl font-extrabold text-[#696969] my-4 text-center">สรุปยอดรายการ</h2>
-        <div id="quotation-content" class="flex flex-col w-full max-w-lg p-4 gap-2 border border-black bg-white rounded-md">
+        <div id="quotation-content"
+            class="flex flex-col w-full max-w-lg p-4 gap-2 border border-black bg-white rounded-md">
             <div class="flex flex-col items-center justify-center w-full max-w-lg text-center">
                 <img src="../../public/assets/isuzu-quotation-logo.png" alt="ISUZU Logo" class="w-40 h-auto " />
             </div>
@@ -17,7 +18,7 @@
 
             <u class="text-black">เรื่อง ใบเสนอราคา</u>
             <u class="text-black">เรียน {{ quotationData?.customer?.firstName }} {{ quotationData?.customer?.lastName
-            }}</u>
+                }}</u>
 
             <carDetailsTable />
             <h2 class="text-black"><u>เงื่อนไขการชำระ : {{ paymentPlan }}</u></h2>
@@ -38,12 +39,14 @@
 
             <div class="flex justify-end w-full mt-4">
                 <div class="text-center text-black text-sm flex flex-col items-center">
-                    <div>ผู้เสนอราคา</div>
-                    <div>{{ quotationData?.staff?.firstName }} {{ quotationData?.staff?.lastName }}</div>
-                    <div>(ที่ปรึกษาการขาย)</div>
-                    <div>Tel: {{ quotationData?.staff?.phoneNumber }}</div>
+                    <div class="whitespace-nowrap">ผู้เสนอราคา</div>
+                    <div class="whitespace-nowrap">{{ quotationData?.staff?.firstName }} {{
+                        quotationData?.staff?.lastName }}</div>
+                    <div class="whitespace-nowrap">(ที่ปรึกษาการขาย)</div>
+                    <div class="whitespace-nowrap">Tel: {{ quotationData?.staff?.phoneNumber }}</div>
                 </div>
             </div>
+
         </div>
         <div>
             <button @click="exportToImage" class="py-3 px-4 text-black rounded-lg">
@@ -64,7 +67,7 @@
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
 import { ref } from 'vue';
-import html2canvas from 'html2canvas'
+import { toPng } from 'html-to-image';
 
 import carDetailsTable from '~/components/user/carDetailsTable.vue';
 import accessoriesTable from '~/components/user/accessoriesTable.vue';
@@ -109,24 +112,44 @@ const formattedDate = computed(() => {
 });
 
 const exportToImage = async () => {
-    const element = document.getElementById('quotation-content'); 
-    
-    if (!element) {
-        console.error("Element not found!");
-        return;
+    const node = document.getElementById('quotation-content');
+    if (!node) return;
+
+
+    const clonedNode = node.cloneNode(true);
+
+    const fontStyle = document.createElement('style');
+    fontStyle.innerHTML = `
+    body {
+      font-family: 'Noto Sans Thai', sans-serif !important;
+      font-weight: 500;
+      font-style: normal;
     }
+  `;
+    clonedNode.prepend(fontStyle);
+
+    const container = document.createElement('div');
+    container.style.position = 'absolute';
+    container.style.top = '-9999px';
+    container.appendChild(clonedNode);
+    document.body.appendChild(container);
 
     try {
-        const canvas = await html2canvas(element, { scale: 2 });
+        const dataUrl = await toPng(clonedNode, {
+            pixelRatio: 2,
+            cacheBust: true
+        });
+
         const link = document.createElement('a');
-        link.download = `quotation-${quotationData.value.id || 'image'}.png`; 
-        link.href = canvas.toDataURL('image/png');  
-        link.click();  
+        link.download = 'quotation.png';
+        link.href = dataUrl;
+        link.click();
     } catch (error) {
-        console.error('Error while capturing the image:', error);
+        console.error('Export failed:', error);
+    } finally {
+        document.body.removeChild(container);
     }
 };
-
 
 const goHome = () => {
     localStorage.removeItem('selectedCar');

@@ -7,9 +7,11 @@
 </template>
 
 <style>
-* {
-  box-sizing: border-box;
+
+
+body {
   font-family: 'Noto Sans Thai', sans-serif;
-  font-weight: 700;
+  font-weight: 500;
+  font-style: normal;
 }
 </style>

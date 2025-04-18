@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-2 ">
       <div class="scale-text min-h-[50px] p-1 text-black bg-gray-100 whitespace-pre-wrap break-words overflow-hidden">
         {{ note || 'ไม่มีหมายเหตุ' }}
       </div>
