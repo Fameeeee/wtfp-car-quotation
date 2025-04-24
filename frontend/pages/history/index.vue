@@ -60,8 +60,8 @@ const fetchQuotations = async () => {
         return;
     }
     try {
-        const response = await axios.get(`http://localhost:3001/staff/${id}`);
-        quotations.value = response.data.quotations;
+        const response = await axios.get(`http://localhost:3001/quotation/staff/${id}`);
+        quotations.value = response.data;
     } catch (error) {
         console.error("Error fetching quotations:", error);
     }

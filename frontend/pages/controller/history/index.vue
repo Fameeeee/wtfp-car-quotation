@@ -96,7 +96,7 @@
                     </svg>
                   </NuxtLink>
                 </td>
-                <td class="px-4 py-2 text-left text-gray-700 border-b border-gray-200">{{ history.id }}</td>
+                <td class="px-4 py-2 text-left text-gray-700 border-b border-gray-200">{{ history.quotationId }}</td>
                 <td class="px-4 py-2 text-left text-gray-700 border-b border-gray-200">{{
                   dayjs(history.quotationDate).format("DD/MM/YYYY") }}</td>
                 <td class="px-4 py-2 text-left text-gray-700 border-b border-gray-200">{{ history.staff.firstName }}
@@ -207,7 +207,6 @@ const fetchData = async () => {
         search: searchQuery.value
       }
     });
-
     historyList.value = response.data.data;
     totalPages.value = response.data.totalPages;
     total.value = response.data.total;
