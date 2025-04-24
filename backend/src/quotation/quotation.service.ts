@@ -98,8 +98,16 @@ export class QuotationService {
 
     const [quotations, total] = await queryBuilder.getManyAndCount();
 
+    const formattedQuotations = quotations.map(quotation => ({
+      quotationId: quotation.id,
+      quotationDate: quotation.quotationDate,
+      staff: { firstName: quotation.staff.firstName },
+      customer: { firstName: quotation.customer.firstName },
+      carDetails: { modelGName: quotation.carDetails.modelGName }
+    }));
+
     return {
-      data: quotations,
+      data: formattedQuotations,
       total,
       page,
       limit,
@@ -107,17 +115,52 @@ export class QuotationService {
     };
   }
 
-  async findById(id: number): Promise<Quotation> {
+  async findByStaffId(staffId: number): Promise<any[]> {
+    const quotations = await this.quotationRepository
+      .createQueryBuilder('quotation')
+      .leftJoinAndSelect('quotation.customer', 'customer')
+      .leftJoin('quotation.staff', 'staff')
+      .addSelect(['staff.id', 'staff.firstName'])
+      .where('staff.id = :staffId', { staffId })
+      .getMany();
+
+    if (!quotations || quotations.length === 0) {
+      throw new NotFoundException('Quotations not found for this staff member');
+    }
+
+    return quotations.map(q => ({
+      id: q.id,
+      quotationDate: q.quotationDate,
+      carDetails: q.carDetails,
+      customer: q.customer,
+      staff: {
+        id: q.staff.id,
+        firstName: q.staff.firstName,
+      },
+    }));
+  }
+
+  async findById(id: number): Promise<any> {
     const quotation = await this.quotationRepository.findOne({
       where: { id },
       relations: ['customer', 'staff'],
-
     });
+
     if (!quotation) {
       throw new NotFoundException('Quotation not found');
     }
-    return quotation;
+
+    return {
+      ...quotation,
+      staff: {
+        id: quotation.staff?.id,
+        firstName: quotation.staff?.firstName,
+        lastName: quotation.staff?.lastName,
+        phoneNumber: quotation.staff?.phoneNumber,
+      },
+    };
   }
+
 
   async updateQuotation(id: number, updateData: Partial<Quotation>): Promise<Quotation> {
     const quotation = await this.quotationRepository.findOne({ where: { id }, relations: ['staff', 'customer'] })

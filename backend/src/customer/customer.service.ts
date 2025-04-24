@@ -75,10 +75,26 @@ export class CustomerService {
   }
 
   async findById(id: number): Promise<Customer | null> {
-    return this.customerRepository.findOne({
-      where: { id },
-      relations: ['quotations'],
-    });
+    const customer = await this.customerRepository
+      .createQueryBuilder('customer')
+      .leftJoinAndSelect('customer.quotations', 'quotation') 
+      .where('customer.id = :id', { id })
+      .getOne();
+
+    if (!customer) {
+      return null;
+    }
+
+    customer.quotations = customer.quotations.map((quotation) => ({
+      id: quotation.id,
+      quotationDate: quotation.quotationDate,
+      paymentMethod: quotation.paymentMethod,
+      carDetails: quotation.carDetails,
+      staff: quotation.staff,
+      customer: quotation.customer,
+    }));
+
+    return customer;
   }
 
   async updateCustomer(id: number, updateData: Partial<Customer>): Promise<Customer> {
