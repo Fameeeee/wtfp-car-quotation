@@ -115,29 +115,49 @@ export class QuotationService {
     };
   }
 
-  async findByStaffId(staffId: number): Promise<any[]> {
-    const quotations = await this.quotationRepository
+  async findByStaffId(
+    staffId: number,
+    page: number,
+    limit: number,
+    search?: string
+  ): Promise<{ data: any[], total: number, totalPages: number }> {
+    const skip = (page - 1) * limit;
+
+    const query = this.quotationRepository
       .createQueryBuilder('quotation')
       .leftJoinAndSelect('quotation.customer', 'customer')
       .leftJoin('quotation.staff', 'staff')
       .addSelect(['staff.id', 'staff.firstName'])
-      .where('staff.id = :staffId', { staffId })
-      .getMany();
+      .where('staff.id = :staffId', { staffId });
 
-    if (!quotations || quotations.length === 0) {
-      throw new NotFoundException('Quotations not found for this staff member');
+    if (search) {
+      query.andWhere(
+        `(LOWER(quotation.carDetails->>'modelClass') LIKE :search OR LOWER(customer.firstName) LIKE :search)`,
+        { search: `%${search.toLowerCase()}%` }
+      );
     }
 
-    return quotations.map(q => ({
-      id: q.id,
-      quotationDate: q.quotationDate,
-      carDetails: q.carDetails,
-      customer: q.customer,
-      staff: {
-        id: q.staff.id,
-        firstName: q.staff.firstName,
-      },
-    }));
+    const [result, total] = await query
+      .skip(skip)
+      .take(limit)
+      .getManyAndCount();
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: result.map(q => ({
+        id: q.id,
+        quotationDate: q.quotationDate,
+        carDetails: q.carDetails,
+        customer: q.customer,
+        staff: {
+          id: q.staff.id,
+          firstName: q.staff.firstName,
+        }
+      })),
+      total,
+      totalPages
+    };
   }
 
   async findById(id: number): Promise<any> {

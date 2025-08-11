@@ -37,9 +37,16 @@ export class QuotationController {
   }
 
   @Get('staff/:id')
-  async findByStaffId(@Param('id') id: number) {
-    return this.quotationService.findByStaffId(id);
+  async findByStaffId(
+    @Param('id', ParseIntPipe) id: number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
+    @Query('search') search?: string,
+  ) {
+    return this.quotationService.findByStaffId(id, page, limit, search);
   }
+
+
 
   @Put(':id')
   async updateQuotation(@Param('id') id: number, @Body() updateData: Partial<Quotation>) {
