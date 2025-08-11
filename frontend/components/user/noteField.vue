@@ -29,7 +29,7 @@
     if (storedAdditionCost) {
       try {
         const parsed = JSON.parse(storedAdditionCost);
-        note.value = parsed.noteText || '';
+        note.value = parsed.note || '';
       } catch (error) {
         console.error('Error parsing additionCost:', error);
       }

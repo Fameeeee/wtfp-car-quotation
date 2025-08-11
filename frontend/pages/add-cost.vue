@@ -80,7 +80,7 @@ const saveToLocalStorage = () => {
         cmiCheck: cmiCheck.value,
         insuranceCheck: insuranceCheck.value,
         fuelValue: fuelValue.value,
-        noteText: noteText.value
+        note: noteText.value
     };
     localStorage.setItem('additionCost', JSON.stringify(data));
 };

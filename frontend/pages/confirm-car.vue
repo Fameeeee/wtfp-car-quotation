@@ -16,7 +16,7 @@
                         <strong>Model Code Name :</strong> {{ selectedCar.modelCodeName }}
                     </p>
                     <p class="p-3 bg-gray-50 rounded-md text-lg text-gray-600">
-                        <strong>Model G name :</strong> {{ selectedCar.modelGname }}
+                        <strong>Model G name :</strong> {{ selectedCar.modelGName }}
                     </p>
                     <p class="p-3 bg-gray-50 rounded-md text-lg text-gray-600">
                         <strong>Price :</strong> {{ selectedCar.price }}
