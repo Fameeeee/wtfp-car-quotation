@@ -73,6 +73,9 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
+const config = useRuntimeConfig()
+const backendUrl = config.public.backendUrl;
+
 const router = useRouter();
 
 const email = ref('');
@@ -90,7 +93,7 @@ async function handleRegister() {
   }
 
   try {
-    const response = await axios.post('http://localhost:3001/auth/register', {
+    const response = await axios.post(`${backendUrl}/auth/register`, {
       email: email.value,
       password: password.value,
       firstName: firstname.value,

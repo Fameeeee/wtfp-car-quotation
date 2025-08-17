@@ -1,6 +1,6 @@
 <template>
     <div class="flex flex-col items-center p-4">
-        <div class="text-4xl font-extrabold text-[#696969] mb-5">รุ่นรถ</div>
+        <div class="text-4xl font-extrabold text-[#696969] my-4">รุ่นรถ</div>
         <div class="flex">
             <selectCar />
         </div>

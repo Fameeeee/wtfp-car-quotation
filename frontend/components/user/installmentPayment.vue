@@ -49,7 +49,9 @@
                 <div v-if="activePlan?.planDetails?.length">
                     <p class="text-center font-bold text-black">อัตราดอกเบี้ย</p>
                     <div v-for="(plan, index) in activePlan.planDetails" :key="index" class="mt-2">
-                        <input v-model.number="plan.interestRate" type="number"
+                        <input v-model.number="plan.interestRate"
+                            @blur="handleInterestRateBlur(plan, index)"
+                            type="number"
                             class="w-full p-2 border border-black rounded-lg text-center text-black placeholder-gray-400"
                             placeholder="%" />
                     </div>
@@ -65,15 +67,15 @@
             </div>
 
             <div class="flex items-center justify-center gap-4 p-4">
-                <span>เงื่อนไขที่ </span>
+                <span class="text-black">เงื่อนไขที่ </span>
                 <div v-if="installmentPlans.length > 0" class="flex gap-2">
                     <button v-for="(plan, index) in installmentPlans" :key="index" @click="toggleActivePlan(index)"
-                        :class="['p-4 border rounded-lg text-black', { 'bg-black text-white': activePlanIndex === index }]">
+                        :class="['p-4 border rounded-lg text-black 2-[50px]', { 'bg-black text-white w-[50px]': activePlanIndex === index }]">
                         {{ index + 1 }}
                     </button>
                 </div>
                 <button v-if="installmentPlans.length < 3" @click="addPlan"
-                    class="p-4 bg-gray-700 text-white rounded-lg">+</button>
+                    class="p-4 bg-gray-700 text-white rounded-lg w-[50px]">+</button>
                 <button v-if="installmentPlans.length > 1" @click="deleteLastPlan"
                     class="p-4 bg-red-700 text-white rounded-lg">
                     ลบ
@@ -170,4 +172,9 @@ const calculateMonthlyPayments = () => {
     }) || [];
 };
 
+const handleInterestRateBlur = (plan, index) => {
+    if (plan.interestRate === '') {
+        plan.interestRate = null;  
+    }
+};
 </script>

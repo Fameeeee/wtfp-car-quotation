@@ -105,6 +105,9 @@ import { ref, onMounted, computed } from 'vue';
 import axios from "axios";
 import _ from 'lodash';
 
+const config = useRuntimeConfig()
+const backendUrl = config.public.backendUrl;
+
 const route = useRoute();
 const router = useRouter();
 const staffId = route.params.id;
@@ -123,7 +126,7 @@ const debouncedSearch = _.debounce(() => {
 const fetchStaffData = async () => {
     loading.value = true;
     try {
-        const response = await axios.get(`http://localhost:3001/staff/${staffId}`);
+        const response = await axios.get(`${backendUrl}/staff/${staffId}`);
         staffData.value = response.data;
         total.value = staffData.value.quotations.length;
         totalPages.value = Math.ceil(total.value / itemsPerPage);

@@ -8,9 +8,14 @@ export class QuotationController {
   constructor(private readonly quotationService: QuotationService) { }
 
   @Post('create')
-  async create(@Body() dto: CreateQuotationDto): Promise<{ message: string } | { error: string }> {
+  async create(@Body() dto: CreateQuotationDto): Promise<{ message: string, quotationId?: number } | { error: string }> {
     try {
-      await this.quotationService.createQuotation(dto);
+      const result = await this.quotationService.createQuotation(dto);
+
+      if (result && result.quotationId) {
+        return { message: 'Quotation created successfully', quotationId: result.quotationId };
+
+      }
       return { message: 'Created Successfully' };
     } catch (error) {
       return { error: error.message || 'An error occurred' };
@@ -30,6 +35,18 @@ export class QuotationController {
   async findById(@Param('id') id: number) {
     return this.quotationService.findById(id);
   }
+
+  @Get('staff/:id')
+  async findByStaffId(
+    @Param('id', ParseIntPipe) id: number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(12), ParseIntPipe) limit: number,
+    @Query('search') search?: string,
+  ) {
+    return this.quotationService.findByStaffId(id, page, limit, search);
+  }
+
+
 
   @Put(':id')
   async updateQuotation(@Param('id') id: number, @Body() updateData: Partial<Quotation>) {

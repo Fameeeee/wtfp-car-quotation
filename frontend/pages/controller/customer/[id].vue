@@ -88,6 +88,9 @@ import axios from 'axios';
 import _ from 'lodash';
 import dayjs from 'dayjs';
 
+const config = useRuntimeConfig()
+const backendUrl = config.public.backendUrl;
+
 const route = useRoute();
 const router = useRouter();
 const customerId = route.params.id;
@@ -106,7 +109,7 @@ const debouncedSearch = _.debounce((event) => {
 const fetchcustomerData = async () => {
   loading.value = true;
   try {
-    const response = await axios.get(`http://localhost:3001/customer/${customerId}`);
+    const response = await axios.get(`${backendUrl}/customer/${customerId}`);
     customerData.value = response.data;
     total.value = customerData.value.quotations.length;
     totalPages.value = Math.ceil(total.value / itemsPerPage);

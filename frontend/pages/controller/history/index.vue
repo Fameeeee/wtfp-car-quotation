@@ -96,7 +96,7 @@
                     </svg>
                   </NuxtLink>
                 </td>
-                <td class="px-4 py-2 text-left text-gray-700 border-b border-gray-200">{{ history.id }}</td>
+                <td class="px-4 py-2 text-left text-gray-700 border-b border-gray-200">{{ history.quotationId }}</td>
                 <td class="px-4 py-2 text-left text-gray-700 border-b border-gray-200">{{
                   dayjs(history.quotationDate).format("DD/MM/YYYY") }}</td>
                 <td class="px-4 py-2 text-left text-gray-700 border-b border-gray-200">{{ history.staff.firstName }}
@@ -140,6 +140,9 @@ definePageMeta({
   layout: false,
   middleware: "admin-auth",
 });
+
+const config = useRuntimeConfig()
+const backendUrl = config.public.backendUrl;
 
 const searchQuery = ref("");
 const historyList = ref([]);
@@ -200,14 +203,13 @@ const applyFilter = () => {
 const fetchData = async () => {
   loading.value = true;
   try {
-    const response = await axios.get("http://localhost:3001/quotation", {
+    const response = await axios.get(`${backendUrl}/quotation`, {
       params: {
         page: currentPage.value,
         limit: itemsPerPage,
         search: searchQuery.value
       }
     });
-
     historyList.value = response.data.data;
     totalPages.value = response.data.totalPages;
     total.value = response.data.total;

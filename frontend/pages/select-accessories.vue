@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-center h-full p-4 space-y-6">
-    <h2 class="text-4xl font-extrabold text-[#696969] mb-5">อุปกรณ์ตกแต่ง</h2>
+    <h2 class="text-4xl font-extrabold text-[#696969] my-4">อุปกรณ์ตกแต่ง</h2>
     <input v-model="searchQuery" type="text" placeholder="ค้นหาอุปกรณ์"
       class="w-full p-3 mb-4 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 text-black placeholder-gray-500" />
 
@@ -40,34 +40,20 @@
       </table>
     </div>
 
-    <div class="mt-4 text-lg font-bold text-black">ราคารวม: {{ totalPrice.toLocaleString() }} ฿</div>
+    <div class="mt-2 text-lg font-bold text-black">ราคารวม: {{ totalPrice.toLocaleString() }} ฿</div>
 
-    <div class="flex flex-col space-y-4 w-full max-w-md mt-6">
-      <button @click="goBack"
-        class="py-3 px-4 text-[#696969] bg-gray-200 rounded-lg border hover:bg-gray-300">กลับ</button>
-      <button @click="confirm" class="py-3 px-4 text-white bg-red-700 rounded-lg hover:bg-red-800">ต่อไป</button>
-    </div>
+    <buttonGroup :goBack="goBack" :goNext="goNext" />
   </div>
-  <div v-if="showModal" class="fixed inset-0 flex justify-center items-center bg-opacity-50 z-50">
-    <div class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center">
-      <p class="text-lg text-[#696969] mb-4">คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการเปลี่ยนแปลงของคุณ?</p>
-      <div class="flex gap-4 justify-center">
-        <button @click="discardChanges"
-          class="py-3 px-6 text-lg font-semibold text-white bg-gradient-to-r from-red-600 to-red-500 rounded-lg hover:from-red-500 hover:to-red-400 transform transition-transform duration-200 hover:scale-105">
-          ยืนยัน
-        </button>
-        <button @click="closeModal"
-          class="py-3 px-6 text-lg font-medium text-gray-600 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transform transition-transform duration-200 hover:scale-105">
-          กลับ
-        </button>
-      </div>
-    </div>
-  </div>
+  <modalDiscard v-if="showModal" message="คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการเปลี่ยนแปลงของคุณ?" confirmText="ยืนยัน"
+    cancelText="กลับ" @confirm="discardChanges" @cancel="closeModal" />
 </template>
 
 <script setup>
+import buttonGroup from '~/components/user/buttonGroup.vue';
+import modalDiscard from '~/components/user/modalDiscard.vue';
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import axios from 'axios';
 
 const router = useRouter();
 const config = useRuntimeConfig();
@@ -83,8 +69,8 @@ const fetchAccessories = async () => {
   const selectedCar = JSON.parse(localStorage.getItem('selectedCar'));
   if (selectedCar?.id) {
     try {
-      const response = await fetch(`${apiUrl}/standard-base/standard-name/${selectedCar.id}`);
-      const data = await response.json();
+      const response = await axios.get(`${apiUrl}/standard-base/standard-name/${selectedCar.id}`);
+      const data = await response.data;
       accessories.value = data[0].StandardAccBase.map(item => ({
         assType: item.accBase.assType,
         assName: item.accBase.assName,
@@ -164,7 +150,7 @@ const closeModal = () => {
   showModal.value = false;
 };
 
-const confirm = () => {
+const goNext = () => {
   router.push('/add-cost')
 }
 

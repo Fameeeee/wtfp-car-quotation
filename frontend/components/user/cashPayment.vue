@@ -47,7 +47,6 @@ onMounted(() => {
 
 watch([specialDiscount, specialAddition, totalPrice], () => {
     const cashPlan = {
-        carPrice: selectedCar.value?.price || 0,
         specialDiscount: specialDiscount.value,
         specialAddition: specialAddition.value,
         totalPrice: totalPrice.value

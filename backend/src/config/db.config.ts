@@ -6,11 +6,11 @@ import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOpti
 
 export default (): MysqlConnectionOptions => ({
   type: 'mysql',
-  host: process.env.dbHost,
-  port: +process.env.dbPort,
-  username: process.env.dbUsername,
-  password: process.env.dbPassword,
-  database: process.env.dbName,
+  host: process.env.MYSQLHOST || process.env.dbHost,
+  port: parseInt(process.env.MYSQLPORT || process.env.dbPort || '3306', 10),
+  username: process.env.MYSQLUSER || process.env.dbUsername,
+  password: process.env.MYSQLPASSWORD || process.env.dbPassword,
+  database: process.env.MYSQLDATABASE || process.env.dbName,
   synchronize: true,
   entities: [Staff, Customer, Quotation],
 });

@@ -44,6 +44,9 @@ import { useRouter, useRoute } from 'vue-router';
 import { ref, onMounted } from 'vue';
 import axios from "axios";
 
+const config = useRuntimeConfig()
+const backendUrl = config.public.backendUrl;
+
 const route = useRoute();
 const router = useRouter();
 const quotationId = route.params.id;
@@ -57,7 +60,7 @@ const customerData = ref(null);
 
 const fetchHistoryData = async () => {
   try {
-    const response = await axios.get(`http://localhost:3001/quotation/${quotationId}`);
+    const response = await axios.get(`${backendUrl}/quotation/${quotationId}`);
     historyData.value = response.data;
     console.log(historyData.value)
   } catch (error) {
@@ -69,7 +72,7 @@ const fetchHistoryData = async () => {
 
 const fetchStaffData = async () => {
   try {
-    const response = await axios.get(`http://localhost:3001/staff/${staffId}`);
+    const response = await axios.get(`${backendUrl}/staff/${staffId}`);
     staffData.value = response.data;
     // console.log(staffData.value)
   } catch (error) {
@@ -81,7 +84,7 @@ const fetchStaffData = async () => {
 
 const fetchcustomerData = async () => {
   try {
-    const response = await axios.get(`http://localhost:3001/customer/${customerId}`);
+    const response = await axios.get(`${backendUrl}/customer/${customerId}`);
     customerData.value = response.data;
     // console.log(customerData.value)
   } catch (error) {
