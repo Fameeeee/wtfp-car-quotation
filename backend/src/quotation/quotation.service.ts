@@ -90,19 +90,19 @@ export class QuotationService {
       .leftJoinAndSelect('quotation.staff', 'staff')
       .leftJoinAndSelect('quotation.carDetails', 'carDetails');
 
-    if (search) {
-      queryBuilder.andWhere(
-        `(
-      LOWER(CAST(quotation.id AS CHAR)) LIKE :search OR
-      LOWER(staff.firstName) LIKE :search OR
-      LOWER(staff.lastName) LIKE :search OR
-      LOWER(customer.firstName) LIKE :search OR
-      LOWER(customer.lastName) LIKE :search OR
-      LOWER(CONCAT(customer.firstName, ' ', customer.lastName)) LIKE :search
-    )`,
-        { search: `%${search.toLowerCase()}%` },
-      );
-    }
+    // if (search) {
+    //   queryBuilder.andWhere(
+    //     `(
+    //   LOWER(CAST(quotation.id AS CHAR)) LIKE :search OR
+    //   LOWER(staff.firstName) LIKE :search OR
+    //   LOWER(staff.lastName) LIKE :search OR
+    //   LOWER(customer.firstName) LIKE :search OR
+    //   LOWER(customer.lastName) LIKE :search OR
+    //   LOWER(CONCAT(customer.firstName, ' ', customer.lastName)) LIKE :search
+    // )`,
+    //     { search: `%${search.toLowerCase()}%` },
+    //   );
+    // }
 
     queryBuilder
       .take(limit)
