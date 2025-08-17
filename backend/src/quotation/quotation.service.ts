@@ -84,25 +84,12 @@ export class QuotationService {
   }
 
   async getAllQuotation(page: number, limit: number, search?: string) {
+  try {
     const queryBuilder = this.quotationRepository
       .createQueryBuilder('quotation')
       .leftJoinAndSelect('quotation.customer', 'customer')
       .leftJoinAndSelect('quotation.staff', 'staff')
       .leftJoinAndSelect('quotation.carDetails', 'carDetails');
-
-    // if (search) {
-    //   queryBuilder.andWhere(
-    //     `(
-    //   LOWER(CAST(quotation.id AS CHAR)) LIKE :search OR
-    //   LOWER(staff.firstName) LIKE :search OR
-    //   LOWER(staff.lastName) LIKE :search OR
-    //   LOWER(customer.firstName) LIKE :search OR
-    //   LOWER(customer.lastName) LIKE :search OR
-    //   LOWER(CONCAT(customer.firstName, ' ', customer.lastName)) LIKE :search
-    // )`,
-    //     { search: `%${search.toLowerCase()}%` },
-    //   );
-    // }
 
     queryBuilder
       .take(limit)
@@ -134,7 +121,11 @@ export class QuotationService {
       limit,
       totalPages: Math.ceil(total / limit),
     };
+  } catch (error) {
+    console.error('❌ getAllQuotation error:', error);
+    throw error;
   }
+}
 
   async findByStaffId(
     staffId: number,
