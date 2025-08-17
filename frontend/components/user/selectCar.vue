@@ -264,7 +264,7 @@ const goToConfirmPage = () => {
         unitType: selectedUnitType.value,
         modelClass: selectedModelClass.value,
         modelCodeName: selectedModelCodeName.value,
-        modelGname: selectedModelGname.value,
+        modelGName: selectedModelGname.value,
         price: selectedPrice.value,
         color: selectedColor.value
     };

@@ -53,7 +53,13 @@ export class StaffService {
   }
 
   async getAllStaff(page: number, limit: number, search?: string): Promise<{
-    data: Staff[];
+    data: {
+      id: number;
+      firstName: string;
+      lastName: string;
+      phoneNumber: string;
+      city: string;
+    }[];
     total: number;
     page: number;
     limit: number;
@@ -80,12 +86,21 @@ export class StaffService {
     queryBuilder
       .take(limit)
       .skip((page - 1) * limit)
-      .orderBy('staff.id', 'DESC'); 
+      .orderBy('staff.id', 'DESC');
 
     const data = await queryBuilder.getMany();
 
+    const modifiedData = data.map((staff) => ({
+      id: staff.id,
+      firstName: staff.firstName,
+      lastName: staff.lastName,
+      phoneNumber: staff.phoneNumber,
+      city: staff.city,
+      role: staff.role,
+    }));
+
     return {
-      data,
+      data: modifiedData,
       total,
       page,
       limit,
@@ -93,12 +108,21 @@ export class StaffService {
     };
   }
 
-  async findById(id: number): Promise<Staff | null> {
-    return this.staffRepository.findOne({
+  async findById(id: number): Promise<Partial<Staff> | null> {
+    const staff = await this.staffRepository.findOne({
       where: { id },
       relations: ['quotations', 'quotations.customer'],
     });
+
+    if (!staff) {
+      return null;
+    }
+
+    const { password, ...staffWithoutPassword } = staff;
+
+    return staffWithoutPassword;
   }
+
 
   async updateStaff(id: number, updateData: Partial<Staff>): Promise<Staff> {
     const staff = await this.staffRepository.findOne({ where: { id } });

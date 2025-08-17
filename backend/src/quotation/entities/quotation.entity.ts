@@ -18,7 +18,7 @@ export class Quotation {
     @Column({ type: 'enum', enum: PaymentMethod, default: PaymentMethod.CASH })
     paymentMethod: PaymentMethod
 
-    @Column({type: 'json', nullable: true})
+    @Column({ type: 'json', nullable: true })
     cashPlans?: {
         totalPrice?: number;
         specialDiscount?: number;
@@ -27,20 +27,23 @@ export class Quotation {
 
     @Column({ type: 'json', nullable: true })
     installmentPlans?: {
-        planNumber: number;
-        downPayment: number;
+        orderNumber: number;
         specialDiscount?: number;
         additionPrice?: number;
-        orders: {
-            orderNumber: number;
+        downPaymentPercent?: number;
+        planDetails: {
             period: number;
-            monthlyPayment?: number;
-            interestRate?: number;
-        }
+            interestRate: number;
+        }[];
     }[];
 
-    @Column({ type: 'text', nullable: true })
-    note?: string;
+    @Column({ type: 'json', nullable: true })
+    additionCosts?: {
+        cmi: boolean;
+        insurance: boolean;
+        fuelValue?: number;
+        note?: string;
+    }
 
     @Column({ type: 'json' })
     carDetails: {

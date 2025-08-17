@@ -1,5 +1,5 @@
 <template>
-  <div class="flex min-h-screen bg-[#ececec] w-full">
+  <div class="flex min-h-screen bg-[#ececec] w-full text-black">
     <AdminSidebar />
     <div class="content flex flex-col flex-1" style="padding: 20px;">
       <div class="header flex justify-between items-center px-5 py-2.5"
@@ -48,17 +48,19 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(quotation, index) in customerData.quotations" :key="index" @click="goToHistory(quotation.id)"
+              <tr v-for="(quotation, index) in paginatedQuotations" :key="index" @click="goToHistory(quotation.id)"
                 class="hover:bg-gray-200 cursor-pointer clickable-row">
                 <td class="border border-gray-300 p-2 text-center">{{ quotation.id }}</td>
-                <td class="border border-gray-300 p-2 text-center">{{ quotation.quotationDate }}</td>
+                <td class="border border-gray-300 p-2 text-center">{{
+                  dayjs(quotation.quotationDate).format("DD/MM/YYYY") }}</td>
                 <td class="border border-gray-300 p-2 text-center">{{ quotation.carDetails.modelClass }}</td>
               </tr>
             </tbody>
           </table>
           <p v-else>ไม่มีข้อมูลใบเสนอราคา</p>
         </div>
-        <div class="flex justify-center items-center gap-4 mt-6" >
+        <div class="flex justify-center items-center gap-4 mt-6 fixed bottom-12 right-0 left-0"
+          style="margin-top: 10px;">
           <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1"
             class="px-4 py-2 bg-blue-500 text-white font-medium rounded-lg cursor-pointer transition-all duration-200 ease-in-out min-w-[42px] h-[38px] flex items-center justify-center shadow-md hover:bg-blue-600 hover:shadow-lg disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed">
             ⬅
@@ -81,8 +83,10 @@
 <script setup>
 import AdminSidebar from '~/components/admin/AdminSidebar.vue';
 import { useRouter, useRoute } from 'vue-router';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
+import _ from 'lodash';
+import dayjs from 'dayjs';
 
 const route = useRoute();
 const router = useRouter();
@@ -90,18 +94,35 @@ const customerId = route.params.id;
 const customerData = ref(null);
 const loading = ref(true);
 const searchQuery = ref("");
+const itemsPerPage = 9;
+const currentPage = ref(1);
+const totalPages = ref(1);
+const total = ref(0);
+
+const debouncedSearch = _.debounce((event) => {
+  searchHistory();
+}, 500);
 
 const fetchcustomerData = async () => {
+  loading.value = true;
   try {
     const response = await axios.get(`http://localhost:3001/customer/${customerId}`);
     customerData.value = response.data;
-    console.log(customerData.value)
+    total.value = customerData.value.quotations.length;
+    totalPages.value = Math.ceil(total.value / itemsPerPage);
   } catch (error) {
     console.error("Error fetching customer data:", error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 };
+
+const paginatedQuotations = computed(() => {
+  if (!customerData.value || !customerData.value.quotations) return [];
+  const start = (currentPage.value - 1) * itemsPerPage;
+  return customerData.value.quotations.slice(start, start + itemsPerPage);
+});
+
 
 const goBack = () => {
   router.push('/controller/customer');
@@ -110,6 +131,19 @@ const goBack = () => {
 const goToHistory = (quotationId) => {
   router.push(`/controller/history/${quotationId}`);
 };
+
+const searchHistory = () => {
+  currentPage.value = 1;
+  fetchcustomerData();
+};
+
+const changePage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+    fetchcustomerData();
+  }
+};
+
 
 onMounted(() => {
   fetchcustomerData();

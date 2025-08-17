@@ -1,5 +1,5 @@
 <template>
-    <div class="flex min-h-screen bg-[#ececec] w-full">
+    <div class="flex min-h-screen bg-[#ececec] w-full text-black">
         <AdminSidebar />
         <div class="content flex flex-col flex-1" style="padding: 20px;">
             <div class="header flex justify-between items-center px-5 py-2.5"
@@ -52,8 +52,8 @@
                     </div>
                 </div>
                 <div class="history-data">
-                    <table v-if="staffData && staffData.quotations.length" class="history-table w-full border-collapse "
-                        style="margin-top: 8px;">
+                    <table v-if="staffData && staffData.quotations.length"
+                        class="history-table w-full border-collapse min-h-[200px]" style="margin-top: 8px;">
                         <thead>
                             <tr class="bg-gray-100 font-bold text-center">
                                 <th class="border text-left border-gray-300 p-2">ID</th>
@@ -62,20 +62,23 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(quotation, index) in staffData.quotations" :key="index"
+                            <tr v-for="(quotation, index) in paginatedQuotations" :key="index"
                                 @click="goToHistory(quotation.id)"
-                                class="hover:bg-gray-200 cursor-pointer clickable-row">
-                                <td class="border border-gray-300 p-2 text-center">{{ quotation.id }}</td>
-                                <td class="border border-gray-300 p-2 text-center">{{ quotation.customer.firstName }}
+                                class="hover:bg-gray-200 cursor-pointer clickable-row table-fixed">
+                                <td class="border table-fixed border-gray-300 p-2 text-center">{{ quotation.id }}</td>
+                                <td class="border table-fixed border-gray-300 p-2 text-center">{{
+                                    quotation.customer.firstName }}
                                 </td>
-                                <td class="border border-gray-300 p-2 text-center">{{ quotation.carDetails.modelClass }}
+                                <td class="border table-fixed border-gray-300 p-2 text-center">{{
+                                    quotation.carDetails.modelClass }}
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                     <p v-else>ไม่มีข้อมูลใบเสนอราคา</p>
                 </div>
-                <div class="flex justify-center items-center gap-4 mt-6">
+                <div class="flex justify-center items-center gap-4 mt-6 fixed bottom-12 right-0 left-0"
+                    style="margin-top: 10px;">
                     <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1"
                         class="px-4 py-2 bg-blue-500 text-white font-medium rounded-lg cursor-pointer transition-all duration-200 ease-in-out min-w-[42px] h-[38px] flex items-center justify-center shadow-md hover:bg-blue-600 hover:shadow-lg disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed">
                         ⬅
@@ -98,8 +101,9 @@
 <script setup>
 import AdminSidebar from '~/components/admin/AdminSidebar.vue';
 import { useRouter, useRoute } from 'vue-router';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import axios from "axios";
+import _ from 'lodash';
 
 const route = useRoute();
 const router = useRouter();
@@ -107,12 +111,22 @@ const staffId = route.params.id;
 const staffData = ref(null);
 const loading = ref(true);
 const searchQuery = ref("");
+const itemsPerPage = 9;
+const currentPage = ref(1);
+const totalPages = ref(1);
+const total = ref(0);
+
+const debouncedSearch = _.debounce(() => {
+    searchHistory();
+}, 500);
 
 const fetchStaffData = async () => {
+    loading.value = true;
     try {
         const response = await axios.get(`http://localhost:3001/staff/${staffId}`);
         staffData.value = response.data;
-        console.log(staffData.value)
+        total.value = staffData.value.quotations.length;
+        totalPages.value = Math.ceil(total.value / itemsPerPage);
     } catch (error) {
         console.error("Error fetching staff data:", error);
     } finally {
@@ -120,11 +134,20 @@ const fetchStaffData = async () => {
     }
 };
 
+const paginatedQuotations = computed(() => {
+    if (!staffData.value || !staffData.value.quotations) return [];
+    const start = (currentPage.value - 1) * itemsPerPage;
+    return staffData.value.quotations.slice(start, start + itemsPerPage);
+});
+
 const changePage = (page) => {
-    if (page >= 1 && page <= totalPages.value) {
-        currentPage.value = page;
-        fetchData();
-    }
+    if (page < 1 || page > totalPages.value) return;
+    currentPage.value = page;
+};
+
+
+const searchHistory = () => {
+    currentPage.value = 1;
 };
 
 const goBack = () => {

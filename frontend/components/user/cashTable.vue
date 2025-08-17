@@ -1,0 +1,90 @@
+<template>
+    <div class="overflow-x-auto bg-white border shadow-md">
+        <table class="min-w-full text-sm text-center text-black">
+            <thead class="bg-[#980000]">
+                <tr>
+                    <th class="px-1 py-1 border scale-text text-white border-black">ส่วนลด</th>
+                    <th class="px-1 py-1 border scale-text text-white border-black">ส่วนเพิ่ม</th>
+                    <th class="px-1 py-1 border scale-text text-white border-black">ราคาสุทธิ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="px-1 py-1 border scale-text">{{ cashPlan.specialDiscount ?? '0' }}</td>
+                    <td class="px-1 py-1 border scale-text">{{ cashPlan.specialAddition ?? '0' }}</td>
+                    <td class="px-1 py-1 border scale-text">{{ cashPlan.totalPrice }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+import { useRoute } from 'vue-router';
+
+const cashPlan = ref({});
+
+const route = useRoute();
+const quotationId = route.params.id;
+
+const fetchDataFromLocalStorage = () => {
+  const cashPlanFromLocalStorage = JSON.parse(localStorage.getItem('cashPlan') || '{}');
+  cashPlan.value = cashPlanFromLocalStorage;
+};
+
+const fetchDataFromApi = async () => {
+  try {
+    const response = await axios.get(`http://localhost:3001/quotation/${quotationId}`);
+    cashPlan.value = response.data.cashPlans || {};
+  } catch (error) {
+    console.error('Error fetching data from API:', error);
+  }
+};
+
+onMounted(() => {
+  if (quotationId) {
+    fetchDataFromApi(); 
+  } else {
+    fetchDataFromLocalStorage(); 
+  }
+});
+</script>
+
+<style scoped>
+.overflow-x-auto {
+    max-width: 100%;
+    max-height: fit-content;
+    overflow: auto;
+}
+
+table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.scale-text {
+    font-size: 0.8rem;
+    overflow: hidden;
+    line-height: 1.5;
+    width: 100%;
+    box-sizing: border-box;
+    word-break: break-word;
+}
+
+th,
+td {
+    overflow: hidden;
+}
+
+hr {
+    margin: 0;
+}
+
+@media (max-width: 600px) {
+    .scale-text {
+        font-size: 0.5rem;
+    }
+}
+</style>

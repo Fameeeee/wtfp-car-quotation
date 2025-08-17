@@ -41,7 +41,16 @@ export class QuotationService {
       if (dto.installmentPlans.length > 3) {
         throw new BadRequestException('A maximum of 3 installment plans is allowed.');
       }
-      installmentPlans = dto.installmentPlans;
+      installmentPlans = dto.installmentPlans.map(plan => ({
+        orderNumber: plan.orderNumber,
+        specialDiscount: plan.specialDiscount,
+        additionPrice: plan.additionPrice,
+        downPaymentPercent: plan.downPaymentPercent,
+        planDetails: plan.planDetails.map(detail => ({
+          period: detail.period,
+          interestRate: detail.interestRate,
+        })),
+      }));
     } else {
       cashPlans = dto.cashPlans || null;
     }
@@ -49,9 +58,9 @@ export class QuotationService {
     const quotation = this.quotationRepository.create({
       quotationDate: new Date(),
       paymentMethod: dto.paymentMethod,
-      cashPlans,
+      cashPlans: dto.cashPlans || null,
       installmentPlans,
-      note: dto.note || null,
+      additionCosts: dto.additionCosts,
       carDetails: dto.carDetails,
       accessories: dto.accessories || null,
       customer,
@@ -59,6 +68,8 @@ export class QuotationService {
     });
 
     await this.quotationRepository.save(quotation);
+
+    return { quotationId: quotation.id };
   }
 
   async getAllQuotation(page: number, limit: number, search?: string) {
@@ -87,8 +98,16 @@ export class QuotationService {
 
     const [quotations, total] = await queryBuilder.getManyAndCount();
 
+    const formattedQuotations = quotations.map(quotation => ({
+      quotationId: quotation.id,
+      quotationDate: quotation.quotationDate,
+      staff: { firstName: quotation.staff.firstName },
+      customer: { firstName: quotation.customer.firstName },
+      carDetails: { modelGName: quotation.carDetails.modelGName }
+    }));
+
     return {
-      data: quotations,
+      data: formattedQuotations,
       total,
       page,
       limit,
@@ -96,17 +115,72 @@ export class QuotationService {
     };
   }
 
-  async findById(id: number): Promise<Quotation> {
+  async findByStaffId(
+    staffId: number,
+    page: number,
+    limit: number,
+    search?: string
+  ): Promise<{ data: any[], total: number, totalPages: number }> {
+    const skip = (page - 1) * limit;
+
+    const query = this.quotationRepository
+      .createQueryBuilder('quotation')
+      .leftJoinAndSelect('quotation.customer', 'customer')
+      .leftJoin('quotation.staff', 'staff')
+      .addSelect(['staff.id', 'staff.firstName'])
+      .where('staff.id = :staffId', { staffId });
+
+    if (search) {
+      query.andWhere(
+        `(LOWER(quotation.carDetails->>'modelClass') LIKE :search OR LOWER(customer.firstName) LIKE :search)`,
+        { search: `%${search.toLowerCase()}%` }
+      );
+    }
+
+    const [result, total] = await query
+      .skip(skip)
+      .take(limit)
+      .getManyAndCount();
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: result.map(q => ({
+        id: q.id,
+        quotationDate: q.quotationDate,
+        carDetails: q.carDetails,
+        customer: q.customer,
+        staff: {
+          id: q.staff.id,
+          firstName: q.staff.firstName,
+        }
+      })),
+      total,
+      totalPages
+    };
+  }
+
+  async findById(id: number): Promise<any> {
     const quotation = await this.quotationRepository.findOne({
       where: { id },
       relations: ['customer', 'staff'],
-
     });
+
     if (!quotation) {
       throw new NotFoundException('Quotation not found');
     }
-    return quotation;
+
+    return {
+      ...quotation,
+      staff: {
+        id: quotation.staff?.id,
+        firstName: quotation.staff?.firstName,
+        lastName: quotation.staff?.lastName,
+        phoneNumber: quotation.staff?.phoneNumber,
+      },
+    };
   }
+
 
   async updateQuotation(id: number, updateData: Partial<Quotation>): Promise<Quotation> {
     const quotation = await this.quotationRepository.findOne({ where: { id }, relations: ['staff', 'customer'] })

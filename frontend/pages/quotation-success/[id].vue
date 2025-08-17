@@ -1,6 +1,6 @@
 <template>
     <div class="flex flex-col items-center h-full p-2">
-        <h2 class="text-3xl font-extrabold text-[#696969] my-4 text-center">ประวัติการทำรายการ</h2>
+        <h2 class="text-3xl font-extrabold text-[#696969] my-4 text-center">สรุปยอดรายการ</h2>
         <div id="quotation-content"
             class="flex flex-col w-full max-w-lg p-4 gap-2 border border-black bg-white rounded-md">
             <div class="flex flex-col items-center justify-center w-full max-w-lg text-center">
@@ -18,7 +18,7 @@
 
             <u class="text-black">เรื่อง ใบเสนอราคา</u>
             <u class="text-black">เรียน {{ quotationData?.customer?.firstName }} {{ quotationData?.customer?.lastName
-            }}</u>
+                }}</u>
 
             <carDetailsTable />
             <h2 class="text-black"><u>เงื่อนไขการชำระ : {{ paymentPlan }}</u></h2>
@@ -39,12 +39,14 @@
 
             <div class="flex justify-end w-full mt-4">
                 <div class="text-center text-black text-sm flex flex-col items-center">
-                    <div>ผู้เสนอราคา</div>
-                    <div>{{ quotationData?.staff?.firstName }} {{ quotationData?.staff?.lastName }}</div>
-                    <div>(ที่ปรึกษาการขาย)</div>
-                    <div>Tel: {{ quotationData?.staff?.phoneNumber }}</div>
+                    <div class="whitespace-nowrap">ผู้เสนอราคา</div>
+                    <div class="whitespace-nowrap">{{ quotationData?.staff?.firstName }} {{
+                        quotationData?.staff?.lastName }}</div>
+                    <div class="whitespace-nowrap">(ที่ปรึกษาการขาย)</div>
+                    <div class="whitespace-nowrap">Tel: {{ quotationData?.staff?.phoneNumber }}</div>
                 </div>
             </div>
+
         </div>
         <div>
             <button @click="exportToImage"
@@ -58,8 +60,8 @@
             </button>
         </div>
 
-        <div class="flex flex-col space-y-4 w-full max-w-md mt-6">
-            <button @click="goBack" class="py-3 px-4 text-[#696969] bg-gray-200 rounded-lg border hover:bg-gray-300">
+        <div class="flex flex-col space-y-4 w-full max-w-md mt-3 mb-1">
+            <button @click="goHome" class="py-3 px-4 text-[#696969] bg-gray-200 rounded-lg border hover:bg-gray-300">
                 กลับ
             </button>
         </div>
@@ -90,7 +92,6 @@ const installmentPlans = ref([]);
 axios
     .get(`http://localhost:3001/quotation/${quotationId}`)
     .then((response) => {
-        console.log('Quotation data:', response.data);
         quotationData.value = response.data;
         if (response.data.cashPlans) {
             cashPlan.value = response.data.cashPlans;
@@ -156,8 +157,13 @@ const exportToImage = async () => {
     }
 };
 
-
-const goBack = () => {
-    router.push('/history');
+const goHome = () => {
+    localStorage.removeItem('selectedCar');
+    localStorage.removeItem('cashPlan');
+    localStorage.removeItem('installmentPlans');
+    localStorage.removeItem('selectedAccessories');
+    localStorage.removeItem('additionCost');
+    localStorage.removeItem('customerDetails');
+    router.push('/home');
 };
 </script>

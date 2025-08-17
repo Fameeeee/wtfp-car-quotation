@@ -1,7 +1,7 @@
 <template>
-  <div class="flex min-h-screen w-screen bg-[#ececec]">
+  <div class="flex min-h-screen w-screen bg-[#ececec] text-black">
     <AdminSidebar />
-    <div class="flex flex-col flex-1 p-6 overflow-hidden h-200"
+    <div class="flex flex-col flex-1 p-6 overflow-hidden h-205"
       style="margin-left: 100px; margin-right: 20px; margin-top: 45px;">
 
       <div class="flex justify-between items-center px-5 py-4 " style="margin-bottom: 20px;">
@@ -96,7 +96,7 @@
                     </svg>
                   </NuxtLink>
                 </td>
-                <td class="px-4 py-2 text-left text-gray-700 border-b border-gray-200">{{ history.id }}</td>
+                <td class="px-4 py-2 text-left text-gray-700 border-b border-gray-200">{{ history.quotationId }}</td>
                 <td class="px-4 py-2 text-left text-gray-700 border-b border-gray-200">{{
                   dayjs(history.quotationDate).format("DD/MM/YYYY") }}</td>
                 <td class="px-4 py-2 text-left text-gray-700 border-b border-gray-200">{{ history.staff.firstName }}
@@ -143,7 +143,7 @@ definePageMeta({
 
 const searchQuery = ref("");
 const historyList = ref([]);
-const itemsPerPage = 12;
+const itemsPerPage = 8;
 const currentPage = ref(1);
 const totalPages = ref(1);
 const total = ref(0);
@@ -207,7 +207,6 @@ const fetchData = async () => {
         search: searchQuery.value
       }
     });
-
     historyList.value = response.data.data;
     totalPages.value = response.data.totalPages;
     total.value = response.data.total;
