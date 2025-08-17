@@ -83,49 +83,54 @@ export class QuotationService {
     return { quotationId: quotation.id };
   }
 
-  async getAllQuotation(page: number, limit: number, search?: string) {
-  try {
+  async getAllQuotation(
+    page: number,
+    limit: number,
+    search?: string,
+  ): Promise<{
+    data: Quotation[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
     const queryBuilder = this.quotationRepository
       .createQueryBuilder('quotation')
       .leftJoinAndSelect('quotation.customer', 'customer')
       .leftJoinAndSelect('quotation.staff', 'staff')
       .leftJoinAndSelect('quotation.carDetails', 'carDetails');
 
-    queryBuilder
+    if (search && search.trim() !== '') {
+      queryBuilder.andWhere(
+        `(
+        LOWER(CAST(quotation.id AS CHAR)) LIKE :search OR
+        LOWER(staff.firstName) LIKE :search OR
+        LOWER(staff.lastName) LIKE :search OR
+        LOWER(customer.firstName) LIKE :search OR
+        LOWER(customer.lastName) LIKE :search OR
+        LOWER(CONCAT(customer.firstName, ' ', customer.lastName)) LIKE :search
+      )`,
+        { search: `%${search.toLowerCase()}%` },
+      );
+    }
+
+    const total = await queryBuilder.getCount();
+
+    const data = await queryBuilder
       .take(limit)
       .skip((page - 1) * limit)
       .orderBy('quotation.quotationDate', 'DESC')
-      .addOrderBy('quotation.id', 'DESC');
-
-    const [quotations, total] = await queryBuilder.getManyAndCount();
+      .addOrderBy('quotation.id', 'DESC')
+      .getMany();
 
     return {
-      data: quotations.map((quotation) => ({
-        quotationId: quotation.id,
-        quotationDate: quotation.quotationDate,
-        staff: {
-          firstName: quotation.staff?.firstName || '',
-          lastName: quotation.staff?.lastName || '',
-        },
-        customer: {
-          firstName: quotation.customer?.firstName || '',
-          lastName: quotation.customer?.lastName || '',
-        },
-        carDetails: {
-          modelClass: quotation.carDetails?.modelClass || '',
-          modelGName: quotation.carDetails?.modelGName || '',
-        },
-      })),
+      data,
       total,
       page,
       limit,
       totalPages: Math.ceil(total / limit),
     };
-  } catch (error) {
-    console.error('❌ getAllQuotation error:', error);
-    throw error;
   }
-}
 
   async findByStaffId(
     staffId: number,
