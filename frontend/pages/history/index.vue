@@ -18,10 +18,10 @@
                 <div class="flex flex-col gap-1 ml-2">
                     <span class="text-base font-semibold">{{ quotation.carDetails.modelClass || 'โมเดลไม่ระบุ' }}</span>
                     <span class="text-sm font-medium">{{ quotation.carDetails.modelGName || 'รายละเอียดไม่ระบุ'
-                        }}</span>
+                    }}</span>
                     <div class="flex items-center gap-2">
                         <span class="text-sm font-semibold">{{ quotation.customer?.firstName || 'ลูกค้าไม่ระบุ'
-                            }}</span>
+                        }}</span>
                         <span class="text-sm font-semibold">{{ quotation.customer?.lastName || 'ลูกค้าไม่ระบุ' }}</span>
                     </div>
                 </div>
@@ -97,7 +97,20 @@ const fetchQuotations = async () => {
                 search: searchQuery.value,
             },
         });
-        quotations.value = response.data.data || [];
+        quotations.value = response.data.data.map(q => ({
+            quotationId: q.id,
+            quotationDate: q.quotationDate,
+            carDetails: {
+                modelClass: q.carDetails?.modelClass,
+                modelGName: q.carDetails?.modelGName,
+            },
+            customer: q.customer
+                ? { customerId: q.customer.id, firstName: q.customer.firstName, lastName: q.customer.lastName }
+                : null,
+            staff: q.staff
+                ? { staffId: q.staff.id, firstName: q.staff.firstName, lastName: q.staff.lastName }
+                : null,
+        }));
         totalPages.value = response.data.totalPages || 0;
         total.value = response.data.total || 0;
     } catch (error) {
