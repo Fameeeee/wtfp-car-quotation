@@ -88,7 +88,28 @@ export class QuotationService {
     limit: number,
     search?: string,
   ): Promise<{
-    data: Quotation[];
+    data: {
+      quotationId: number;
+      quotationDate: Date;
+      customer: {
+        customerId: number;
+        firstName: string;
+        lastName: string;
+      };
+      staff: {
+        staffId: number;
+        firstName: string;
+        lastName: string;
+      };
+      carDetails: {
+        unitType: string;
+        modelClass: string;
+        modelCodeName: string;
+        modelGName: string;
+        price: number;
+        color: string;
+      };
+    }[];
     total: number;
     page: number;
     limit: number;
@@ -97,8 +118,7 @@ export class QuotationService {
     const queryBuilder = this.quotationRepository
       .createQueryBuilder('quotation')
       .leftJoinAndSelect('quotation.customer', 'customer')
-      .leftJoinAndSelect('quotation.staff', 'staff')
-      .leftJoinAndSelect('quotation.carDetails', 'carDetails');
+      .leftJoinAndSelect('quotation.staff', 'staff');
 
     if (search && search.trim() !== '') {
       queryBuilder.andWhere(
@@ -116,12 +136,28 @@ export class QuotationService {
 
     const total = await queryBuilder.getCount();
 
-    const data = await queryBuilder
+    const quotations = await queryBuilder
       .take(limit)
       .skip((page - 1) * limit)
       .orderBy('quotation.quotationDate', 'DESC')
       .addOrderBy('quotation.id', 'DESC')
       .getMany();
+
+    const data = quotations.map((q) => ({
+      quotationId: q.id,
+      quotationDate: q.quotationDate,
+      customer: {
+        customerId: q.customer?.id || null,
+        firstName: q.customer?.firstName || '',
+        lastName: q.customer?.lastName || '',
+      },
+      staff: {
+        staffId: q.staff?.id || null,
+        firstName: q.staff?.firstName || '',
+        lastName: q.staff?.lastName || '',
+      },
+      carDetails: q.carDetails,
+    }));
 
     return {
       data,
@@ -143,14 +179,20 @@ export class QuotationService {
     const query = this.quotationRepository
       .createQueryBuilder('quotation')
       .leftJoinAndSelect('quotation.customer', 'customer')
-      .leftJoin('quotation.staff', 'staff')
-      .addSelect(['staff.id', 'staff.firstName'])
+      .leftJoinAndSelect('quotation.staff', 'staff')
       .where('staff.id = :staffId', { staffId });
 
-    if (search) {
+    if (search && search.trim() !== '') {
+      const searchLower = `%${search.toLowerCase()}%`;
       query.andWhere(
-        `(LOWER(quotation.carDetails->>'modelClass') LIKE :search OR LOWER(customer.firstName) LIKE :search)`,
-        { search: `%${search.toLowerCase()}%` },
+        `(
+      LOWER(customer.firstName) LIKE :search
+      OR LOWER(customer.lastName) LIKE :search
+      OR LOWER(CONCAT(customer.firstName, ' ', customer.lastName)) LIKE :search
+      OR LOWER(JSON_UNQUOTE(JSON_EXTRACT(quotation.carDetails, '$.modelClass'))) LIKE :search
+      OR DATE(quotation.quotationDate) LIKE :search
+    )`,
+        { search: searchLower },
       );
     }
 
@@ -158,18 +200,22 @@ export class QuotationService {
       .skip(skip)
       .take(limit)
       .getManyAndCount();
-
     const totalPages = Math.ceil(total / limit);
 
     return {
       data: result.map((q) => ({
-        id: q.id,
+        quotationId: q.id,
         quotationDate: q.quotationDate,
         carDetails: q.carDetails,
-        customer: q.customer,
+        customer: {
+          customerId: q.customer.id,
+          firstName: q.customer.firstName,
+          lastName: q.customer.lastName,
+        },
         staff: {
-          id: q.staff.id,
+          staffId: q.staff.id,
           firstName: q.staff.firstName,
+          lastName: q.staff.lastName,
         },
       })),
       total,

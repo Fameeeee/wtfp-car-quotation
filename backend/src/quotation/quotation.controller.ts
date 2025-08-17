@@ -40,7 +40,7 @@ export class QuotationController {
   async findByStaffId(
     @Param('id', ParseIntPipe) id: number,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
-    @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
+    @Query('limit', new DefaultValuePipe(12), ParseIntPipe) limit: number,
     @Query('search') search?: string,
   ) {
     return this.quotationService.findByStaffId(id, page, limit, search);
