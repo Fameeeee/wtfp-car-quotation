@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateQuotationDto } from './dto/create-quotation.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaymentMethod, Quotation } from './entities/quotation.entity';
@@ -13,10 +17,13 @@ export class QuotationService {
     private quotationRepository: Repository<Quotation>,
     private readonly customerService: CustomerService,
     private readonly staffService: StaffService,
-  ) { }
+  ) {}
 
   async createQuotation(dto: CreateQuotationDto): Promise<any> {
-    let customer = await this.customerService.findByName(dto.customer.firstName, dto.customer.lastName);
+    let customer = await this.customerService.findByName(
+      dto.customer.firstName,
+      dto.customer.lastName,
+    );
 
     if (!customer) {
       customer = await this.customerService.createCustomer({
@@ -28,7 +35,7 @@ export class QuotationService {
 
     const staff = await this.staffService.findById(dto.staffId);
     if (!staff) {
-      throw new BadRequestException('Staff not found')
+      throw new BadRequestException('Staff not found');
     }
 
     let cashPlans = null;
@@ -36,17 +43,21 @@ export class QuotationService {
 
     if (dto.paymentMethod === PaymentMethod.INSTALLMENT) {
       if (!dto.installmentPlans || dto.installmentPlans.length === 0) {
-        throw new BadRequestException('Installment plans are required for installment payments.');
+        throw new BadRequestException(
+          'Installment plans are required for installment payments.',
+        );
       }
       if (dto.installmentPlans.length > 3) {
-        throw new BadRequestException('A maximum of 3 installment plans is allowed.');
+        throw new BadRequestException(
+          'A maximum of 3 installment plans is allowed.',
+        );
       }
-      installmentPlans = dto.installmentPlans.map(plan => ({
+      installmentPlans = dto.installmentPlans.map((plan) => ({
         orderNumber: plan.orderNumber,
         specialDiscount: plan.specialDiscount,
         additionPrice: plan.additionPrice,
         downPaymentPercent: plan.downPaymentPercent,
-        planDetails: plan.planDetails.map(detail => ({
+        planDetails: plan.planDetails.map((detail) => ({
           period: detail.period,
           interestRate: detail.interestRate,
         })),
@@ -76,42 +87,52 @@ export class QuotationService {
     const queryBuilder = this.quotationRepository
       .createQueryBuilder('quotation')
       .leftJoinAndSelect('quotation.customer', 'customer')
-      .leftJoinAndSelect('quotation.staff', 'staff');
+      .leftJoinAndSelect('quotation.staff', 'staff')
+      .leftJoinAndSelect('quotation.carDetails', 'carDetails');
 
     if (search) {
       queryBuilder.andWhere(
         `(
-          LOWER(CAST(quotation.id AS CHAR)) LIKE :search OR 
-          LOWER(staff.firstName) LIKE :search OR 
-          LOWER(staff.lastName) LIKE :search OR 
-          LOWER(customer.firstName) LIKE :search OR 
-          LOWER(customer.lastName) LIKE :search OR 
-          LOWER(quotation.carDetails) LIKE :search
-        )`,
-        { search: `%${search.toLowerCase()}%` }
+      LOWER(CAST(quotation.id AS CHAR)) LIKE :search OR
+      LOWER(staff.firstName) LIKE :search OR
+      LOWER(staff.lastName) LIKE :search OR
+      LOWER(customer.firstName) LIKE :search OR
+      LOWER(customer.lastName) LIKE :search OR
+      LOWER(CONCAT(customer.firstName, ' ', customer.lastName)) LIKE :search
+    )`,
+        { search: `%${search.toLowerCase()}%` },
       );
     }
 
     queryBuilder
       .take(limit)
-      .skip((page - 1) * limit);
+      .skip((page - 1) * limit)
+      .orderBy('quotation.quotationDate', 'DESC')
+      .addOrderBy('quotation.id', 'DESC');
 
     const [quotations, total] = await queryBuilder.getManyAndCount();
 
-    const formattedQuotations = quotations.map(quotation => ({
-      quotationId: quotation.id,
-      quotationDate: quotation.quotationDate,
-      staff: { firstName: quotation.staff.firstName },
-      customer: { firstName: quotation.customer.firstName },
-      carDetails: { modelGName: quotation.carDetails.modelGName }
-    }));
-
     return {
-      data: formattedQuotations,
+      data: quotations.map((quotation) => ({
+        quotationId: quotation.id,
+        quotationDate: quotation.quotationDate,
+        staff: {
+          firstName: quotation.staff?.firstName || '',
+          lastName: quotation.staff?.lastName || '',
+        },
+        customer: {
+          firstName: quotation.customer?.firstName || '',
+          lastName: quotation.customer?.lastName || '',
+        },
+        carDetails: {
+          modelClass: quotation.carDetails?.modelClass || '',
+          modelGName: quotation.carDetails?.modelGName || '',
+        },
+      })),
       total,
       page,
       limit,
-      totalPages: Math.ceil(total / limit)
+      totalPages: Math.ceil(total / limit),
     };
   }
 
@@ -119,8 +140,8 @@ export class QuotationService {
     staffId: number,
     page: number,
     limit: number,
-    search?: string
-  ): Promise<{ data: any[], total: number, totalPages: number }> {
+    search?: string,
+  ): Promise<{ data: any[]; total: number; totalPages: number }> {
     const skip = (page - 1) * limit;
 
     const query = this.quotationRepository
@@ -133,7 +154,7 @@ export class QuotationService {
     if (search) {
       query.andWhere(
         `(LOWER(quotation.carDetails->>'modelClass') LIKE :search OR LOWER(customer.firstName) LIKE :search)`,
-        { search: `%${search.toLowerCase()}%` }
+        { search: `%${search.toLowerCase()}%` },
       );
     }
 
@@ -145,7 +166,7 @@ export class QuotationService {
     const totalPages = Math.ceil(total / limit);
 
     return {
-      data: result.map(q => ({
+      data: result.map((q) => ({
         id: q.id,
         quotationDate: q.quotationDate,
         carDetails: q.carDetails,
@@ -153,10 +174,10 @@ export class QuotationService {
         staff: {
           id: q.staff.id,
           firstName: q.staff.firstName,
-        }
+        },
       })),
       total,
-      totalPages
+      totalPages,
     };
   }
 
@@ -181,27 +202,31 @@ export class QuotationService {
     };
   }
 
-
-  async updateQuotation(id: number, updateData: Partial<Quotation>): Promise<Quotation> {
-    const quotation = await this.quotationRepository.findOne({ where: { id }, relations: ['staff', 'customer'] })
+  async updateQuotation(
+    id: number,
+    updateData: Partial<Quotation>,
+  ): Promise<Quotation> {
+    const quotation = await this.quotationRepository.findOne({
+      where: { id },
+      relations: ['staff', 'customer'],
+    });
 
     if (!quotation) {
-      throw new Error('Quotation not found')
+      throw new Error('Quotation not found');
     }
-
 
     Object.assign(quotation, updateData);
     return await this.quotationRepository.save(quotation);
   }
 
   async deleteQuotation(id: number): Promise<string> {
-    const quotation = await this.quotationRepository.findOne({ where: { id } })
+    const quotation = await this.quotationRepository.findOne({ where: { id } });
 
     if (!quotation) {
-      throw new Error('Quotation not found')
+      throw new Error('Quotation not found');
     }
 
     await this.quotationRepository.remove(quotation);
-    return 'Quotation deleted successfully'
+    return 'Quotation deleted successfully';
   }
 }

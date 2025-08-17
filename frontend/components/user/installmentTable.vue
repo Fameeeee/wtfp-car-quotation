@@ -86,10 +86,10 @@ const fetchInstallmentPlansFromApi = async () => {
 
 onMounted(() => {
     if (quotationId) {
-        fetchInstallmentPlansFromApi();  
+        fetchInstallmentPlansFromApi();
     } else {
-        fetchInstallmentPlansFromLocalStorage();  
-        setCarPrice(); 
+        fetchInstallmentPlansFromLocalStorage();
+        setCarPrice();
     }
 });
 
@@ -97,40 +97,41 @@ const setCarPrice = () => {
     const storedCar = localStorage.getItem('selectedCar');
     if (storedCar) {
         const carData = JSON.parse(storedCar);
-        carPrice.value = carData?.price || 0;  
+        carPrice.value = carData?.price || 0;
     }
 };
 
 const calculateNetPrice = (order) => {
-  const discount = order.specialDiscount ?? 0;
-  const additionPrice = order.additionPrice ?? 0;
-  return carPrice.value - discount + additionPrice;
+    const discount = order.specialDiscount ?? 0;
+    const additionPrice = order.additionPrice ?? 0;
+    return carPrice.value - discount + additionPrice;
 };
 
 const calculateDownPayment = (order) => {
-  const downPaymentPercent = order.downPaymentPercent ?? 0;
-  const netPrice = calculateNetPrice(order);
-  return Math.round((downPaymentPercent / 100) * netPrice);
+    const downPaymentPercent = order.downPaymentPercent ?? 0;
+    const netPrice = calculateNetPrice(order);
+    return Math.round((downPaymentPercent / 100) * netPrice);
 };
 
 const calculateMonthlyInstallment = (order, plan) => {
-  const interestRate = plan.interestRate ?? 0;
-  const period = plan.period;
+    if (plan.interestRate == null) return null;
 
-  const netPrice = calculateNetPrice(order);
-  const downPayment = calculateDownPayment(order);
-  const loanAmount = netPrice - downPayment;
+    const netPrice = calculateNetPrice(order);
+    const downPayment = calculateDownPayment(order);
+    const loanAmount = netPrice - downPayment;
+    const interestRate = plan.interestRate;
+    const period = plan.period;
 
-  if (interestRate === 0) {
-    return Math.round(loanAmount / period);
-  }
+    if (interestRate === 0) {
+        return Math.round(loanAmount / period);
+    }
 
-  const monthlyRate = (interestRate / 100) / 12;
-  const factor = Math.pow(1 + monthlyRate, period);
+    const monthlyRate = (interestRate / 100) / 12;
+    const factor = Math.pow(1 + monthlyRate, period);
 
-  const monthlyPayment = loanAmount * ((monthlyRate * factor) / (factor - 1));
+    const monthlyPayment = loanAmount * ((monthlyRate * factor) / (factor - 1));
 
-  return Math.round(monthlyPayment);
+    return Math.round(monthlyPayment);
 };
 
 watch(() => activePlan.value.downPaymentPercent, (newDownPaymentPercent) => {

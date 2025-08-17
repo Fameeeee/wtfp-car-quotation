@@ -46,7 +46,7 @@
                 </div>
             </div>
         </div>
-        <div>
+        <div class="flex">
             <button @click="exportToImage"
                 class="mt-3 py-3 px-4 text-black rounded-lg text-xl font-semibold flex items-center gap-2 ">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -55,6 +55,10 @@
                         fill="black" />
                 </svg>
                 บันทึกเป็นรูปภาพ
+            </button>
+            <button @click="goModify"
+            class="mt-3 py-3 px-4 text-black rounded-lg text-xl font-semibold flex items-center gap-2 ">
+                แก้ไข
             </button>
         </div>
 
@@ -90,7 +94,6 @@ const installmentPlans = ref([]);
 axios
     .get(`http://localhost:3001/quotation/${quotationId}`)
     .then((response) => {
-        console.log('Quotation data:', response.data);
         quotationData.value = response.data;
         if (response.data.cashPlans) {
             cashPlan.value = response.data.cashPlans;

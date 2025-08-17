@@ -9,7 +9,7 @@
             <option value="" disabled>Select a unit type</option>
             <option v-for="unit in unitTypes" :key="unit" :value="unit">{{ unit }}</option>
           </select>
-          <button v-if="selectedUnitType" @click="clearSelection('unitType')" class="p-2 text-sm bg-gray-200 rounded-lg hover:bg-gray-300 transition text-black">Remove</button>
+          <button v-if="selectedUnitType" @click="clearSelection('unitType')" class="p-2 text-sm bg-gray-200 rounded-lg hover:bg-gray-300 transition text-black">ลบ</button>
         </div>
       </div>
   
@@ -21,7 +21,7 @@
             <option value="" disabled>Select a model class</option>
             <option v-for="model in modelClasses" :key="model" :value="model">{{ model }}</option>
           </select>
-          <button v-if="selectedModelClass" @click="clearSelection('modelClass')" class="p-2 text-sm bg-gray-200 rounded-lg hover:bg-gray-300 transition text-black">Remove</button>
+          <button v-if="selectedModelClass" @click="clearSelection('modelClass')" class="p-2 text-sm bg-gray-200 rounded-lg hover:bg-gray-300 transition text-black">ลบ</button>
         </div>
       </div>
   
@@ -33,7 +33,7 @@
             <option value="" disabled>Select a model code name</option>
             <option v-for="code in modelDetails.modelCodeNames" :key="code" :value="code">{{ code }}</option>
           </select>
-          <button v-if="selectedModelCodeName" @click="clearSelection('modelCodeName')" class="p-2 text-sm bg-gray-200 rounded-lg hover:bg-gray-300 transition text-black">Remove</button>
+          <button v-if="selectedModelCodeName" @click="clearSelection('modelCodeName')" class="p-2 text-sm bg-gray-200 rounded-lg hover:bg-gray-300 transition text-black">ลบ</button>
         </div>
       </div>
   
@@ -45,7 +45,7 @@
             <option value="" disabled>Select a model gname</option>
             <option v-for="gname in modelDetails.modelGnames" :key="gname" :value="gname">{{ gname }}</option>
           </select>
-          <button v-if="selectedModelGname" @click="clearSelection('modelGname')" class="p-2 text-sm bg-gray-200 rounded-lg hover:bg-gray-300 transition text-black">Remove</button>
+          <button v-if="selectedModelGname" @click="clearSelection('modelGname')" class="p-2 text-sm bg-gray-200 rounded-lg hover:bg-gray-300 transition text-black">ลบ</button>
         </div>
       </div>
   
@@ -57,7 +57,7 @@
             <option value="" disabled>Select a price</option>
             <option v-for="price in modelDetails.prices" :key="price" :value="price">{{ price }}</option>
           </select>
-          <button v-if="selectedPrice" @click="clearSelection('price')" class="p-2 text-sm bg-gray-200 rounded-lg hover:bg-gray-300 transition text-black">Remove</button>
+          <button v-if="selectedPrice" @click="clearSelection('price')" class="p-2 text-sm bg-gray-200 rounded-lg hover:bg-gray-300 transition text-black">ลบ</button>
         </div>
       </div>
   
@@ -69,12 +69,12 @@
             <option value="" disabled>Select a color</option>
             <option v-for="color in modelDetails.colors" :key="color" :value="color">{{ color }}</option>
           </select>
-          <button v-if="selectedColor" @click="clearSelection('color')" class="p-2 text-sm bg-gray-200 rounded-lg hover:bg-gray-300 transition text-black">Remove</button>
+          <button v-if="selectedColor" @click="clearSelection('color')" class="p-2 text-sm bg-gray-200 rounded-lg hover:bg-gray-300 transition text-black">ลบ</button>
         </div>
       </div>
   
       <!-- Next Button -->
-      <button v-if="nextButtonVisible" @click="goToConfirmPage" class="w-full py-3 text-lg font-semibold text-white bg-[#980000] rounded-lg hover:bg-[#744040] transition">Next</button>
+      <button v-if="nextButtonVisible" @click="goToConfirmPage" class="w-full py-3 text-lg font-semibold text-white bg-[#980000] rounded-lg hover:bg-[#744040] transition">ต่อไป</button>
   
       <!-- Loading and Error Messages -->
       <div v-if="loading" class="text-gray-500 mt-4">Loading...</div>

@@ -106,6 +106,9 @@ definePageMeta({
   middleware: "admin-auth",
 });
 
+const config = useRuntimeConfig()
+const backendUrl = config.public.backendUrl;
+
 const searchQuery = ref("");
 const customerList = ref([]);
 const itemsPerPage = 8;
@@ -121,7 +124,7 @@ const debouncedSearch = _.debounce((event) => {
 const fetchData = async () => {
   loading.value = true;
   try {
-    const response = await axios.get("http://localhost:3001/customer", {
+    const response = await axios.get(`${backendUrl}/customer`, {
       params: {
         page: currentPage.value,
         limit: itemsPerPage,

@@ -141,6 +141,9 @@ definePageMeta({
   middleware: "admin-auth",
 });
 
+const config = useRuntimeConfig()
+const backendUrl = config.public.backendUrl;
+
 const searchQuery = ref("");
 const historyList = ref([]);
 const itemsPerPage = 8;
@@ -200,7 +203,7 @@ const applyFilter = () => {
 const fetchData = async () => {
   loading.value = true;
   try {
-    const response = await axios.get("http://localhost:3001/quotation", {
+    const response = await axios.get(`${backendUrl}/quotation`, {
       params: {
         page: currentPage.value,
         limit: itemsPerPage,

@@ -72,7 +72,7 @@
 <script setup>
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { toPng } from 'html-to-image';
 
 import carDetailsTable from '~/components/user/carDetailsTable.vue';

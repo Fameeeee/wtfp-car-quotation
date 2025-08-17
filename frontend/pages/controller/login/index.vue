@@ -37,6 +37,9 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
+const config = useRuntimeConfig()
+const backendUrl = config.public.backendUrl;
+
 const email = ref('');
 const password = ref('');
 const emailError = ref(false);
@@ -64,7 +67,7 @@ const handleLogin = async () => {
   isLoading.value = true;
 
   try {
-    const response = await axios.post('http://localhost:3001/auth/login', {
+    const response = await axios.post(`${backendUrl}/auth/login`, {
       email: email.value,
       password: password.value
     });
