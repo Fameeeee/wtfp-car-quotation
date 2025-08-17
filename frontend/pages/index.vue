@@ -54,6 +54,9 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
+const config = useRuntimeConfig()
+const backendUrl = config.public.backendUrl;
+
 const form = ref({ email: '', password: '' });
 const emailError = ref(false);
 const passwordError = ref(false);
@@ -71,7 +74,7 @@ const handleLogin = async () => {
   isLoading.value = true;
 
   try {
-    const response = await axios.post('http://localhost:3001/auth/login', form.value);
+    const response = await axios.post(`${backendUrl}/auth/login`, form.value);
 
     if (response.data.access_token) {
       localStorage.setItem('access_token', response.data.access_token);

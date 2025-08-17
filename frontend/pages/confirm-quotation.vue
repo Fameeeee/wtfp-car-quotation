@@ -46,6 +46,9 @@ import modalConfirm from '~/components/user/modalConfirm.vue';
 import { useRouter } from 'vue-router';
 import ModalConfirm from '~/components/user/modalConfirm.vue';
 
+const config = useRuntimeConfig()
+const backendUrl = config.public.backendUrl;
+
 const router = useRouter();
 const customer = ref('');
 const paymentPlan = ref('');
@@ -137,7 +140,7 @@ const confirm = async () => {
         dataToSend.installmentPlans = JSON.parse(storedInstallmentPlans);
     }
 
-    axios.post('http://localhost:3001/quotation/create', dataToSend)
+    axios.post(`${backendUrl}/quotation/create`, dataToSend)
         .then(response => {
             const quotationId = response.data.quotationId;
             showModal.value = false;

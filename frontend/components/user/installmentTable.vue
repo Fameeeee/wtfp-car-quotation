@@ -57,6 +57,9 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useRoute } from 'vue-router';
 
+const config = useRuntimeConfig()
+const backendUrl = config.public.backendUrl;
+
 const installmentPlans = ref([]);
 const carPrice = ref(0);
 const activePlan = ref({});
@@ -71,7 +74,7 @@ const fetchInstallmentPlansFromLocalStorage = () => {
 
 const fetchInstallmentPlansFromApi = async () => {
     try {
-        const response = await axios.get(`http://localhost:3001/quotation/${quotationId}`);
+        const response = await axios.get(`${backendUrl}/quotation/${quotationId}`);
         installmentPlans.value = response.data.installmentPlans || [];
         carPrice.value = response.data.carDetails?.price || 0;
 

@@ -57,6 +57,9 @@ import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import _ from 'lodash';
 
+const config = useRuntimeConfig()
+const backendUrl = config.public.backendUrl;
+
 const currentPage = ref(1);
 const itemsPerPage = 4;
 const totalPages = ref(0);
@@ -87,7 +90,7 @@ const fetchQuotations = async () => {
 
     loading.value = true;
     try {
-        const response = await axios.get(`http://localhost:3001/quotation/staff/${staffId}`, {
+        const response = await axios.get(`${backendUrl}/quotation/staff/${staffId}`, {
             params: {
                 page: currentPage.value,
                 limit: itemsPerPage,

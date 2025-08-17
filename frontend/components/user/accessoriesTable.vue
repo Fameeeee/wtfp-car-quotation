@@ -29,6 +29,9 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useRoute } from 'vue-router';
 
+const config = useRuntimeConfig()
+const backendUrl = config.public.backendUrl;
+
 const leftSide = ref([]);
 const rightSide = ref([]);
 
@@ -62,7 +65,7 @@ const fetchFromLocalStorage = () => {
 
 const fetchFromApi = async (quotationId) => {
     try {
-        const response = await axios.get(`http://localhost:3001/quotation/${quotationId}`);
+        const response = await axios.get(`${backendUrl}/quotation/${quotationId}`);
         const apiData = response.data;
 
         const fullList = [];

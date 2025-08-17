@@ -26,6 +26,9 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useRoute } from 'vue-router';
 
+const config = useRuntimeConfig()
+const backendUrl = config.public.backendUrl;
+
 const carDetails = ref({});
 
 const route = useRoute();
@@ -38,7 +41,7 @@ const fetchDataFromLocalStorage = () => {
 
 const fetchDataFromApi = async () => {
   try {
-    const response = await axios.get(`http://localhost:3001/quotation/${quotationId}`);
+    const response = await axios.get(`${backendUrl}/quotation/${quotationId}`);
     carDetails.value = response.data.carDetails || {};
   } catch (error) {
     console.error('Error fetching data from API:', error);

@@ -81,6 +81,9 @@ import cashTable from '~/components/user/cashTable.vue';
 import installmentTable from '~/components/user/installmentTable.vue';
 import noteField from '~/components/user/noteField.vue';
 
+const config = useRuntimeConfig()
+const backendUrl = config.public.backendUrl;
+
 const route = useRoute();
 const quotationId = route.params.id;
 const router = useRouter();
@@ -90,7 +93,7 @@ const cashPlan = ref({});
 const installmentPlans = ref([]);
 
 axios
-    .get(`http://localhost:3001/quotation/${quotationId}`)
+    .get(`${backendUrl}/quotation/${quotationId}`)
     .then((response) => {
         quotationData.value = response.data;
         if (response.data.cashPlans) {
