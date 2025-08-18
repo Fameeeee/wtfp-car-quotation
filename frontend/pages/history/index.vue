@@ -7,7 +7,7 @@
                 class="w-full p-3 mb-4 border rounded-lg shadow-sm text-black" />
         </div>
 
-        <NuxtLink v-for="quotation in quotations" :key="quotation.id" :to="`/history/${quotation.id}`"
+        <NuxtLink v-for="quotation in quotations" :key="quotation.id" :to="`/history/${quotation.quotationId}`"
             class="w-full flex flex-col items-center gap-3 mt-4 text-black no-underline">
             <div class="w-11/12 bg-white border border-black/20 shadow-md rounded-lg p-4">
                 <div class="flex justify-between">
@@ -98,19 +98,20 @@ const fetchQuotations = async () => {
             },
         });
         quotations.value = response.data.data.map(q => ({
-            quotationId: q.id,
+            quotationId: q.quotationId,
             quotationDate: q.quotationDate,
             carDetails: {
                 modelClass: q.carDetails?.modelClass,
                 modelGName: q.carDetails?.modelGName,
             },
             customer: q.customer
-                ? { customerId: q.customer.id, firstName: q.customer.firstName, lastName: q.customer.lastName }
+                ? { customerId: q.customer.customerId, firstName: q.customer.firstName, lastName: q.customer.lastName }
                 : null,
             staff: q.staff
-                ? { staffId: q.staff.id, firstName: q.staff.firstName, lastName: q.staff.lastName }
+                ? { staffId: q.staff.staffId, firstName: q.staff.firstName, lastName: q.staff.lastName }
                 : null,
         }));
+        console.log(quotations.value)
         totalPages.value = response.data.totalPages || 0;
         total.value = response.data.total || 0;
     } catch (error) {
