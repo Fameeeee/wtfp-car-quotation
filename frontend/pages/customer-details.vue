@@ -26,7 +26,7 @@
                 <div class="flex flex-col items-center justify-between text-lg font-medium text-gray-800">
                     <div class="flex items-center justify-between w-full">
                         <div class="font-semibold text-black">เบอร์โทรศัพท์</div>
-                        <input type="number" v-model="customer.phoneNumber" placeholder="ป้อนเบอร์โทรศัพท์"
+                        <input type="tel" v-model="customer.phoneNumber" placeholder="ป้อนเบอร์โทรศัพท์"
                             class="p-2 border border-gray-300 rounded-lg text-gray-700 w-2/3"
                             @input="handleInput('phoneNumber')" />
                     </div>
