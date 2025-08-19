@@ -19,10 +19,10 @@
                     <div class="font-semibold text-black">ประกันภัย</div>
                     <div class="flex gap-4 w-2/3">
                         <div class="cursor-pointer py-2 px-4 rounded-lg text-sm font-semibold"
-                            :class="{ 'bg-red-500 text-white': insuranceCheck === 'do', 'border-2 border-gray-300': insuranceCheck !== 'do' }"
+                            :class="{ 'bg-[#980000] text-white': insuranceCheck === 'do', 'border-2 border-gray-300': insuranceCheck !== 'do' }"
                             @click="setInsuranceCheck('do')">ทำ</div>
                         <div class="cursor-pointer py-2 px-4 rounded-lg text-sm font-semibold"
-                            :class="{ 'bg-red-500 text-white': insuranceCheck === 'not_do', 'border-2 border-gray-300': insuranceCheck !== 'not_do' }"
+                            :class="{ 'bg-[#980000] text-white': insuranceCheck === 'not_do', 'border-2 border-gray-300': insuranceCheck !== 'not_do' }"
                             @click="setInsuranceCheck('not_do')">ไม่ทำ</div>
                     </div>
                 </div>
