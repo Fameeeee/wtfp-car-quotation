@@ -1,18 +1,21 @@
 <template>
-    <div class="flex min-h-screen bg-[#ececec] w-full text-black">
+    <div class="flex min-h-screen bg-[#ececec] w-full text-black ml-[80px]">
         <AdminSidebar />
-        <div class="content flex flex-col flex-1" style="padding: 20px;">
+
+        <div class="content flex flex-col flex-1 min-h-0" style="padding: 20px;">
             <div class="header flex justify-between items-center px-5 py-2.5"
                 style="padding-inline: 20px; padding-block: 10px;">
                 <div class="text-6xl">Staff</div>
             </div>
-            <div class="staff-table bg-white p-5 rounded-lg shadow-md relative min-h-[300px] overflow-hidden"
-                style=" border-collapse:collapse ; margin-top: 10px; width: 100%;">
+
+            <div class="bg-white p-5 rounded-lg shadow-md relative min-h-[300px] overflow-hidden flex-1"
+                style="border-collapse:collapse; margin-top: 10px; width: 100%;">
                 <div class="back mb-4">
-                    <button @click="goBack" class="w-24 h-10 bg-red-600 text-white  rounded-md mb-2 "
+                    <button @click="goBack" class="w-24 h-10 bg-red-600 hover:bg-red-800 cursor-pointer text-white rounded-md mb-2"
                         style="margin-bottom: 10px;">
-                        < กลับ</button>
+                        < กลับ </button>
                 </div>
+
                 <div class="staff bg-[#ECECEC] rounded-lg p-2.5 flex gap-2.5">
                     <div class="staff-img h-[150px] bg-white w-[150px] flex justify-center items-center">
                         <svg width="100" height="100" viewBox="0 0 24 24" fill="none"
@@ -22,18 +25,19 @@
                                 fill="#1E1E1E" />
                         </svg>
                     </div>
+
                     <div class="staff-details ml-4 bg-[#ECECEC] p-2.5">
                         <div v-if="loading" class="text-gray-500">Loading staff details...</div>
                         <div v-else-if="staffData">
                             <div class="row-1 flex gap-3.5 my-1.5 text-xl font-bold">
                                 {{ staffData.firstName }} {{ staffData.lastName }}
                             </div>
-                            <div class="row-2 flex gap-3.5 my-1.5 text-lg">
+                            <div class="row-2 flex flex-wrap gap-3.5 my-1.5 text-lg">
                                 <p><strong>ตำแหน่ง :</strong> {{ staffData.role }}</p>
                                 <p><strong>จังหวัด : </strong> {{ staffData.city }}</p>
                                 <p><strong>สาขา : </strong> {{ staffData.branch }}</p>
                             </div>
-                            <div class="row-3 flex gap-3.5 my-1.5 text-lg">
+                            <div class="row-3 flex flex-wrap gap-3.5 my-1.5 text-lg">
                                 <p><strong>อีเมลล์ :</strong> {{ staffData.email }}</p>
                                 <p><strong>เบอร์โทรศัพท์ :</strong> {{ staffData.phoneNumber }}</p>
                                 <p><strong>เพศ :</strong> {{ staffData.gender }}</p>
@@ -44,39 +48,45 @@
                         </div>
                     </div>
                 </div>
-                <hr class="border-black" style="margin: 10px;">
+
+                <hr class="border-black my-2.5">
+
                 <div class="table-controls flex items-center mb-2.5">
                     <div class="relative w-full max-w-[230px]">
                         <input type="text" v-model="searchQuery" @input="debouncedSearch" placeholder="ค้นหา"
                             class="w-full pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 bg-white h-10 !pl-3" />
                     </div>
                 </div>
-                <div class="history-data">
+
+                <div class="history-data h-[400px] overflow-y-auto">
                     <table v-if="staffData && staffData.quotations.length"
-                        class="history-table w-full border-collapse min-h-[200px]" style="margin-top: 8px;">
+                        class="history-table w-full border-collapse mt-2">
                         <thead>
-                            <tr class="bg-gray-100 font-bold text-center">
-                                <th class="border text-left border-gray-300 p-2">ID</th>
-                                <th class="border text-left border-gray-300 p-2">ชื่อลูกค้า</th>
-                                <th class="border text-left border-gray-300 p-2">ใบเสนอราคา</th>
+                            <tr class="bg-gray-100 font-bold">
+                                <th class="border border-gray-300 p-2 text-center w-[100px]">ID</th>
+                                <th class="border border-gray-300 p-2 text-center w-[220px]">ชื่อลูกค้า</th>
+                                <th class="border border-gray-300 p-2 text-center w-[220px]">ใบเสนอราคา</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="text-center align-middle">
                             <tr v-for="(quotation, index) in paginatedQuotations" :key="index"
-                                @click="goToHistory(quotation.id)"
-                                class="hover:bg-gray-200 cursor-pointer clickable-row table-fixed">
-                                <td class="border table-fixed border-gray-300 p-2 text-center">{{ quotation.id }}</td>
-                                <td class="border table-fixed border-gray-300 p-2 text-center">{{
-                                    quotation.customer.firstName }}
+                                @click="goToHistory(quotation.id)" class="hover:bg-gray-200 cursor-pointer">
+                                <td class="border border-gray-300 p-2 truncate" :title="String(quotation.id)">
+                                    {{ quotation.id }}
                                 </td>
-                                <td class="border table-fixed border-gray-300 p-2 text-center">{{
-                                    quotation.carDetails.modelClass }}
+                                <td class="border border-gray-300 p-2 truncate" :title="quotation.customer?.firstName">
+                                    {{ quotation.customer.firstName }}
+                                </td>
+                                <td class="border border-gray-300 p-2 truncate"
+                                    :title="quotation.carDetails?.modelClass">
+                                    {{ quotation.carDetails.modelClass }}
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                     <p v-else>ไม่มีข้อมูลใบเสนอราคา</p>
                 </div>
+
                 <div class="flex justify-center items-center gap-4 mt-6 fixed bottom-12 right-0 left-0"
                     style="margin-top: 10px;">
                     <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1"
@@ -148,7 +158,6 @@ const changePage = (page) => {
     currentPage.value = page;
 };
 
-
 const searchHistory = () => {
     currentPage.value = 1;
 };
@@ -172,74 +181,4 @@ definePageMeta({
 </script>
 
 <style scoped>
-.history-table th,
-.history-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: center;
-}
-
-.history-table th {
-    background-color: #f4f4f4;
-    font-weight: bold;
-}
-
-.history-table tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-.history-table tr:hover {
-    background-color: #e0e0e0;
-    cursor: pointer;
-}
-
-.sidebar-collapsed+.content {
-    margin-left: 80px;
-}
-
-.staff-table {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    position: relative;
-    height: 100%;
-    min-height: 300px;
-    overflow: hidden;
-}
-
-.staff {
-    background: #ECECEC;
-    border-radius: 5px;
-    padding: 10px;
-    display: flex;
-    gap: 10px;
-}
-
-.action-btn {
-    background: #7bff29;
-}
-
-.row-1,
-.row-2,
-.row-3 {
-    display: flex;
-    gap: 15px;
-    margin: 5px 0;
-}
-
-.row-1 {
-    font-size: 22px;
-}
-
-.row-2,
-.row-3 {
-    font-size: 18px;
-}
-
-.table-controls {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-}
 </style>
