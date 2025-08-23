@@ -36,7 +36,7 @@
 
             <button v-for="page in visiblePages" :key="page" @click="() => { currentPage = page; fetchQuotations(); }"
                 class="px-4 py-2 rounded-md border border-gray-400"
-                :class="{ 'bg-red-500 text-white': currentPage === page, 'bg-white text-black': currentPage !== page }">
+                :class="{ 'bg-[#980000] text-white': currentPage === page, 'bg-white text-black': currentPage !== page }">
                 {{ page }}
             </button>
 
@@ -111,7 +111,6 @@ const fetchQuotations = async () => {
                 ? { staffId: q.staff.staffId, firstName: q.staff.firstName, lastName: q.staff.lastName }
                 : null,
         }));
-        console.log(quotations.value)
         totalPages.value = response.data.totalPages || 0;
         total.value = response.data.total || 0;
     } catch (error) {

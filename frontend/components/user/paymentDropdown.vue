@@ -2,9 +2,9 @@
     <div class="w-full border border-black rounded-md font-semibold">
         <!-- Header -->
         <div class="flex items-center justify-between p-4 gap-2 cursor-pointer" @click="toggle">
-            <div class="font-semibold">{{ label }}</div>
-            <svg :class="{ 'rotate-181': open }" class="transition-transform duration-300" width="35" height="35"
-                viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <div>{{ label }}</div>
+            <svg :class="{ 'rotate-180': open }" class="transition-transform duration-300" width="35" height="35"
+                viewBox="0 0 35 35" fill="none">
                 <path d="M10.2083 14.5833L17.4999 21.8749L24.7916 14.5833" stroke="black" stroke-width="1.5"
                     stroke-linecap="round" stroke-linejoin="round" />
             </svg>
@@ -12,7 +12,7 @@
 
         <!-- Content -->
         <transition name="slide-fade">
-            <div v-if="open" class="p-4 border-t border-black">
+            <div v-if="open" class="p-6 border-t border-black space-y-6 bg-white rounded-lg shadow-md">
                 <div v-if="loading">Loading...</div>
                 <div v-else>
                     <!-- CASH -->
@@ -127,6 +127,7 @@ import axios from "axios";
 const props = defineProps({
     label: String,
     quotationId: [String, Number],
+    modelValue: Object,
 });
 
 const open = ref(false);
@@ -139,12 +140,7 @@ const carDetails = reactive({
     price: 0,
 });
 
-const cashPlans = reactive({
-    totalPrice: 0,
-    specialDiscount: 0,
-    specialAddition: 0,
-});
-
+const cashPlans = ref({});
 const installmentPlans = ref([]);
 const activePlanIndex = ref(0);
 const activePlan = computed(() => installmentPlans.value[activePlanIndex.value] || null);
@@ -153,42 +149,61 @@ const activePlan = computed(() => installmentPlans.value[activePlanIndex.value] 
 const downPaymentBaht = ref(0);
 const periods = ref([36, 48, 60, 72, 84]);
 
-const toggle = async () => {
-    open.value = !open.value;
-    if (open.value && !selectedMethod.value) {
-        loading.value = true;
-        try {
-            const response = await axios.get(`${backendUrl}/quotation/${props.quotationId}`);
-            const data = response.data;
+const emit = defineEmits(['update']);
 
-            selectedMethod.value = data.paymentMethod;
+onMounted(async () => {
+    if (!props.quotationId) return;
+    await fetchQuotationData();
+});
 
-            if (data.carDetails?.price) carDetails.price = data.carDetails.price;
+// Or fetch again if quotationId changes
+watch(() => props.quotationId, async () => {
+    if (!props.quotationId) return;
+    await fetchQuotationData();
+});
 
-            if (data.paymentMethod === "cash" && data.cashPlans) {
-                Object.assign(cashPlans, data.cashPlans);
-            } else if (data.paymentMethod === "installment" && data.installmentPlans?.length) {
-                installmentPlans.value = data.installmentPlans.map(inst => ({
-                    additionPrice: inst.additionPrice,
-                    specialDiscount: inst.specialDiscount,
-                    downPaymentPercent: inst.downPaymentPercent || 0,
-                    planDetails: inst.planDetails?.length
-                        ? inst.planDetails
-                        : periods.value.map(p => ({ period: p, interestRate: null })),
-                }));
-                activePlanIndex.value = 0;
+const fetchQuotationData = async () => {
+    loading.value = true;
+    try {
+        const response = await axios.get(`${backendUrl}/quotation/${props.quotationId}`);
+        const data = response.data;
 
-                if (carDetails.price && activePlan.value?.downPaymentPercent) {
-                    downPaymentBaht.value = Math.ceil((activePlan.value.downPaymentPercent / 100) * carDetails.price);
-                }
+        selectedMethod.value = data.paymentMethod;
+        if (data.carDetails?.price) carDetails.price = data.carDetails.price;
+
+        if (data.paymentMethod === "cash" && data.cashPlans) {
+            Object.assign(cashPlans.value, data.cashPlans);
+        } else if (data.paymentMethod === "installment" && data.installmentPlans?.length) {
+            installmentPlans.value = data.installmentPlans.map(inst => ({
+                additionPrice: inst.additionPrice,
+                specialDiscount: inst.specialDiscount,
+                downPaymentPercent: inst.downPaymentPercent || 0,
+                planDetails: inst.planDetails?.length
+                    ? inst.planDetails
+                    : periods.value.map(p => ({ period: p, interestRate: null })),
+            }));
+            activePlanIndex.value = 0;
+            if (carDetails.price && activePlan.value?.downPaymentPercent) {
+                downPaymentBaht.value = Math.ceil((activePlan.value.downPaymentPercent / 100) * carDetails.price);
             }
-        } catch (err) {
-            console.error("Error fetching data", err);
-        } finally {
-            loading.value = false;
         }
+
+        // Emit initial data to parent
+        emit("update", {
+            paymentMethod: selectedMethod.value,
+            installmentPlans: installmentPlans.value
+        });
+    } catch (err) {
+        console.error("Error fetching data", err);
+    } finally {
+        loading.value = false;
     }
 };
+
+const toggle = () => {
+    open.value = !open.value;
+};
+
 
 const updateDownPayment = () => {
     if (!carDetails.price || !activePlan.value) return;
@@ -249,6 +264,7 @@ const deleteLastPlan = () => {
 const toggleActivePlan = (index) => {
     activePlanIndex.value = index;
 };
+
 </script>
 
 
@@ -270,9 +286,5 @@ const toggleActivePlan = (index) => {
     max-height: 500px;
     opacity: 1;
     overflow: hidden;
-}
-
-.rotate-180 {
-    transform: rotate(180deg);
 }
 </style>

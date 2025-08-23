@@ -11,7 +11,7 @@
         </div>
 
         <transition name="slide-fade">
-            <div v-if="open" class="p-4 border-t border-black space-y-4">
+            <div v-if="open" class="p-6 border-t border-black space-y-6 bg-white rounded-lg shadow-md">
                 <input v-model="searchQuery" @input="searchAccessories" type="text" placeholder="ค้นหาอุปกรณ์"
                     class="w-full p-2 border border-gray-300 rounded-md" />
 
@@ -48,6 +48,7 @@ import axios from "axios";
 const props = defineProps({
     label: String,
     quotationId: [String, Number],
+    modelValue: Object,
 });
 
 const open = ref(false);
@@ -117,6 +118,13 @@ const removeAccessory = (index) => {
 const totalPrice = computed(() =>
     accessories.value.reduce((sum, item) => sum + item.price, 0)
 );
+
+const emit = defineEmits(["update"]);
+
+watch(accessories, (newVal) => {
+  emit("update", newVal); 
+}, { deep: true });
+
 </script>
 
 <style scoped>
@@ -137,9 +145,5 @@ const totalPrice = computed(() =>
     max-height: 500px;
     opacity: 1;
     overflow: hidden;
-}
-
-.rotate-180 {
-    transform: rotate(180deg);
 }
 </style>
