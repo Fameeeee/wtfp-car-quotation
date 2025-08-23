@@ -34,13 +34,18 @@
                 class="h-4 w-4 text-red-500 border-gray-300 rounded focus:ring-red-500" />
             </td>
             <td class="px-4 py-3 text-sm text-black">{{ item.assName }}</td>
-            <td class="px-4 py-3 text-sm text-black text-right">{{ item.price.toLocaleString() }} ฿</td>
+            <td class="px-4 py-3 text-sm text-black text-right whitespace-normal break-words max-w-[120px]">
+              <span class="whitespace-nowrap">
+                {{ item.price.toLocaleString() }} ฿
+              </span>
+            </td>
+
           </tr>
         </tbody>
       </table>
     </div>
 
-    <div class="mt-2 text-lg font-bold text-black">ราคารวม: {{ totalPrice.toLocaleString() }} ฿</div>
+    <div class="mb-0 text-lg font-bold text-black">ราคารวม: {{ totalPrice.toLocaleString() }} ฿</div>
 
     <buttonGroup :goBack="goBack" :goNext="goNext" />
   </div>

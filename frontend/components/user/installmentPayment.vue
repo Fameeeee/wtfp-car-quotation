@@ -40,14 +40,14 @@
 
             <div class="grid grid-cols-3 gap-4">
                 <div>
-                    <p class="text-center font-bold text-black">จำนวนเดือน</p>
+                    <p class="text-center font-semibold text-black">จำนวนเดือน</p>
                     <div v-for="(period, index) in periods" :key="index"
                         class="p-2 border border-black rounded-lg text-center text-black bg-gray-100 mt-2">
                         {{ period }}
                     </div>
                 </div>
                 <div v-if="activePlan?.planDetails?.length">
-                    <p class="text-center font-bold text-black">อัตราดอกเบี้ย</p>
+                    <p class="text-center font-semibold text-black">อัตราดอกเบี้ย</p>
                     <div v-for="(plan, index) in activePlan.planDetails" :key="index" class="mt-2">
                         <input v-model.number="plan.interestRate"
                             @blur="handleInterestRateBlur(plan, index)"
@@ -57,7 +57,7 @@
                     </div>
                 </div>
                 <div v-if="activePlan?.planDetails?.length">
-                    <p class="text-center font-bold text-black">ค่างวดต่อเดือน</p>
+                    <p class="text-center font-semibold text-black">ค่างวดต่อเดือน</p>
                     <div v-for="(installment, index) in calculateMonthlyPayments()" :key="index" class="mt-2">
                         <input :value="installment" type="text"
                             class="w-full p-2 border border-black rounded-lg text-center text-black bg-gray-100"

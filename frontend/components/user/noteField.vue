@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col gap-2 ">
     <div class="scale-text min-h-[50px] p-1 text-black bg-gray-100 whitespace-pre-wrap break-words overflow-hidden">
-      {{ note || 'ไม่มีหมายเหตุ' }}
+      {{ defaultText + (note ? '\n' + note : '') }}
     </div>
   </div>
 </template>
@@ -14,6 +14,7 @@ import axios from 'axios';
 const config = useRuntimeConfig()
 const backendUrl = config.public.backendUrl;
 
+const defaultText = '- รับประกันผลิตภัณท์รถยนต์ 3 ปี หรือ 100,000 กม. แล้วแต่อย่างใดอย่างหนึ่งถึงก่อน\n- เงื่อนไขต่างๆอาจมีการเปลี่ยนแปลงโดยไม่่ต้องแจ้งให้ทราบล่วงหน้า';
 const note = ref('');
 const route = useRoute();
 const quotationId = route.params.id;

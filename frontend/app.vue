@@ -19,7 +19,7 @@ router.afterEach(() => {
 <template>
   <div>
     <NuxtLayout>
-      <div class="relative min-h-screen">
+      <div class="relative">
         <NuxtPage />
         <div
           v-if="isLoading"
