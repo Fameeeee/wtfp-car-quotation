@@ -199,6 +199,8 @@ export class QuotationService {
     const [result, total] = await query
       .skip(skip)
       .take(limit)
+      .orderBy('quotation.quotationDate', 'DESC')
+      .addOrderBy('quotation.id', 'DESC')
       .getManyAndCount();
     const totalPages = Math.ceil(total / limit);
 
