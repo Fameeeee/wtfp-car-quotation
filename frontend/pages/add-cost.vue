@@ -7,10 +7,10 @@
                     <div class="font-semibold text-black">พรบ.</div>
                     <div class="flex gap-4 w-2/3">
                         <div class="cursor-pointer py-2 px-4 rounded-lg text-sm font-semibold"
-                            :class="{ 'bg-red-500 text-white': cmiCheck === 'do', 'border-2 border-gray-300': cmiCheck !== 'do' }"
+                            :class="{ 'bg-[#980000] text-white': cmiCheck === 'do', 'border-2 border-gray-300': cmiCheck !== 'do' }"
                             @click="setCmiCheck('do')">ทำ</div>
                         <div class="cursor-pointer py-2 px-4 rounded-lg text-sm font-semibold"
-                            :class="{ 'bg-red-500 text-white': cmiCheck === 'not_do', 'border-2 border-gray-300': cmiCheck !== 'not_do' }"
+                            :class="{ 'bg-[#980000] text-white': cmiCheck === 'not_do', 'border-2 border-gray-300': cmiCheck !== 'not_do' }"
                             @click="setCmiCheck('not_do')">ไม่ทำ</div>
                     </div>
                 </div>
@@ -36,10 +36,10 @@
                 <div class="flex items-start justify-between text-lg font-medium text-gray-800">
                     <div class="font-semibold text-black">หมายเหตุ</div>
                     <div class="flex flex-col items-end w-2/3">
-                        <textarea v-model="noteText" maxlength="150" placeholder="เพิ่มหมายเหตุ..."
+                        <textarea v-model="noteText" maxlength="100" placeholder="เพิ่มหมายเหตุ..."
                             class="h-24 p-3 border border-gray-300 rounded-lg text-black resize-none w-full"
                             @input="saveToLocalStorage"></textarea>
-                        <div class="text-xs text-gray-500 mt-1">{{ noteText.length }}/150</div>
+                        <div class="text-xs text-gray-500 mt-1">{{ noteText.length }}/100</div>
                     </div>
                 </div>
             </div>

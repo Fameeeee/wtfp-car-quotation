@@ -1,5 +1,5 @@
 <template>
-  <div class="main-container flex flex-col h-screen m-0" style="margin: 0px;">
+  <div class="main-container flex flex-col h-screen m-0 text-black" style="margin: 0px;">
     <nav class="navbar h-fit bg-white flex justify-center items-center shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
       <img class="logo h-[5vh] object-contain my-2" src="../../../public/assets/IsuzuLogo.png" alt="Isuzu Logo"
         style="height: 5vh; margin-block: 10px;">

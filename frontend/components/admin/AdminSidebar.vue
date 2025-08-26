@@ -1,85 +1,98 @@
 <template>
     <aside
-        class="sidebar w-[300px] min-w-[300px] h-screen shadow-md flex flex-col fixed left-0 top-0 bg-white transition-all duration-300 ease-in-out z-[100]"
-        :class="{ 'sidebar-open ': isSidebarOpen, 'sidebar-collapsed': !isSidebarOpen }">
-        <div class="first-row first-row flex items-center justify-between" style="padding: 20px;">
-            <div class="logo" v-if="isSidebarOpen">
-                <img class="max-w-[150px] my-5 transition-all duration-300 ease-in-out"
-                    src="../../public/assets/IsuzuLogo.png" alt="Isuzu Logo" />
+        class="sidebar min-h-screen shadow-md flex flex-col fixed left-0 top-0 bg-white transition-all duration-300 ease-in-out z-[100]"
+        :class="isOpen ? 'w-[280px] min-w-[280px]' : 'w-[80px] min-w-[80px]'">
+        <div class="first-row flex items-center justify-between p-5">
+            <div class="logo" v-if="isOpen">
+                <img class="max-w-[150px] my-5 transition-all duration-300 ease-in-out" src="/assets/IsuzuLogo.png"
+                    alt="Isuzu Logo" />
             </div>
-            <div class="hamburger cursor-pointer text-4xl text-center text-black" style="padding: 10px;"
-                @click="toggleSidebar">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <div class="hamburger cursor-pointer text-4xl text-center text-black p-2" @click="$emit('toggle')">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
                     <path d="M3 18H21V16H3V18ZM3 13H21V11H3V13ZM3 6V8H21V6H3Z" fill="black" />
                 </svg>
             </div>
         </div>
-        <nav class="link flex flex-col gap-2.5 w-full " style="padding: 10px;">
-            <NuxtLink to="/controller/staff" :class="{ 'active': $route.path.startsWith('/controller/staff') }"
-                class="flex items-center gap-2.5 text-black text-base font-bold transition-all duration-300 ease-in-out py-3 px-2.5 hover:bg-gray-100"
-                style="gap: 10px; font-weight: bold; padding-block: 12px; padding-inline: 10px;">
-                <span v-if="isSidebarOpen">Staff</span>
+
+        <nav class="flex flex-col gap-2.5 w-full px-2">
+            <NuxtLink to="/controller/staff" :class="{ active: $route.path.startsWith('/controller/staff') }"
+                class="flex items-center gap-3 text-black text-base font-bold transition-all duration-300 ease-in-out py-3 px-3 hover:bg-gray-100">
+                <span v-if="isOpen">Staff</span>
                 <i v-else class="icon-staff">
-                    <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M5.625 7.96875C5.625 6.60123 6.16825 5.28972 7.13523 4.32273C8.10222 3.35575 9.41373 2.8125 10.7812 2.8125C12.1488 2.8125 13.4603 3.35575 14.4273 4.32273C15.3943 5.28972 15.9375 6.60123 15.9375 7.96875C15.9375 9.33627 15.3943 10.6478 14.4273 11.6148C13.4603 12.5818 12.1488 13.125 10.7812 13.125C9.41373 13.125 8.10222 12.5818 7.13523 11.6148C6.16825 10.6478 5.625 9.33627 5.625 7.96875ZM17.8125 10.7812C17.8125 10.2272 17.9216 9.67865 18.1336 9.1668C18.3456 8.65496 18.6564 8.18989 19.0481 7.79814C19.4399 7.4064 19.905 7.09565 20.4168 6.88363C20.9286 6.67162 21.4772 6.5625 22.0312 6.5625C22.5853 6.5625 23.1339 6.67162 23.6457 6.88363C24.1575 7.09565 24.6226 7.4064 25.0144 7.79814C25.4061 8.18989 25.7169 8.65496 25.9289 9.1668C26.1409 9.67865 26.25 10.2272 26.25 10.7812C26.25 11.9001 25.8055 12.9732 25.0144 13.7644C24.2232 14.5555 23.1501 15 22.0312 15C20.9124 15 19.8393 14.5555 19.0481 13.7644C18.257 12.9732 17.8125 11.9001 17.8125 10.7812ZM1.875 23.9062C1.875 21.5442 2.81333 19.2788 4.48358 17.6086C6.15383 15.9383 8.41917 15 10.7812 15C13.1433 15 15.4087 15.9383 17.0789 17.6086C18.7492 19.2788 19.6875 21.5442 19.6875 23.9062V23.91L19.6862 24.0587C19.6836 24.2177 19.6406 24.3734 19.5612 24.5112C19.4818 24.6489 19.3687 24.7642 19.2325 24.8463C16.6814 26.3823 13.7591 27.1919 10.7812 27.1875C7.69125 27.1875 4.79875 26.3325 2.33125 24.8463C2.19481 24.7644 2.08146 24.6491 2.00186 24.5114C1.92226 24.3736 1.87903 24.2178 1.87625 24.0587L1.875 23.9062ZM21.5625 23.91L21.5613 24.09C21.5543 24.5066 21.4548 24.9165 21.27 25.29C21.5217 25.305 21.7754 25.3125 22.0312 25.3125C24.0262 25.3125 25.915 24.85 27.595 24.0263C27.7466 23.9521 27.8755 23.8385 27.9679 23.6972C28.0603 23.556 28.1128 23.3924 28.12 23.2238L28.125 22.9688C28.1252 21.941 27.8654 20.93 27.3699 20.0296C26.8744 19.1292 26.1592 18.3688 25.2909 17.819C24.4225 17.2693 23.4293 16.9481 22.4035 16.8853C21.3777 16.8226 20.3526 17.0202 19.4237 17.46C20.8141 19.3213 21.564 21.583 21.5613 23.9062L21.5625 23.91Z"
-                            fill="black" />
+                    <svg width="25" height="25" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"
+                        xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <rect width="30" height="30" fill="url(#pattern0_172_47)" />
+                        <defs>
+                            <pattern id="pattern0_172_47" patternContentUnits="objectBoundingBox" width="1" height="1">
+                                <use xlink:href="#image0_172_47" transform="scale(0.01)" />
+                            </pattern>
+                            <image id="image0_172_47" width="100" height="100" preserveAspectRatio="none"
+                                xlink:href="data:image/png;base64,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" />
+                        </defs>
                     </svg>
                 </i>
             </NuxtLink>
-            <NuxtLink to="/controller/customer" :class="{ 'active': $route.path.startsWith('/controller/customer') }"
-                class="flex items-center gap-2.5 text-black text-base font-bold transition-all duration-300 ease-in-out py-3 px-2.5 hover:bg-gray-100"
-                style="gap: 10px; font-weight: bold; padding-block: 12px; padding-inline: 10px;">
-                <span v-if="isSidebarOpen">Customer</span>
+
+            <NuxtLink to="/controller/customer" :class="{ active: $route.path.startsWith('/controller/customer') }"
+                class="flex items-center gap-3 text-black text-base font-bold transition-all duration-300 ease-in-out py-3 px-3 hover:bg-gray-100">
+                <span v-if="isOpen">Customer</span>
                 <i v-else class="icon-customer">
-                    <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd"
-                            d="M18.1251 6.87498C18.1251 4.45875 16.1663 2.50002 13.75 2.50002L13.51 2.50646C11.2054 2.63109 9.37502 4.53931 9.37502 6.87498C9.37502 9.29127 11.3338 11.25 13.75 11.25L13.9901 11.2435C16.2947 11.1189 18.1251 9.2107 18.1251 6.87498ZM15 21.25C15 22.6161 15.3652 23.8969 16.0034 25H5.00006V20.5C5.00006 16.8653 7.79311 13.9015 11.292 13.7556L11.5625 13.75H15.9375C17.0762 13.75 18.1472 14.0483 19.0806 14.5731C16.6578 15.8164 15 18.3396 15 21.25ZM18.8264 26.3064L22.5 24.0625L26.1737 26.3064L25.1749 22.1191L28.4441 19.3186L24.1532 18.9746L22.5 15L20.8469 18.9746L16.5559 19.3186L19.8252 22.1191L18.8264 26.3064Z"
-                            fill="black" />
+                    <svg width="25" height="25" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"
+                        xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <rect width="30" height="30" fill="url(#pattern0_1244_105)" />
+                        <defs>
+                            <pattern id="pattern0_1244_105" patternContentUnits="objectBoundingBox" width="1"
+                                height="1">
+                                <use xlink:href="#image0_1244_105" transform="scale(0.01)" />
+                            </pattern>
+                            <image id="image0_1244_105" width="100" height="100" preserveAspectRatio="none"
+                                xlink:href="data:image/png;base64,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" />
+                        </defs>
                     </svg>
                 </i>
             </NuxtLink>
-            <NuxtLink to="/controller/history" :class="{ 'active': $route.path.startsWith('/controller/history') }"
-                class="flex items-center gap-2.5 text-black text-base font-bold transition-all duration-300 ease-in-out py-3 px-2.5 hover:bg-gray-100"
-                style="gap: 10px; font-weight: bold; padding-block: 12px; padding-inline: 10px;">
-                <span v-if="isSidebarOpen">History</span>
+
+            <NuxtLink to="/controller/history" :class="{ active: $route.path.startsWith('/controller/history') }"
+                class="flex items-center gap-3 text-black text-base font-bold transition-all duration-300 ease-in-out py-3 px-3 hover:bg-gray-100">
+                <span v-if="isOpen">History</span>
                 <i v-else class="icon-history">
-                    <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
-                            d="M15 26.25C12.375 26.25 10.0521 25.4533 8.03125 23.86C6.01042 22.2667 4.69792 20.23 4.09375 17.75C4.01042 17.4375 4.07292 17.1512 4.28125 16.8912C4.48958 16.6312 4.77083 16.48 5.125 16.4375C5.45833 16.3958 5.76042 16.4583 6.03125 16.625C6.30208 16.7917 6.48958 17.0417 6.59375 17.375C7.09375 19.25 8.125 20.7813 9.6875 21.9688C11.25 23.1563 13.0208 23.75 15 23.75C17.4375 23.75 19.5054 22.9012 21.2037 21.2037C22.9021 19.5062 23.7508 17.4383 23.75 15C23.7492 12.5617 22.9004 10.4942 21.2037 8.7975C19.5071 7.10083 17.4392 6.25167 15 6.25C13.5625 6.25 12.2187 6.58333 10.9687 7.25C9.71875 7.91667 8.66667 8.83333 7.8125 10H10C10.3542 10 10.6513 10.12 10.8913 10.36C11.1313 10.6 11.2508 10.8967 11.25 11.25C11.2492 11.6033 11.1292 11.9004 10.89 12.1413C10.6508 12.3821 10.3542 12.5017 10 12.5H5C4.64583 12.5 4.34917 12.38 4.11 12.14C3.87083 11.9 3.75083 11.6033 3.75 11.25V6.25C3.75 5.89583 3.87 5.59917 4.11 5.36C4.35 5.12083 4.64667 5.00083 5 5C5.35333 4.99917 5.65042 5.11917 5.89125 5.36C6.13208 5.60083 6.25167 5.8975 6.25 6.25V7.9375C7.3125 6.60417 8.60958 5.57292 10.1412 4.84375C11.6729 4.11458 13.2925 3.75 15 3.75C16.5625 3.75 18.0262 4.04708 19.3912 4.64125C20.7562 5.23542 21.9438 6.03708 22.9538 7.04625C23.9638 8.05542 24.7658 9.24292 25.36 10.6088C25.9542 11.9746 26.2508 13.4383 26.25 15C26.2492 16.5617 25.9525 18.0254 25.36 19.3912C24.7675 20.7571 23.9654 21.9446 22.9538 22.9538C21.9421 23.9629 20.7546 24.765 19.3912 25.36C18.0279 25.955 16.5642 26.2517 15 26.25ZM16.25 14.5L19.375 17.625C19.6042 17.8542 19.7187 18.1458 19.7187 18.5C19.7187 18.8542 19.6042 19.1458 19.375 19.375C19.1458 19.6042 18.8542 19.7187 18.5 19.7187C18.1458 19.7187 17.8542 19.6042 17.625 19.375L14.125 15.875C14 15.75 13.9062 15.6096 13.8437 15.4537C13.7812 15.2979 13.75 15.1363 13.75 14.9688V10C13.75 9.64583 13.87 9.34917 14.11 9.11C14.35 8.87083 14.6467 8.75083 15 8.75C15.3533 8.74917 15.6504 8.86917 15.8913 9.11C16.1321 9.35083 16.2517 9.6475 16.25 10V14.5Z"
+                            d="M12 21C9.9 21 8.04167 20.3627 6.425 19.088C4.80833 17.8133 3.75833 16.184 3.275 14.2C3.20833 13.95 3.25833 13.721 3.425 13.513C3.59167 13.305 3.81667 13.184 4.1 13.15C4.36667 13.1167 4.60833 13.1667 4.825 13.3C5.04167 13.4333 5.19167 13.6333 5.275 13.9C5.675 15.4 6.5 16.625 7.75 17.575C9 18.525 10.4167 19 12 19C13.95 19 15.6043 18.321 16.963 16.963C18.3217 15.605 19.0007 13.9507 19 12C18.9993 10.0493 18.3203 8.39533 16.963 7.038C15.6057 5.68067 13.9513 5.00133 12 5C10.85 5 9.775 5.26667 8.775 5.8C7.775 6.33333 6.93333 7.06667 6.25 8H8C8.28333 8 8.521 8.096 8.713 8.288C8.905 8.48 9.00067 8.71733 9 9C8.99933 9.28267 8.90333 9.52033 8.712 9.713C8.52067 9.90567 8.28333 10.0013 8 10H4C3.71667 10 3.47933 9.904 3.288 9.712C3.09667 9.52 3.00067 9.28267 3 9V5C3 4.71667 3.096 4.47933 3.288 4.288C3.48 4.09667 3.71733 4.00067 4 4C4.28267 3.99933 4.52033 4.09533 4.713 4.288C4.90567 4.48067 5.00133 4.718 5 5V6.35C5.85 5.28333 6.88767 4.45833 8.113 3.875C9.33833 3.29167 10.634 3 12 3C13.25 3 14.421 3.23767 15.513 3.713C16.605 4.18833 17.555 4.82967 18.363 5.637C19.171 6.44433 19.8127 7.39433 20.288 8.487C20.7633 9.57967 21.0007 10.7507 21 12C20.9993 13.2493 20.762 14.4203 20.288 15.513C19.814 16.6057 19.1723 17.5557 18.363 18.363C17.5537 19.1703 16.6037 19.812 15.513 20.288C14.4223 20.764 13.2513 21.0013 12 21ZM13 11.6L15.5 14.1C15.6833 14.2833 15.775 14.5167 15.775 14.8C15.775 15.0833 15.6833 15.3167 15.5 15.5C15.3167 15.6833 15.0833 15.775 14.8 15.775C14.5167 15.775 14.2833 15.6833 14.1 15.5L11.3 12.7C11.2 12.6 11.125 12.4877 11.075 12.363C11.025 12.2383 11 12.109 11 11.975V8C11 7.71667 11.096 7.47933 11.288 7.288C11.48 7.09667 11.7173 7.00067 12 7C12.2827 6.99933 12.5203 7.09533 12.713 7.288C12.9057 7.48067 13.0013 7.718 13 8V11.6Z"
                             fill="black" />
                     </svg>
                 </i>
             </NuxtLink>
         </nav>
+
         <button
-            class="logout bg-[#d32f2f] text-white rounded-md cursor-pointer flex items-center justify-center mx-auto"
-            style="margin-top: auto; margin-bottom: 10px; margin-left: auto; margin-right: auto; border-radius: 5px; padding-block: 12px; padding-inline: 15px; gap: 10px; width: 90%;"
+            class="logout bg-[#980000] text-white rounded-md cursor-pointer flex items-center justify-center mx-auto mt-auto mb-3 px-5 py-3 w-[90%] gap-2"
             @click="Logout">
-            <span v-if="isSidebarOpen">Log Out</span>
+            <span v-if="isOpen">Log Out</span>
             <i v-else class="icon-logout">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
-                        d="M5 21C4.45 21 3.97933 20.8043 3.588 20.413C3.19667 20.0217 3.00067 19.5507 3 19V5C3 4.45 3.196 3.97933 3.588 3.588C3.98 3.19667 4.45067 3.00067 5 3H11C11.2833 3 11.521 3.096 11.713 3.288C11.905 3.48 12.0007 3.71733 12 4C11.9993 4.28267 11.9033 4.52033 11.712 4.713C11.5207 4.90567 11.2833 5.00133 11 5H5V19H11C11.2833 19 11.521 19.096 11.713 19.288C11.905 19.48 12.0007 19.7173 12 20C11.9993 20.2827 11.9033 20.5203 11.712 20.713C11.5207 20.9057 11.2833 21.0013 11 21H5ZM17.175 13H10C9.71667 13 9.47933 12.904 9.288 12.712C9.09667 12.52 9.00067 12.2827 9 12C8.99933 11.7173 9.09533 11.48 9.288 11.288C9.48067 11.096 9.718 11 10 11H17.175L15.3 9.125C15.1167 8.94167 15.025 8.71667 15.025 8.45C15.025 8.18333 15.1167 7.95 15.3 7.75C15.4833 7.55 15.7167 7.44567 16 7.437C16.2833 7.42833 16.525 7.52433 16.725 7.725L20.3 11.3C20.5 11.5 20.6 11.7333 20.6 12C20.6 12.2667 20.5 12.5 20.3 12.7L16.725 16.275C16.525 16.475 16.2877 16.571 16.013 16.563C15.7383 16.555 15.5007 16.4507 15.3 16.25C15.1167 16.05 15.0293 15.8127 15.038 15.538C15.0467 15.2633 15.1423 15.034 15.325 14.85L17.175 13Z"
+                        d="M5 21C4.45 21 3.97933 20.8043 3.588 20.413C3.19667 20.0217 3.00067 19.5507 3 19V5C3 4.45 3.196 3.97933 3.588 3.588C3.98 3.19667 4.45067 3.00067 5 3H12V5H5V19H12V21H5ZM16 17L14.625 15.55L17.175 13H9V11H17.175L14.625 8.45L16 7L21 12L16 17Z"
                         fill="white" />
                 </svg>
             </i>
         </button>
     </aside>
-    <slot></slot>
 </template>
 
 <script setup>
-import { Style } from '#components';
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter } from 'vue-router'
 
-const isSidebarOpen = ref(false);
-const router = useRouter();
+defineProps({
+    isOpen: {
+        type: Boolean,
+        required: true
+    }
+})
 
-const toggleSidebar = () => {
-    isSidebarOpen.value = !isSidebarOpen.value;
-};
+const emit = defineEmits(['toggle'])
+
+const router = useRouter()
 
 const Logout = () => {
     localStorage.removeItem('access_token')
@@ -101,11 +114,6 @@ const Logout = () => {
     min-width: 80px;
 }
 
-nav a i {
-    font-size: 1.5rem;
-    transition: font-size 0.3s ease;
-}
-
 nav a.active {
     background-color: #f0f0f0;
     border-left: 4px solid #d32f2f;
@@ -121,9 +129,5 @@ nav a:hover {
 
 .sidebar-collapsed nav a span {
     display: none;
-}
-
-.sidebar-collapsed nav a i {
-    font-size: 1.5rem;
 }
 </style>
