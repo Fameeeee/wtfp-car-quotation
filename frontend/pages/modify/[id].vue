@@ -1,36 +1,7 @@
 <template>
     <div class="flex text-black flex-col items-center justify-center w-full h-full p-8 gap-5">
-        <DropdownItem label="รุ่นรถ" :quotation-id="quotationId" @update="data => handleUpdate('carDetails', data)">
-            <template #default="{ data }">
-                <div class="flex flex-col">
-                    <div class="p-2 flex flex-col gap-2 ">
-                        <label class="block text-black text-sm">Unit Type</label>
-                        <div class="w-full bg-gray-200 border border-gray-400 rounded p-2 ">{{ data.unitType }}</div>
-                    </div>
-                    <div class="p-2 flex flex-col gap-2 ">
-                        <label class="block text-black text-sm">Model Class</label>
-                        <div class=" w-full bg-gray-200 border border-gray-400 rounded p-2 ">{{ data.modelClass }}</div>
-                    </div>
-                    <div class="p-2 flex flex-col gap-2">
-                        <label class="block text-black text-sm">Model Code Name</label>
-                        <div class=" w-full bg-gray-200 border border-gray-400 rounded p-2 ">{{ data.modelCodeName }}
-                        </div>
-                    </div>
-                    <div class="p-2 flex flex-col gap-2">
-                        <label class="block text-black text-sm">Model G Name</label>
-                        <div class=" w-full bg-gray-200 border border-gray-400 rounded p-2 ">{{ data.modelGName }}</div>
-                    </div>
-                    <div class="p-2 flex flex-col gap-2">
-                        <label class="block text-black text-sm">Color</label>
-                        <div class=" w-full bg-gray-200 border border-gray-400 rounded p-2 ">{{ data.color }}</div>
-                    </div>
-                    <div class="p-2 flex flex-col gap-2">
-                        <label class="block text-black text-sm">Price</label>
-                        <div class="w-full bg-gray-200 border border-gray-400 rounded p-2 ">{{ data.price }}</div>
-                    </div>
-                </div>
-            </template>
-        </DropdownItem>
+        <carDetailsDropdown label="รุ่นรถ" :quotation-id="quotationId"
+            @update="data => handleUpdate('carDetails', data)" />
 
         <paymentDropdown label="รูปแบบการชำระเงิน" :quotation-id="quotationId"
             @update="data => handleUpdate('payment', data)" />
@@ -68,7 +39,7 @@ import axios from 'axios';
 import { ref } from 'vue';
 import modalDiscard from '~/components/user/modalDiscard.vue';
 import buttonGroup from '~/components/user/buttonGroup.vue';
-import DropdownItem from '~/components/user/dropdownItem.vue';
+import carDetailsDropdown from '~/components/user/carDetailsDropdown.vue';
 import paymentDropdown from '~/components/user/paymentDropdown.vue';
 import accessoriesDropdown from '~/components/user/accessoriesDropdown.vue';
 import additionDropdown from '~/components/user/additionDropdown.vue';

@@ -1,24 +1,21 @@
 <template>
     <div class="flex flex-col items-center h-full p-2">
         <h2 class="text-3xl font-extrabold text-[#696969] my-4 text-center">ประวัติการทำรายการ</h2>
-        <div id="quotation-content"
-            class="flex flex-col w-full max-w-lg p-4 gap-2 border border-black bg-white rounded-md">
-            <div class="flex flex-col items-center justify-center w-full max-w-lg text-center">
-                <img src="../../public/assets/isuzu-quotation-logo.png" alt="ISUZU Logo" class="w-40 h-auto " />
+        <div ref="modalContent" id="quotation-content"
+            class="flex flex-col w-full max-w-2xl p-4 gap-2 border border-black bg-white rounded-md">
+            <div class="flex flex-col items-center justify-center w-full text-center">
+                <img src="/assets/isuzu-quotation-logo.png" alt="ISUZU Logo" class="w-40 h-auto" />
             </div>
 
             <div class="text-sm text-black leading-relaxed text-center">
                 <div>บริษัท อีซูซุเชียงราย จำกัด</div>
-                <div>
-                    145/1 ม.17 ถ.ซุปเปอร์ไฮเวย์ ต.รอบเวียง อ.เมือง จ.เชียงราย 57000
-                    โทร.053-711605
-                </div>
+                <div>145/1 ม.17 ถ.ซุปเปอร์ไฮเวย์ ต.รอบเวียง อ.เมือง จ.เชียงราย 57000 โทร.053-711605</div>
                 <div class="text-sm text-black">{{ formattedDate }}</div>
             </div>
 
             <u class="text-black">เรื่อง ใบเสนอราคา</u>
             <u class="text-black">เรียน {{ quotationData?.customer?.firstName }} {{ quotationData?.customer?.lastName
-            }}</u>
+                }}</u>
 
             <carDetailsTable />
             <h2 class="text-black"><u>เงื่อนไขการชำระ : {{ paymentPlan }}</u></h2>
@@ -32,9 +29,8 @@
             <noteField />
 
             <p class="text-black text-sm indent-8">
-                บริษัท อีซูซุเชียงราย จำกัด ขอขอบคุณท่านเป็นอย่างยิ่งที่ได้ให้
-                ความสนใจในผลิตภัณฑ์ของทางบริษัทและหวังเป็นอย่างยิ่งว่าท่านจะได้รับ
-                การตอบรับที่ดีจากท่าน
+                บริษัท อีซูซุเชียงราย จำกัด
+                ขอขอบคุณท่านเป็นอย่างยิ่งที่ได้ให้ความสนใจในผลิตภัณฑ์ของทางบริษัทและหวังเป็นอย่างยิ่งว่าท่านจะได้รับการตอบรับที่ดีจากท่าน
             </p>
 
             <div class="flex justify-end w-full mt-4">
@@ -46,6 +42,8 @@
                 </div>
             </div>
         </div>
+
+
         <div class="flex w-full max-w-lg mt-4 justify-center gap-2">
             <button @click="exportToImage"
                 class="w-2/4  py-3 px-4 text-black rounded-lg text-l font-semibold flex items-center gap-2 border border-black hover:bg-gray-100 transition-colors">
@@ -153,6 +151,10 @@ const exportToImage = async () => {
       font-family: 'Noto Sans Thai', sans-serif !important;
       font-weight: 500 !important;
       font-style: normal !important;
+    }
+
+    #quotation-content {
+      width: 512px;
     }
   `;
     clonedNode.prepend(fontStyle);

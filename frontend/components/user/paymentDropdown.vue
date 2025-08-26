@@ -156,7 +156,6 @@ onMounted(async () => {
     await fetchQuotationData();
 });
 
-// Or fetch again if quotationId changes
 watch(() => props.quotationId, async () => {
     if (!props.quotationId) return;
     await fetchQuotationData();
@@ -188,7 +187,6 @@ const fetchQuotationData = async () => {
             }
         }
 
-        // Emit initial data to parent
         emit("update", {
             paymentMethod: selectedMethod.value,
             installmentPlans: installmentPlans.value

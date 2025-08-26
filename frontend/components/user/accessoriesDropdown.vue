@@ -17,9 +17,9 @@
 
                 <div v-if="searchResults.length">
                     <div v-for="item in searchResults" :key="item.id"
-                        class="flex justify-between items-center p-2 mb-2 border rounded border-gray-400 hover:bg-gray-100 cursor-pointer">
+                        class="flex justify-between items-center p-2 mb-2 border rounded border-gray-400 hover:bg-gray-100">
                         <div>{{ item.assName }} ({{ item.assType }})</div>
-                        <button @click="addAccessory(item)" class="text-green-600 font-semibold">เพิ่ม</button>
+                        <button @click="addAccessory(item)" class="text-green-600 font-semibold cursor-pointer">เพิ่ม</button>
                     </div>
                 </div>
                 <div v-else-if="searchQuery" class="text-gray-500 text-center">ไม่พบอุปกรณ์ที่ค้นหา</div>
@@ -30,7 +30,7 @@
                         class="flex justify-between items-center p-2 border border-gray-400 rounded mb-2">
                         <div>{{ item.assName }} - ฿{{ item.price }}</div>
                         <button @click="removeAccessory(index)"
-                            class="px-2 py-1 bg-[#980000] text-white rounded">ลบ</button>
+                            class="px-2 py-1 bg-[#980000] text-white rounded cursor-pointer">ลบ</button>
                     </div>
                 </div>
                 <div v-else class="text-gray-500">No accessories added yet.</div>
