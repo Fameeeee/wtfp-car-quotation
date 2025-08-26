@@ -259,8 +259,13 @@ export class QuotationService {
       throw new Error('Quotation not found');
     }
 
-    Object.assign(quotation, updateData);
-    return await this.quotationRepository.save(quotation);
+    if (updateData.customer) {
+      await this.customerService.updateCustomer(quotation.customer.id, updateData.customer);
+    }
+    
+    Object.assign(quotation, { ...updateData, customer: quotation.customer });
+
+    return this.quotationRepository.save(quotation);
   }
 
   async deleteQuotation(id: number): Promise<string> {
