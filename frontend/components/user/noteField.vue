@@ -14,7 +14,7 @@ import axios from 'axios';
 const config = useRuntimeConfig()
 const backendUrl = config.public.backendUrl;
 
-const defaultText = '- รับประกันผลิตภัณท์รถยนต์ 3 ปี หรือ 100,000 กม. แล้วแต่อย่างใดอย่างหนึ่งถึงก่อน\n- เงื่อนไขต่างๆอาจมีการเปลี่ยนแปลงโดยไม่่ต้องแจ้งให้ทราบล่วงหน้า';
+const defaultText = '- รับประกันผลิตภัณท์รถยนต์ 3 ปี หรือ 100,000 กม. แล้วแต่อย่างใดอย่างหนึ่งถึงก่อน\n- เงื่อนไขต่างๆอาจมีการเปลี่ยนแปลงโดยไม่ต้องแจ้งให้ทราบล่วงหน้า';
 const note = ref('');
 const route = useRoute();
 const quotationId = route.params.id;

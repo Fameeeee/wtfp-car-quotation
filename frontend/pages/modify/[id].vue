@@ -142,7 +142,7 @@ const handleSaveConfirm = async (saveAsNew) => {
         }
 
         alert('บันทึกข้อมูลเรียบร้อยแล้ว');
-        router.push('/history');
+        router.push(`/history/${quotationId}`);
     } catch (error) {
         console.error("Error saving quotation:", error);
     }
@@ -159,7 +159,7 @@ const closeModal = () => {
 
 const discardChanges = () => {
     showModal.value = false;
-    router.push('/history');
+    router.push(`/history/${quotationId}`);
 };
 
 const handleUpdate = (key, data) => {

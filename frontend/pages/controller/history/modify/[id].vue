@@ -5,12 +5,13 @@
         </div>
 
         <div class="bg-white flex flex-col p-6 rounded-lg shadow-lg">
-            <div class="flex mb-2 items-center">
+            <div class="flex item-center justify-between mb-6">
                 <button @click="goBack"
                     class="w-24 h-10 bg-[#980000] hover:bg-red-800 cursor-pointer text-white rounded-md mb-2">
                     กลับ
                 </button>
-                <div class="text-3xl font-bold text-black mb-6 jusify-center">แก้ไขใบเสนอราคา</div>
+                <div class="absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-black">แก้ไขใบเสนอราคา
+                </div>
             </div>
             <div class="flex flex-col items-center justify-center w-full h-full p-8 gap-5">
                 <carDetailsDropdown label="รุ่นรถ" :quotation-id="quotationId"
@@ -24,8 +25,9 @@
                 <customerDropdown label="ข้อมูลลูกค้า" :quotation-id="quotationId"
                     @update="data => handleUpdate('customer', data)" />
             </div>
-            <div class="flex flex-col space-y-4 w-full max-w-md mt-6 cursor-pointer">
-                <button @click="goNext" class="py-3 px-4 text-white bg-[#980000] rounded-lg hover:bg-red-800">
+            <div class="flex justify-center w-full mt-6 ">
+                <button @click="goNext"
+                    class="py-3 px-4 text-white bg-[#980000] rounded-lg hover:bg-red-800 w-full max-w-md cursor-pointer">
                     ยืนยัน
                 </button>
             </div>
