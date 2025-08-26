@@ -102,11 +102,12 @@ const backendUrl = config.public.backendUrl;
 
 const searchQuery = ref("");
 const staffList = ref([]);
-const itemsPerPage = 8;
+const itemsPerPage = ref(8);
 const currentPage = ref(1);
 const totalPages = ref(1);
 const total = ref(0);
 const loading = ref(false);
+
 
 const debouncedSearch = _.debounce(() => {
   searchHistory();
@@ -118,11 +119,10 @@ const fetchData = async () => {
     const response = await axios.get(`${backendUrl}/staff`, {
       params: {
         page: currentPage.value,
-        limit: itemsPerPage,
+        limit: itemsPerPage.value,
         search: searchQuery.value
       }
     });
-
     staffList.value = response.data.data;
     totalPages.value = response.data.totalPages;
     total.value = response.data.total;
@@ -145,8 +145,20 @@ const changePage = (page) => {
   }
 };
 
-onMounted(() => {
+const adjustItemsPerPage = () => {
+  const viewportHeight = window.innerHeight;
+  itemsPerPage.value = Math.max(5, Math.floor((viewportHeight - 320) / 55));
+};
+
+watch(itemsPerPage, () => {
+  currentPage.value = 1;
   fetchData();
+});
+
+onMounted(() => {
+  adjustItemsPerPage();
+  fetchData();
+  window.addEventListener("resize", adjustItemsPerPage);
 });
 </script>
 

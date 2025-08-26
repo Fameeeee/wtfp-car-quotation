@@ -66,7 +66,7 @@
           </thead>
 
           <tbody>
-            <tr v-if="filteredHistoryList.length === 0">
+            <tr v-if="pagedHistoryList.length === 0">
               <td colspan="6" class="text-center h-[200px]">
                 <div class="flex flex-col items-center justify-center gap-3 p-10 text-gray-400">
                   <span class="text-base font-medium">ไม่พบข้อมูล</span>
@@ -74,7 +74,7 @@
               </td>
             </tr>
 
-            <tr v-else v-for="history in pagedHistoryList" :key="history.id"
+            <tr v-else v-for="history in filteredHistoryList" :key="history.id"
               class="odd:bg-white even:bg-gray-50 transition-colors duration-200 hover:bg-gray-100">
               <td class="px-4 py-2 text-[#334155] border-b border-[#f1f4f9] text-[0.95rem]">
                 <NuxtLink :to="`/controller/history/${history.quotationId}`" class="inline-flex">
@@ -97,10 +97,10 @@
                 {{ history.staff.firstName }}
               </td>
               <td class="px-4 py-2 text-left text-gray-700 border-b border-gray-200 break-words">
-                {{ history.customer.firstName }}
+                {{ history.customer.firstName || 'None' }} 
               </td>
               <td class="px-4 py-2 text-left text-gray-700 border-b border-gray-200 break-words">
-                {{ history.carDetails.modelGName }}
+                {{ history.carDetails.modelGName || 'None'}}
               </td>
             </tr>
           </tbody>
@@ -127,7 +127,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import axios from "axios";
 import _ from "lodash";
 import dayjs from "dayjs";
@@ -141,8 +141,8 @@ const config = useRuntimeConfig();
 const backendUrl = config.public.backendUrl;
 
 const searchQuery = ref("");
-const historyList = ref([]);
-const itemsPerPage = 8;
+const pagedHistoryList = ref([]);  
+const itemsPerPage = ref(8);       
 const currentPage = ref(1);
 const totalPages = ref(1);
 const total = ref(0);
@@ -159,45 +159,38 @@ const selectFilter = (days) => {
   selectedFilter.value = days;
   isOpen.value = false;
   currentPage.value = 1;
+  fetchData();
 };
+
+const filteredHistoryList = computed(() => {
+  if (selectedFilter.value === 0) return pagedHistoryList.value; 
+  
+  const daysAgo = dayjs().subtract(selectedFilter.value, 'day');
+  return pagedHistoryList.value.filter(item => 
+    dayjs(item.quotationDate).isAfter(daysAgo)
+  );
+});
+
 
 const debouncedSearch = _.debounce(() => {
   currentPage.value = 1;
   fetchData();
 }, 500);
 
-const filteredHistoryList = computed(() => {
-  let list = historyList.value;
-
-  if (searchQuery.value) {
-    list = list.filter(h =>
-      h.staff.firstName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      h.customer.firstName.toLowerCase().includes(searchQuery.value.toLowerCase())
-    );
-  }
-
-  if (selectedFilter.value > 0) {
-    list = list.filter(h =>
-      dayjs(h.quotationDate).isAfter(dayjs().subtract(selectedFilter.value, 'day'))
-    );
-  }
-
-  total.value = list.length;
-  totalPages.value = Math.ceil(list.length / itemsPerPage);
-  return list;
-});
-
-
-const pagedHistoryList = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage;
-  return filteredHistoryList.value.slice(start, start + itemsPerPage);
-});
-
 const fetchData = async () => {
   loading.value = true;
   try {
-    const response = await axios.get(`${backendUrl}/quotation`);
-    historyList.value = response.data.data;
+    const response = await axios.get(`${backendUrl}/quotation`, {
+      params: {
+        page: currentPage.value,
+        limit: itemsPerPage.value,
+        search: searchQuery.value,
+        days: selectedFilter.value > 0 ? selectedFilter.value : undefined,
+      }
+    });
+    pagedHistoryList.value = response.data.data; 
+    totalPages.value = response.data.totalPages;
+    total.value = response.data.total;
   } catch (error) {
     console.error("Error fetching history data:", error);
   } finally {
@@ -210,13 +203,28 @@ watch(searchQuery, debouncedSearch);
 const changePage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page;
+    fetchData();
   }
+}
+
+const adjustItemsPerPage = () => {
+  const viewportHeight = window.innerHeight;
+  itemsPerPage.value = Math.max(5, Math.floor((viewportHeight - 320) / 55));
 };
 
-onMounted(() => {
+watch(itemsPerPage, () => {
+  currentPage.value = 1;
   fetchData();
 });
+
+onMounted(() => {
+  adjustItemsPerPage();
+  fetchData();
+  window.addEventListener("resize", _.debounce(adjustItemsPerPage, 300));
+});
 </script>
+
+
 
 
 <style scoped>

@@ -66,7 +66,7 @@
         </nav>
 
         <button
-            class="logout bg-[#d32f2f] text-white rounded-md cursor-pointer flex items-center justify-center mx-auto mt-auto mb-3 px-5 py-3 w-[90%] gap-2"
+            class="logout bg-[#980000] text-white rounded-md cursor-pointer flex items-center justify-center mx-auto mt-auto mb-3 px-5 py-3 w-[90%] gap-2"
             @click="Logout">
             <span v-if="isOpen">Log Out</span>
             <i v-else class="icon-logout">

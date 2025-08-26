@@ -13,9 +13,6 @@
     </div>
 
     <div class="bg-white p-6 rounded-lg shadow-lg flex-1 overflow-auto relative">
-    
-
-      <!-- Table -->
       <div class="overflow-x-auto">
         <table v-if="!loading" class="w-full border-collapse min-w-[700px] border-spacing-0 table-fixed">
           <thead>
@@ -59,7 +56,6 @@
       </div>
     </div>
 
-    <!-- Pagination -->
     <div class="flex justify-center items-center gap-4 mt-6" style="margin-top: 10px;">
       <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1"
         class="px-4 py-2 bg-blue-500 text-white font-medium rounded-lg cursor-pointer transition-all duration-200 ease-in-out min-w-[42px] h-[38px] flex items-center justify-center shadow-md hover:bg-blue-600 hover:shadow-lg disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed">
@@ -94,7 +90,7 @@ const backendUrl = config.public.backendUrl;
 
 const searchQuery = ref("");
 const customerList = ref([]);
-const itemsPerPage = 8;
+const itemsPerPage = ref(8);
 const currentPage = ref(1);
 const totalPages = ref(1);
 const total = ref(0);
@@ -110,7 +106,7 @@ const fetchData = async () => {
     const response = await axios.get(`${backendUrl}/customer`, {
       params: {
         page: currentPage.value,
-        limit: itemsPerPage,
+        limit: itemsPerPage.value,
         search: searchQuery.value
       }
     });
@@ -137,8 +133,20 @@ const changePage = (page) => {
   }
 }
 
-onMounted(() => {
+const adjustItemsPerPage = () => {
+  const viewportHeight = window.innerHeight;
+  itemsPerPage.value = Math.max(5, Math.floor((viewportHeight - 320) / 55));
+};
+
+watch(itemsPerPage, () => {
+  currentPage.value = 1;
   fetchData();
+});
+
+onMounted(() => {
+  adjustItemsPerPage();
+  fetchData();
+  window.addEventListener("resize", adjustItemsPerPage);
 });
 </script>
 
