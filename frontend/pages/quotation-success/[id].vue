@@ -2,8 +2,8 @@
     <div class="flex flex-col items-center h-full p-2">
         <h2 class="text-3xl font-extrabold text-[#696969] my-4 text-center">สรุปยอดรายการ</h2>
         <div id="quotation-content"
-            class="flex flex-col w-full max-w-lg p-4 gap-2 border border-black bg-white rounded-md">
-            <div class="flex flex-col items-center justify-center w-full max-w-lg text-center">
+            class="flex flex-col w-full max-w-2xl p-4 gap-2 border border-black bg-white rounded-md">
+            <div class="flex flex-col items-center justify-center w-full max-w-2xl text-center">
                 <img src="../../public/assets/isuzu-quotation-logo.png" alt="ISUZU Logo" class="w-40 h-auto " />
             </div>
 
