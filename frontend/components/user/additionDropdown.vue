@@ -59,7 +59,7 @@
                     <div class="flex flex-col items-end w-2/3">
                         <textarea v-model="additionCosts.note" maxlength="100" placeholder="เพิ่มหมายเหตุ..."
                             class="h-24 p-3 border border-gray-300 rounded-lg text-black resize-none w-full"></textarea>
-                        <div class="text-xs text-gray-500 mt-1">{{ additionCosts.note.length }}/100</div>
+                        <div class="text-xs text-gray-500 mt-1">{{ additionCosts.note.length || 0 }}/100</div>
                     </div>
                 </div>
             </div>
