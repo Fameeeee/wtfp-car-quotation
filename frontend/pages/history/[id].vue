@@ -3,7 +3,7 @@
         <h2 class="text-3xl font-extrabold text-[#696969] my-4 text-center">ประวัติการทำรายการ</h2>
         <div ref="modalContent" id="quotation-content"
             class="flex flex-col w-full max-w-2xl p-4 gap-2 border border-black bg-white rounded-md">
-            <div class="flex flex-col items-center justify-center w-full text-center">
+            <div class="flex flex-col items-center justify-center w-full max-w-2xl text-center">
                 <img src="/assets/isuzu-quotation-logo.png" alt="ISUZU Logo" class="w-40 h-auto" />
             </div>
 
