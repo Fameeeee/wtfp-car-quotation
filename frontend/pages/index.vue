@@ -79,11 +79,13 @@ const handleLogin = async () => {
     if (response.data.access_token) {
       localStorage.setItem('access_token', response.data.access_token);
       router.push('/home');
+      alert('เข้าสู่ระบบสำเร็จ');
     } else {
       errorMessage.value = 'Login failed: No token received.';
     }
   } catch (error) {
     errorMessage.value = error.response?.data?.message || 'การเข้าสู่ระบบล้มเหลว กรุณาลองใหม่';
+    alert(errorMessage.value);
   } finally {
     isLoading.value = false;
   }
