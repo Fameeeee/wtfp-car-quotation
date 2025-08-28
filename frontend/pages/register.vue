@@ -117,9 +117,11 @@ const registerUser = async () => {
   try {
     await axios.post(`${backendUrl}/auth/register`, form.value);
     successMessage.value = 'สมัครสมาชิกสำเร็จ!';
+    alert('สมัครสมาชิกสำเร็จ!');
     router.push('/');
   } catch (error) {
     errorMessage.value = error.response ? error.response.data.message : 'เกิดข้อผิดพลาด';
+    alert(errorMessage.value);
   }
 };
 </script>
