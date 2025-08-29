@@ -28,7 +28,9 @@ export class AuthController {
     res.cookie('access_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      // When frontend is hosted on a different origin (production), we need
+      // SameSite=None so the browser will send the cookie on cross-site XHR/fetch.
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 1000 * 60 * 60 * 24, // 1 day
     });
     return res.json({ success: true });
