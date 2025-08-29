@@ -28,6 +28,7 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useRoute } from 'vue-router';
+import { useQuotationStore } from '~/stores/quotation';
 
 const config = useRuntimeConfig()
 const backendUrl = config.public.backendUrl;
@@ -42,18 +43,19 @@ onMounted(() => {
     if (quotationId) {
         fetchFromApi(quotationId);
     } else {
-        fetchFromLocalStorage();
+    fetchFromStore();
     }
 });
 
-const fetchFromLocalStorage = () => {
-    const additionCost = JSON.parse(localStorage.getItem('additionCost') || '{}');
-    const accessories = JSON.parse(localStorage.getItem('selectedAccessories') || '[]');
+const quotationStore = useQuotationStore();
+const fetchFromStore = () => {
+    const additionCost = quotationStore.additionCost || {};
+    const accessories = quotationStore.selectedAccessories || [];
 
     const data = [];
     if (additionCost.cmiCheck) data.push({ name: 'พรบ.' });
     if (additionCost.insuranceCheck) data.push({ name: 'ประกันภัย' });
-    if (additionCost.fuelValue) data.push({ name: 'ค่าน้ำมัน ' + additionCost.fuelValue });
+    if (additionCost.fuelValue) data.push({ name: 'ค่าน้ำมัน ' + formatBaht(additionCost.fuelValue) });
 
     const accessoriesList = accessories.map((item) => ({ name: item.assName }));
     const fullList = [...data, ...accessoriesList].slice(0, 20);
@@ -73,7 +75,7 @@ const fetchFromApi = async (quotationId) => {
         if (apiData.additionCosts) {
             if (apiData.additionCosts.cmi) fullList.push({ name: 'พรบ.' });
             if (apiData.additionCosts.insurance) fullList.push({ name: 'ประกันภัย' });
-            if (apiData.additionCosts.fuelValue) fullList.push({ name: `ค่าน้ำมัน ${apiData.additionCosts.fuelValue}` });
+            if (apiData.additionCosts.fuelValue) fullList.push({ name: `ค่าน้ำมัน ${formatBaht(apiData.additionCosts.fuelValue)}` });
         }
 
         if (apiData.accessories) {
@@ -87,6 +89,12 @@ const fetchFromApi = async (quotationId) => {
     } catch (error) {
         console.error('Error fetching data from API:', error);
     }
+};
+
+const formatBaht = (val) => {
+    const num = Number(val ?? 0);
+    if (Number.isNaN(num)) return '฿0';
+    return num.toLocaleString('th-TH') + ' ฿';
 };
 
 </script>

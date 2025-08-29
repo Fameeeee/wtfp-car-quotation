@@ -66,6 +66,9 @@ const backendUrl = config.public.backendUrl;
 const emit = defineEmits(['update']);
 
 const localData = ref({ ...props.modelValue });
+let duplicateCheckTimer = null;
+let lastCheckSeq = 0;
+const initialCustomer = ref({ firstName: '', lastName: '', phoneNumber: '' });
 
 const toggle = () => (open.value = !open.value);
 const handleInput = (field) => {
@@ -85,6 +88,7 @@ onMounted(async () => {
             const res = await axios.get(`${backendUrl}/quotation/${props.quotationId}`);
             if (res.data.customer) {
                 customer.value = { ...res.data.customer };
+                                initialCustomer.value = { ...customer.value };
             }
         } catch (err) {
             console.error("Error fetching customer data:", err);
@@ -95,6 +99,67 @@ onMounted(async () => {
 watch(customer, (newVal) => {
   emit("update", newVal);
 }, { deep: true });
+
+// Debounced duplicate check when phone/name changes
+watch(() => [customer.value.phoneNumber, customer.value.firstName, customer.value.lastName], () => {
+    if (duplicateCheckTimer) clearTimeout(duplicateCheckTimer);
+    duplicateCheckTimer = setTimeout(runDuplicateCheck, 300);
+});
+
+async function runDuplicateCheck() {
+    try {
+        const phone = (customer.value.phoneNumber || '').trim();
+        const first = (customer.value.firstName || '').trim();
+        const last = (customer.value.lastName || '').trim();
+
+        // Only validate when user changed something compared to the initially loaded values
+        const changed = phone !== (initialCustomer.value.phoneNumber || '').trim()
+            || first !== (initialCustomer.value.firstName || '').trim()
+            || last !== (initialCustomer.value.lastName || '').trim();
+        if (!changed) {
+            return; // don't show duplicate errors for unchanged data
+        }
+
+        if (!phone || phone.length < 10) {
+            // don't validate until there's a likely complete number
+            return;
+        }
+
+        const mySeq = ++lastCheckSeq;
+        const records = await lookupCustomersByPhone(phone);
+        if (mySeq !== lastCheckSeq) return; // stale result
+
+        const norm = (s) => String(s || '').trim().toLowerCase();
+        const phoneMatches = records.filter(r => norm(r.phoneNumber) === norm(phone));
+        const nameMatches = phoneMatches.filter(r => norm(r.firstName) === norm(first) && norm(r.lastName) === norm(last));
+
+        if (phoneMatches.length > 0 && nameMatches.length === 0) {
+            // Same phone exists but name mismatch
+            errors.value.phoneNumber = 'เบอร์นี้มีอยู่ในระบบ แต่ชื่อ-นามสกุลไม่ตรงกับข้อมูลเดิม';
+        } else if (phoneMatches.length > 0 && nameMatches.length > 0) {
+            // Matched existing customer exactly -> OK
+            if (errors.value.phoneNumber?.includes('เบอร์นี้')) errors.value.phoneNumber = '';
+        } else if (phoneMatches.length > 0) {
+            errors.value.phoneNumber = 'เบอร์โทรศัพท์นี้ถูกใช้แล้ว';
+        } else {
+            if (errors.value.phoneNumber?.includes('เบอร์')) errors.value.phoneNumber = '';
+        }
+    } catch (e) {
+        // Non-blocking: silently ignore network issues
+    }
+}
+
+async function lookupCustomersByPhone(phone) {
+    try {
+        const resp = await axios.get(`${backendUrl}/customer`, { params: { search: phone, page: 1, limit: 50 } });
+        const payload = resp?.data;
+        // Backend returns { data, total, page, limit, totalPages }
+        const list = Array.isArray(payload?.data) ? payload.data : [];
+        return list;
+    } catch {
+        return [];
+    }
+}
 
 </script>
 

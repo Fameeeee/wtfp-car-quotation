@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col gap-2 ">
     <div class="scale-text min-h-[50px] p-1 text-black bg-gray-100 whitespace-pre-wrap break-words overflow-hidden">
-      {{ defaultText + (note ? '\n' + note : '') }}
+      {{ (note) }}
     </div>
   </div>
 </template>
@@ -10,14 +10,16 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
+import { useQuotationStore } from '~/stores/quotation';
 
 const config = useRuntimeConfig()
 const backendUrl = config.public.backendUrl;
 
-const defaultText = '- รับประกันผลิตภัณท์รถยนต์ 3 ปี หรือ 100,000 กม. แล้วแต่อย่างใดอย่างหนึ่งถึงก่อน\n- เงื่อนไขต่างๆอาจมีการเปลี่ยนแปลงโดยไม่ต้องแจ้งให้ทราบล่วงหน้า';
+
 const note = ref('');
 const route = useRoute();
 const quotationId = route.params.id;
+const quotationStore = useQuotationStore();
 
 const fetchNoteFromApi = async () => {
   try {
@@ -28,23 +30,16 @@ const fetchNoteFromApi = async () => {
   }
 };
 
-const fetchNoteFromLocalStorage = () => {
-  const storedAdditionCost = localStorage.getItem('additionCost');
-  if (storedAdditionCost) {
-    try {
-      const parsed = JSON.parse(storedAdditionCost);
-      note.value = parsed.note || '';
-    } catch (error) {
-      console.error('Error parsing additionCost:', error);
-    }
-  }
+const fetchNoteFromStore = () => {
+  const additionCost = quotationStore.additionCost || {};
+  note.value = additionCost.noteText || '';
 };
 
 onMounted(() => {
   if (quotationId) {
     fetchNoteFromApi();
   } else {
-    fetchNoteFromLocalStorage();
+    fetchNoteFromStore();
   }
 });
 </script>

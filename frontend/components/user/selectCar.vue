@@ -86,10 +86,12 @@
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import { useQuotationStore } from '~/stores/quotation';
 
 const config = useRuntimeConfig();
 const apiUrl = config.public.apiUrl;
 const router = useRouter();
+const quotationStore = useQuotationStore();
 
 const unitTypes = ref([]);
 const modelClasses = ref([]);
@@ -268,9 +270,7 @@ const goToConfirmPage = () => {
         price: selectedPrice.value,
         color: selectedColor.value
     };
-
-    localStorage.setItem('selectedCar', JSON.stringify(selectedData));
-
+    quotationStore.setSelectedCar(selectedData);
     router.push('/confirm-car');
 };
 

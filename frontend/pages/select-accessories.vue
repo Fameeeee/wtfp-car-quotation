@@ -6,9 +6,14 @@
 
     <div v-if="searchQuery" class="w-full max-w-lg bg-white shadow-lg rounded-lg mt-2 max-h-60 overflow-auto">
       <div v-for="item in filteredAccessories" :key="item.id"
-        class="p-3 border-b flex justify-between cursor-pointer hover:bg-gray-100" @click="selectAccessory(item)">
-        <span class="text-black font-medium">{{ item.assName }}</span>
-        <span class="text-black">{{ item.price.toLocaleString() }} ฿</span>
+        class="p-3 border-b flex items-center justify-between hover:bg-gray-100">
+        <div class="flex flex-col">
+          <span class="text-black font-medium">{{ item.assName }}</span>
+          <span class="text-black text-sm">{{ item.price.toLocaleString() }} ฿</span>
+        </div>
+        <button class="px-3 py-1 text-white bg-black rounded-md hover:bg-gray-800" @click.stop="addAccessory(item)">
+          เพิ่ม
+        </button>
       </div>
       <div v-if="filteredAccessories.length === 0" class="p-3 text-gray-500 text-center">
         ไม่พบอุปกรณ์ที่ค้นหา
@@ -56,9 +61,10 @@
 <script setup>
 import buttonGroup from '~/components/user/buttonGroup.vue';
 import modalDiscard from '~/components/user/modalDiscard.vue';
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { useQuotationStore } from '~/stores/quotation';
 
 const router = useRouter();
 const config = useRuntimeConfig();
@@ -69,12 +75,14 @@ const showModal = ref(false);
 const searchQuery = ref('');
 const selectedAccessories = ref([]);
 const selectAll = ref(false);
+const quotationStore = useQuotationStore();
+const selectedCar = computed(() => quotationStore.selectedCar || {});
 
 const fetchAccessories = async () => {
-  const selectedCar = JSON.parse(localStorage.getItem('selectedCar'));
-  if (selectedCar?.id) {
+  const car = selectedCar.value;
+  if (car?.id) {
     try {
-      const response = await axios.get(`${apiUrl}/standard-base/standard-name/${selectedCar.id}`);
+      const response = await axios.get(`${apiUrl}/standard-base/standard-name/${car.id}`);
       const data = await response.data;
       accessories.value = data[0].StandardAccBase.map(item => ({
         assType: item.accBase.assType,
@@ -82,7 +90,13 @@ const fetchAccessories = async () => {
         price: isNaN(parseFloat(item.accBase.itemCostIncVat)) ? 0 : parseFloat(item.accBase.itemCostIncVat),
         id: item.idAccBase
       }));
-      selectedAccessories.value = accessories.value.filter(item => item.assType === 'ของแต่งมาตรฐาน');
+      // Prefer existing selection from store; otherwise default to standard accessories
+      if (quotationStore.selectedAccessories && quotationStore.selectedAccessories.length) {
+        selectedAccessories.value = [...quotationStore.selectedAccessories];
+      } else {
+        selectedAccessories.value = accessories.value.filter(item => item.assType === 'ของแต่งมาตรฐาน');
+        quotationStore.setSelectedAccessories(selectedAccessories.value);
+      }
     } catch (error) {
       console.error('Error fetching accessories:', error);
     }
@@ -90,6 +104,16 @@ const fetchAccessories = async () => {
 };
 
 onMounted(fetchAccessories);
+
+// If we arrive before the ID is present, refetch as soon as it appears
+watch(
+  () => selectedCar.value?.id,
+  (newId, oldId) => {
+    if (newId && newId !== oldId) {
+      fetchAccessories();
+    }
+  }
+);
 
 const displayedAccessories = computed(() => {
   return [
@@ -99,8 +123,13 @@ const displayedAccessories = computed(() => {
 });
 
 const filteredAccessories = computed(() => {
-  return accessories.value.filter(item => item.assType !== 'ของแต่งมาตรฐาน' &&
-    (item.assName.includes(searchQuery.value) || item.assType.includes(searchQuery.value)));
+  const q = searchQuery.value.trim();
+  const selectedIds = new Set(selectedAccessories.value.map(a => a.id));
+  return accessories.value.filter(item =>
+    item.assType !== 'ของแต่งมาตรฐาน' &&
+    !selectedIds.has(item.id) &&
+    (q === '' || item.assName.includes(q) || item.assType.includes(q))
+  );
 });
 
 const totalPrice = computed(() => {
@@ -113,40 +142,42 @@ const toggleSelectAll = () => {
   } else {
     selectedAccessories.value = selectedAccessories.value.filter(item => item.assType !== 'ของแต่งมาตรฐาน');
   }
-  updateLocalStorage();
+  updateStore();
 };
 
-const selectAccessory = (item) => {
+const addAccessory = (item) => {
   if (!selectedAccessories.value.some(acc => acc.id === item.id)) {
     selectedAccessories.value.push(item);
   }
-  updateLocalStorage();
+  updateStore();
 };
 
 const handleSelectionChange = (item) => {
   if (item.assType !== 'ของแต่งมาตรฐาน' && !selectedAccessories.value.includes(item)) {
     selectedAccessories.value = selectedAccessories.value.filter(acc => acc.id !== item.id);
   }
-  updateLocalStorage();
+  updateStore();
 };
 
-const updateLocalStorage = () => {
-  localStorage.setItem('selectedAccessories', JSON.stringify(selectedAccessories.value));
+const updateStore = () => {
+  try {
+    quotationStore.setSelectedAccessories(selectedAccessories.value);
+  } catch {}
 };
 
-watch(selectedAccessories, updateLocalStorage, { deep: true });
+watch(selectedAccessories, updateStore, { deep: true });
 
 const goBack = async () => {
   if (selectedAccessories.value) {
     showModal.value = true;
   } else {
-    localStorage.removeItem('selectedAccessories');
+    try { quotationStore.setSelectedAccessories([]); } catch {}
     router.push('/calculate');
   }
 };
 
 const discardChanges = () => {
-  localStorage.removeItem('selectedAccessories');
+  try { quotationStore.setSelectedAccessories([]); } catch {}
   router.push('/calculate');
   closeModal();
 };

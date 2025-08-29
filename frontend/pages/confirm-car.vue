@@ -1,33 +1,29 @@
 <template>
-    <div class="flex justify-center p-8">
-        <div class="bg-white rounded-2xl shadow-lg w-full max-w-md p-8 border">
-            <div class="text-center mb-8">
-                <h2 class="text-2xl font-semibold text-gray-800">ยืนยันรายการที่เลือก</h2>
+    <div class="flex flex-col items-center h-full p-4">
+        <h2 class="text-4xl font-extrabold text-[#696969] my-4">ยืนยันรายการที่เลือก</h2>
+        <div class="flex space-x-4 mb-6">
+            <div class="space-y-2">
+                <p class="p-3 rounded-md text-lg text-black">
+                    <strong>Unit Type :</strong> {{ selectedCar.unitType }}
+                </p>
+                <p class="p-3 rounded-md text-lg text-black">
+                    <strong>Model Class :</strong> {{ selectedCar.modelClass }}
+                </p>
+                <p class="p-3 rounded-md text-lg text-black">
+                    <strong>Model Code Name :</strong> {{ selectedCar.modelCodeName }}
+                </p>
+                <p class="p-3 rounded-md text-lg text-black">
+                    <strong>Model G name :</strong> {{ selectedCar.modelGName }}
+                </p>
+                <p class="p-3 rounded-md text-lg text-black">
+                    <strong>Price :</strong> {{ selectedCar.price }}
+                </p>
+                <p class="p-3 rounded-md text-lg text-black">
+                    <strong>Color :</strong> {{ selectedCar.color }}
+                </p>
             </div>
-            <div class="text-left">
-                <div class="space-y-4">
-                    <p class="p-3 bg-gray-50 rounded-md text-lg text-gray-600">
-                        <strong>Unit Type :</strong> {{ selectedCar.unitType }}
-                    </p>
-                    <p class="p-3 bg-gray-50 rounded-md text-lg text-gray-600">
-                        <strong>Model Class :</strong> {{ selectedCar.modelClass }}
-                    </p>
-                    <p class="p-3 bg-gray-50 rounded-md text-lg text-gray-600">
-                        <strong>Model Code Name :</strong> {{ selectedCar.modelCodeName }}
-                    </p>
-                    <p class="p-3 bg-gray-50 rounded-md text-lg text-gray-600">
-                        <strong>Model G name :</strong> {{ selectedCar.modelGName }}
-                    </p>
-                    <p class="p-3 bg-gray-50 rounded-md text-lg text-gray-600">
-                        <strong>Price :</strong> {{ selectedCar.price }}
-                    </p>
-                    <p class="p-3 bg-gray-50 rounded-md text-lg text-gray-600">
-                        <strong>Color :</strong> {{ selectedCar.color }}
-                    </p>
-                </div>
-            </div>
-            <buttonGroup :goBack="goBack" :goNext="goNext" />
         </div>
+        <buttonGroup :goBack="goBack" :goNext="goNext" />
     </div>
 
     <modalDiscard v-if="showModal" message="คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการเปลี่ยนแปลงของคุณ?" confirmText="ยืนยัน"
@@ -37,37 +33,37 @@
 <script setup>
 import buttonGroup from '~/components/user/buttonGroup.vue';
 import modalDiscard from '~/components/user/modalDiscard.vue';
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { useQuotationStore } from '~/stores/quotation';
 
 const router = useRouter();
-const selectedCar = ref({});
+const quotationStore = useQuotationStore();
+const selectedCar = computed(() => quotationStore.selectedCar);
 const showModal = ref(false);
 const config = useRuntimeConfig();
 const apiUrl = config.public.apiUrl;
-
-onMounted(async () => {
-    const storedCar = localStorage.getItem('selectedCar');
-    if (storedCar) {
-        selectedCar.value = JSON.parse(storedCar);
-        if (!selectedCar.value.id) {
-            await fetchUnitId(selectedCar.value.unitType);
-        }
-    }
-});
 
 const fetchUnitId = async (unitType) => {
     try {
         const response = await axios.get(`${apiUrl}/standard-base?filter=unitType||$eq||${unitType}&filter=status||$eq||1`);
         if (response.data && response.data.length > 0) {
-            selectedCar.value = { ...selectedCar.value, id: response.data[0].id };
-            localStorage.setItem('selectedCar', JSON.stringify(selectedCar.value));
+            quotationStore.setSelectedCar({ ...selectedCar.value, id: response.data[0].id });
         }
     } catch (error) {
         console.error('Error fetching unit ID:', error);
     }
 };
+
+// Ensure the car ID is fetched and stored when arriving on this page
+onMounted(() => {
+    const unitType = selectedCar.value?.unitType;
+    const hasId = Boolean(selectedCar.value?.id);
+    if (unitType && !hasId) {
+        fetchUnitId(unitType);
+    }
+});
 
 const goNext = async () => {
     try {
@@ -81,13 +77,13 @@ const goBack = async () => {
     if (selectedCar.value) {
         showModal.value = true;
     } else {
-        localStorage.removeItem('selectedCar');
+        quotationStore.setSelectedCar({});
         router.push('/select-car');
     }
 };
 
 const discardChanges = () => {
-    localStorage.removeItem('selectedCar');
+    quotationStore.setSelectedCar({});
     router.push('/select-car');
     closeModal();
 };

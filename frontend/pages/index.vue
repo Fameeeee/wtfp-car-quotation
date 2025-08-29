@@ -53,6 +53,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { setToken } from '~/composables/useAuth'
 
 const config = useRuntimeConfig()
 const backendUrl = config.public.backendUrl;
@@ -74,10 +75,10 @@ const handleLogin = async () => {
   isLoading.value = true;
 
   try {
-    const response = await axios.post(`${backendUrl}/auth/login`, form.value);
+    const response = await axios.post(`${backendUrl}/auth/login`, form.value, { withCredentials: true });
 
-    if (response.data.access_token) {
-      localStorage.setItem('access_token', response.data.access_token);
+    if (response.status >= 200 && response.status < 300) {
+      if (response.data?.access_token) setToken(response.data.access_token);
       router.push('/home');
       alert('เข้าสู่ระบบสำเร็จ');
     } else {

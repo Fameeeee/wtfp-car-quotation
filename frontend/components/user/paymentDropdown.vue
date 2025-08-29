@@ -14,104 +14,116 @@
         <transition name="slide-fade">
             <div v-if="open" class="p-6 border-t border-black space-y-6 bg-white rounded-lg shadow-md">
                 <div v-if="loading">Loading...</div>
-                <div v-else>
+                <div v-else class="space-y-6">
+                    <!-- Method selector -->
+                    <div class="flex space-x-4">
+                        <button @click="selectMethod('cash')"
+                            :class="{ 'bg-black text-white': selectedMethod === 'cash', 'bg-white text-black border': selectedMethod !== 'cash' }"
+                            class="px-6 py-2 rounded-lg border transition">
+                            ราคาซื้อสด
+                        </button>
+                        <button @click="selectMethod('installment')"
+                            :class="{ 'bg-black text-white': selectedMethod === 'installment', 'bg-white text-black border': selectedMethod !== 'installment' }"
+                            class="px-6 py-2 rounded-lg border transition">
+                            คำนวณเงินผ่อน
+                        </button>
+                    </div>
+
                     <!-- CASH -->
-                    <div v-if="selectedMethod === 'cash'">
-                        <div class="p-2 flex flex-col gap-2">
-                            <label class="block text-black text-sm">ราคาสุทธิ</label>
-                            <input type="number" :value="cashPlans.totalPrice" disabled
-                                class="w-full bg-gray-100 border border-gray-400 rounded p-2" />
+                    <div v-if="selectedMethod === 'cash'" class="space-y-4">
+                        <div class="flex items-center gap-4">
+                            <span class="font-semibold w-1/3 text-black">ราคารถ</span>
+                            <div class="w-2/3 p-2 bg-gray-100 border rounded-lg text-gray-700">{{ displayPrice }} บาท</div>
                         </div>
-                        <div class="p-2 flex flex-col gap-2">
-                            <label class="block text-black text-sm">ส่วนลด</label>
-                            <input type="number" v-model="cashPlans.specialDiscount"
-                                class="w-full border border-gray-400 rounded p-2" placeholder="กรอกส่วนลด" />
+                        <div class="flex items-center gap-4">
+                            <span class="font-semibold w-1/3 text-black">ส่วนลด</span>
+                            <input type="number" v-model.number="cashDiscount" placeholder="ส่วนลดราคารถ"
+                                class="w-2/3 p-2 border rounded-lg text-gray-700" />
                         </div>
-                        <div class="p-2 flex flex-col gap-2">
-                            <label class="block text-black text-sm">ส่วนเพิ่ม</label>
-                            <input type="number" v-model="cashPlans.specialAddition"
-                                class="w-full border border-gray-400 rounded p-2" placeholder="กรอกส่วนเพิ่ม" />
+                        <div class="flex items-center gap-4">
+                            <span class="font-semibold w-1/3 text-black">ส่วนเพิ่ม</span>
+                            <input type="number" v-model.number="cashAddition" placeholder="ส่วนเพิ่มราคารถ"
+                                class="w-2/3 p-2 border rounded-lg text-gray-700" />
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="font-semibold w-1/3 text-black">ราคาสุทธิ</span>
+                            <input type="number" :value="cashTotal" readonly
+                                class="w-2/3 p-2 border rounded-lg text-gray-700 bg-gray-100" />
                         </div>
                     </div>
 
                     <!-- INSTALLMENT -->
-                    <div v-if="selectedMethod === 'installment'">
-                        <!-- switch between multiple plans -->
+                    <div v-if="selectedMethod === 'installment'" class="space-y-4">
+                        <div class="flex items-center gap-4">
+                            <span class="font-semibold w-1/3 text-black">ราคารถ</span>
+                            <div class="w-2/3 p-2 bg-gray-100 border rounded-lg text-gray-700">{{ displayPrice }} บาท</div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="font-semibold w-1/3 text-black">ส่วนลด</span>
+                            <input type="number" v-model.number="activePlan.specialDiscount" placeholder="ส่วนลดราคารถ"
+                                class="w-2/3 p-2 border rounded-lg text-gray-700" />
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="font-semibold w-1/3 text-black">ส่วนเพิ่ม</span>
+                            <input type="number" v-model.number="activePlan.additionPrice" placeholder="ส่วนเพิ่มราคารถ"
+                                class="w-2/3 p-2 border rounded-lg text-gray-700" />
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="font-semibold w-1/3 text-black">ราคาสุทธิ</span>
+                            <input :value="calculateTotalPrice(activePlan)" type="text" readonly
+                                class="w-2/3 p-2 border rounded-lg text-gray-700 bg-gray-100" />
+                        </div>
 
-
-                        <!-- Active Plan -->
-                        <div v-if="activePlan">
-                            <div class="p-2 flex flex-col gap-2">
-                                <label class="block text-black text-sm">ส่วนลด</label>
-                                <input type="number" v-model="activePlan.specialDiscount"
-                                    class="w-full border border-gray-400 rounded p-2" placeholder="กรอกส่วนลด" />
+                        <div>
+                            <span class="font-semibold text-black">จำนวนเงินดาวน์</span>
+                            <div class="flex items-center gap-4 mt-2 w-full">
+                                <input v-model.number="activePlan.downPaymentPercent" type="number" placeholder="%" min="0" max="100"
+                                    @input="updateDownPayment"
+                                    class="w-1/2 p-2 border rounded-lg text-black placeholder-gray-400 border-black" />
+                                <span class="text-black">หรือ</span>
+                                <input v-model.number="downPaymentBaht" type="number" placeholder="บาท"
+                                    @input="updateDownPaymentPercent"
+                                    class="w-1/2 p-2 border rounded-lg text-black placeholder-gray-400 border-black" />
                             </div>
+                        </div>
 
-                            <div class="p-2 flex flex-col gap-2">
-                                <label class="block text-black text-sm">ส่วนเพิ่ม</label>
-                                <input type="number" v-model="activePlan.additionPrice"
-                                    class="w-full border border-gray-400 rounded p-2" placeholder="กรอกส่วนเพิ่ม" />
-                            </div>
-
-                            <div class="p-2 flex flex-col gap-2">
-                                <span class="block text-black text-sm">จำนวนเงินดาวน์</span>
-                                <div class="flex items-center gap-4">
-                                    <input v-model.number="activePlan.downPaymentPercent" type="number" placeholder="%"
-                                        @input="updateDownPayment" class="w-2/4 border border-gray-400 rounded p-2" />
-                                    <span class="text-black">หรือ</span>
-                                    <input v-model.number="downPaymentBaht" type="number" placeholder="บาท"
-                                        @input="updateDownPaymentPercent"
-                                        class="w-2/4 border border-gray-400 rounded p-2" />
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-3 gap-2 p-2">
-                                <!-- Periods -->
-                                <div>
-                                    <p class="text-center font-semibold text-black text-sm">จำนวนเดือน</p>
-                                    <div v-for="(period, index) in periods" :key="index"
-                                        class="p-2 border border-gray-400 rounded text-center text-black bg-gray-100 mt-2">
-                                        {{ period }}
-                                    </div>
-                                </div>
-
-                                <!-- Interest Rates -->
-                                <div v-if="activePlan?.planDetails?.length">
-                                    <p class="text-center font-semibold text-black text-sm">อัตราดอกเบี้ย</p>
-                                    <div v-for="(plan, index) in activePlan.planDetails" :key="index" class="mt-2">
-                                        <input v-model.number="plan.interestRate"
-                                            @blur="handleInterestRateBlur(plan, index)" type="number"
-                                            class="w-full p-2 border border-gray-400 rounded text-center text-black placeholder-gray-400"
-                                            placeholder="%" />
-                                    </div>
-                                </div>
-
-                                <!-- Monthly Payments -->
-                                <div v-if="activePlan?.planDetails?.length">
-                                    <p class="text-center font-semibold text-black text-sm">ค่างวดต่อเดือน</p>
-                                    <div v-for="(installment, index) in calculateMonthlyPayments()" :key="index"
-                                        class="mt-2">
-                                        <input :value="installment" type="number"
-                                            class="w-full p-2 border border-gray-400 rounded text-center text-black placeholder-gray-400" />
-                                    </div>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div>
+                                <p class="text-center font-semibold text-sm text-black">จำนวนเดือน</p>
+                                <div v-for="(period, index) in periods" :key="index"
+                                    class="p-2 border border-black rounded-lg text-center text-black bg-gray-100 mt-2">
+                                    {{ period }}
                                 </div>
                             </div>
-                            <div class="flex items-center justify-center gap-4 p-4">
-                                <span class="text-black text-sm">เงื่อนไขที่ </span>
-                                <div v-if="installmentPlans.length > 0" class="flex gap-2">
-                                    <button v-for="(plan, index) in installmentPlans" :key="index"
-                                        @click="toggleActivePlan(index)" :class="['p-4 border rounded-lg text-black w-[50px]',
-                                            { 'bg-black text-white': activePlanIndex === index }]">
-                                        {{ index + 1 }}
-                                    </button>
+                            <div v-if="activePlan?.planDetails?.length">
+                                <p class="text-center font-semibold text-sm text-black">อัตราดอกเบี้ย</p>
+                                <div v-for="(plan, index) in activePlan.planDetails" :key="index" class="mt-2">
+                                    <input v-model.number="plan.interestRate" @blur="handleInterestRateBlur(plan, index)" type="number"
+                                        class="w-full p-2 border rounded-lg text-center text-black placeholder-gray-400 border-black"
+                                        placeholder="%" />
                                 </div>
-                                <button v-if="installmentPlans.length < 3" @click="addPlan"
-                                    class="p-4 bg-gray-700 text-white rounded-lg w-[50px]">+
-                                </button>
-                                <button v-if="installmentPlans.length > 1" @click="deleteLastPlan"
-                                    class="p-4 bg-red-700 text-white rounded-lg">ลบ
+                            </div>
+                            <div v-if="activePlan?.planDetails?.length">
+                                <p class="text-center font-semibold text-sm text-black">ค่างวดต่อเดือน</p>
+                                <div v-for="(installment, index) in calculateMonthlyPayments()" :key="index" class="mt-2">
+                                    <input :value="installment" type="text"
+                                        class="w-full p-2 border border-black rounded-lg text-center text-black placeholder-gray-400"
+                                        readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-center gap-4 p-4">
+                            <span class="text-black">เงื่อนไขที่ </span>
+                            <div v-if="installmentPlans.length > 0" class="flex gap-2">
+                                <button v-for="(plan, index) in installmentPlans" :key="index" @click="toggleActivePlan(index)"
+                                    :class="['p-4 border rounded-lg text-black w-[50px]', { 'bg-black text-white w-[50px]': activePlanIndex === index }]">
+                                    {{ index + 1 }}
                                 </button>
                             </div>
+                            <button v-if="installmentPlans.length < 2" @click="addPlan"
+                                class="p-4 bg-gray-700 text-white rounded-lg w-[50px]">+</button>
+                            <button v-if="installmentPlans.length > 1" @click="deleteLastPlan"
+                                class="p-4 bg-red-700 text-white rounded-lg w-[50px]">ลบ</button>
                         </div>
                     </div>
                 </div>
@@ -121,8 +133,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from "vue";
+import { ref, reactive, watch, onMounted, computed } from "vue";
 import axios from "axios";
+import { useQuotationStore } from "~/stores/quotation";
 
 const props = defineProps({
     label: String,
@@ -135,16 +148,24 @@ const loading = ref(false);
 const selectedMethod = ref(null);
 const config = useRuntimeConfig();
 const backendUrl = config.public.backendUrl;
+const store = useQuotationStore();
 
 const carDetails = reactive({
     price: 0,
 });
 
 const cashPlans = ref({});
+const cashDiscount = ref(null);
+const cashAddition = ref(null);
+const initialCashFromApi = ref(null);
+const initialInstallmentFromApi = ref([]);
+const cashTotal = computed(() => {
+    const price = selectedCarPrice.value || 0;
+    return Math.ceil(price - (cashDiscount.value || 0) + (cashAddition.value || 0));
+});
 const installmentPlans = ref([]);
 const activePlanIndex = ref(0);
 const activePlan = computed(() => installmentPlans.value[activePlanIndex.value] || null);
-
 
 const downPaymentBaht = ref(0);
 const periods = ref([36, 48, 60, 72, 84]);
@@ -161,36 +182,63 @@ watch(() => props.quotationId, async () => {
     await fetchQuotationData();
 });
 
+const selectedCarPrice = computed(() => {
+    return store.selectedCar?.price || carDetails.price || 0;
+});
+
+const displayPrice = computed(() => {
+    const p = selectedCarPrice.value;
+    return p ? Number(p).toLocaleString() : 'N/A';
+});
+
 const fetchQuotationData = async () => {
     loading.value = true;
     try {
         const response = await axios.get(`${backendUrl}/quotation/${props.quotationId}`);
         const data = response.data;
 
-        selectedMethod.value = data.paymentMethod;
+    selectedMethod.value = data.paymentMethod;
+    // keep store in sync
+    if (typeof store.setPaymentMethod === 'function') store.setPaymentMethod(selectedMethod.value);
+    else store.paymentMethod = selectedMethod.value;
         if (data.carDetails?.price) carDetails.price = data.carDetails.price;
 
-        if (data.paymentMethod === "cash" && data.cashPlans) {
-            Object.assign(cashPlans.value, data.cashPlans);
-        } else if (data.paymentMethod === "installment" && data.installmentPlans?.length) {
-            installmentPlans.value = data.installmentPlans.map(inst => ({
-                additionPrice: inst.additionPrice,
-                specialDiscount: inst.specialDiscount,
-                downPaymentPercent: inst.downPaymentPercent || 0,
-                planDetails: inst.planDetails?.length
-                    ? inst.planDetails
-                    : periods.value.map(p => ({ period: p, interestRate: null })),
+        // cache both sets if provided
+        if (data.cashPlans) {
+            initialCashFromApi.value = { ...data.cashPlans };
+        }
+        if (data.installmentPlans?.length) {
+            initialInstallmentFromApi.value = data.installmentPlans.slice(0, 2).map(inst => ({
+                additionPrice: inst.additionPrice ?? null,
+                specialDiscount: inst.specialDiscount ?? null,
+                downPaymentPercent: inst.downPaymentPercent ?? null,
+                planDetails: (inst.planDetails?.length ? inst.planDetails : periods.value.map(period => ({ period, interestRate: null })))
             }));
-            activePlanIndex.value = 0;
-            if (carDetails.price && activePlan.value?.downPaymentPercent) {
-                downPaymentBaht.value = Math.ceil((activePlan.value.downPaymentPercent / 100) * carDetails.price);
-            }
         }
 
-        emit("update", {
-            paymentMethod: selectedMethod.value,
-            installmentPlans: installmentPlans.value
-        });
+        if (data.paymentMethod === "cash") {
+            if (initialCashFromApi.value) {
+                Object.assign(cashPlans.value, initialCashFromApi.value);
+                cashDiscount.value = initialCashFromApi.value.specialDiscount ?? null;
+                cashAddition.value = initialCashFromApi.value.specialAddition ?? null;
+            }
+            store.setCashPlan({
+                specialDiscount: cashDiscount.value,
+                specialAddition: cashAddition.value,
+                totalPrice: cashTotal.value
+            });
+        } else if (data.paymentMethod === "installment") {
+            if (initialInstallmentFromApi.value.length) {
+                installmentPlans.value = JSON.parse(JSON.stringify(initialInstallmentFromApi.value));
+            }
+            activePlanIndex.value = 0;
+            if (selectedCarPrice.value && activePlan.value?.downPaymentPercent) {
+                downPaymentBaht.value = Math.ceil((activePlan.value.downPaymentPercent / 100) * selectedCarPrice.value);
+            }
+            store.setInstallmentPlans(JSON.parse(JSON.stringify(installmentPlans.value)));
+        }
+
+        emit("update", { paymentMethod: selectedMethod.value, installmentPlans: installmentPlans.value, cashPlans: cashPlans.value });
     } catch (err) {
         console.error("Error fetching data", err);
     } finally {
@@ -203,21 +251,63 @@ const toggle = () => {
 };
 
 
+const selectMethod = (method) => {
+    selectedMethod.value = method;
+    // keep store in sync
+    if (typeof store.setPaymentMethod === 'function') store.setPaymentMethod(selectedMethod.value);
+    else store.paymentMethod = selectedMethod.value;
+    if (method === 'cash') {
+        // clear installment
+        installmentPlans.value = [];
+        store.setInstallmentPlans([]);
+        // restore API defaults for cash if available
+        if (initialCashFromApi.value) {
+            cashDiscount.value = initialCashFromApi.value.specialDiscount ?? null;
+            cashAddition.value = initialCashFromApi.value.specialAddition ?? null;
+        }
+    } else {
+        // clear cash
+        store.setCashPlan({});
+        // restore API defaults for installment if available, else create one plan
+        if (initialInstallmentFromApi.value.length) {
+            installmentPlans.value = JSON.parse(JSON.stringify(initialInstallmentFromApi.value));
+        }
+    if (installmentPlans.value.length === 0) {
+            installmentPlans.value.push({
+                additionPrice: null,
+                specialDiscount: null,
+                downPaymentPercent: null,
+                planDetails: periods.value.map(period => ({ period, interestRate: null })),
+            });
+        }
+        activePlanIndex.value = 0;
+        // recalc down payment baht
+        if (selectedCarPrice.value && activePlan.value?.downPaymentPercent) {
+            downPaymentBaht.value = Math.ceil((activePlan.value.downPaymentPercent / 100) * selectedCarPrice.value);
+        } else {
+            downPaymentBaht.value = 0;
+        }
+    }
+    emit("update", { paymentMethod: selectedMethod.value, installmentPlans: installmentPlans.value, cashPlans: {
+        specialDiscount: cashDiscount.value, specialAddition: cashAddition.value, totalPrice: cashTotal.value
+    }});
+};
+
 const updateDownPayment = () => {
-    if (!carDetails.price || !activePlan.value) return;
-    downPaymentBaht.value = Math.ceil((activePlan.value.downPaymentPercent / 100) * carDetails.price);
+    if (!selectedCarPrice.value || !activePlan.value) return;
+    downPaymentBaht.value = Math.ceil((activePlan.value.downPaymentPercent / 100) * selectedCarPrice.value);
 };
 
 const updateDownPaymentPercent = () => {
-    if (!carDetails.price || !activePlan.value) return;
-    activePlan.value.downPaymentPercent = Math.ceil((downPaymentBaht.value / carDetails.price) * 100);
+    if (!selectedCarPrice.value || !activePlan.value) return;
+    activePlan.value.downPaymentPercent = Math.ceil((downPaymentBaht.value / selectedCarPrice.value) * 100);
 };
 
 const calculateMonthlyPayments = () => {
-    if (!carDetails.price || !activePlan.value) return [];
+    if (!selectedCarPrice.value || !activePlan.value) return [];
 
     const totalPrice =
-        carDetails.price - (activePlan.value.specialDiscount || 0) + (activePlan.value.additionPrice || 0);
+        selectedCarPrice.value - (activePlan.value.specialDiscount || 0) + (activePlan.value.additionPrice || 0);
 
     const loanAmount = totalPrice - (downPaymentBaht.value || 0);
 
@@ -240,8 +330,15 @@ const handleInterestRateBlur = (plan, index) => {
         activePlan.value.planDetails[index].interestRate = null;
     }
 };
+
+// Calculate total price like installmentPayment.vue
+const calculateTotalPrice = (plan) => {
+    const discount = plan?.specialDiscount ?? 0;
+    const addition = plan?.additionPrice ?? 0;
+    return Math.ceil((selectedCarPrice.value || 0) - discount + addition);
+};
 const addPlan = () => {
-    if (installmentPlans.value.length < 3) {
+    if (installmentPlans.value.length < 2) {
         installmentPlans.value.push({
             additionPrice: null,
             specialDiscount: null,
@@ -250,6 +347,8 @@ const addPlan = () => {
         });
         activePlanIndex.value = installmentPlans.value.length - 1;
     }
+    store.setInstallmentPlans(JSON.parse(JSON.stringify(installmentPlans.value)));
+    emit("update", { paymentMethod: selectedMethod.value, installmentPlans: installmentPlans.value });
 };
 
 const deleteLastPlan = () => {
@@ -257,11 +356,32 @@ const deleteLastPlan = () => {
         installmentPlans.value.pop();
         activePlanIndex.value = Math.max(0, activePlanIndex.value - 1);
     }
+    store.setInstallmentPlans(JSON.parse(JSON.stringify(installmentPlans.value)));
+    emit("update", { paymentMethod: selectedMethod.value, installmentPlans: installmentPlans.value });
 };
 
 const toggleActivePlan = (index) => {
     activePlanIndex.value = index;
 };
+
+// Sync store and emit when cash values change
+watch([cashDiscount, cashAddition, cashTotal], () => {
+    if (selectedMethod.value !== 'cash') return;
+    const plan = {
+        specialDiscount: cashDiscount.value,
+        specialAddition: cashAddition.value,
+        totalPrice: cashTotal.value,
+    };
+    store.setCashPlan(plan);
+    emit("update", { paymentMethod: selectedMethod.value, cashPlans: plan });
+});
+
+// Sync store on installment edits
+watch(installmentPlans, (newPlans) => {
+    if (selectedMethod.value !== 'installment') return;
+    store.setInstallmentPlans(JSON.parse(JSON.stringify(newPlans)));
+    emit("update", { paymentMethod: selectedMethod.value, installmentPlans: newPlans });
+}, { deep: true });
 
 </script>
 

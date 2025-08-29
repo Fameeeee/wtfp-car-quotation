@@ -12,17 +12,24 @@
 
         <transition name="slide-fade">
             <div v-if="open" class="p-6 border-t border-black space-y-6 bg-white rounded-lg shadow-md">
-                <input v-model="searchQuery" @input="searchAccessories" type="text" placeholder="ค้นหาอุปกรณ์"
+                <input v-model="searchQuery" type="text" placeholder="ค้นหาอุปกรณ์"
                     class="w-full p-2 border border-gray-300 rounded-md" />
 
-                <div v-if="searchResults.length">
-                    <div v-for="item in searchResults" :key="item.id"
-                        class="flex justify-between items-center p-2 mb-2 border rounded border-gray-400 hover:bg-gray-100">
-                        <div>{{ item.assName }} ({{ item.assType }})</div>
-                        <button @click="addAccessory(item)" class="text-green-600 font-semibold cursor-pointer">เพิ่ม</button>
+                <div v-if="searchQuery" class="w-full bg-white rounded-lg mt-2 max-h-60 overflow-auto border border-gray-200">
+                    <div v-for="item in filteredAccessories" :key="item.id"
+                        class="p-2 border-b flex items-center justify-between hover:bg-gray-100">
+                        <div class="flex flex-col">
+                            <span class="text-black font-medium">{{ item.assName }}</span>
+                            <span class="text-black text-sm">{{ item.price.toLocaleString() }} ฿</span>
+                        </div>
+                        <button class="px-3 py-1 text-white bg-black rounded-md hover:bg-gray-800" @click.stop="addAccessory(item)">
+                            เพิ่ม
+                        </button>
+                    </div>
+                    <div v-if="filteredAccessories.length === 0" class="p-3 text-gray-500 text-center">
+                        ไม่พบอุปกรณ์ที่ค้นหา
                     </div>
                 </div>
-                <div v-else-if="searchQuery" class="text-gray-500 text-center">ไม่พบอุปกรณ์ที่ค้นหา</div>
 
                 <div v-if="accessories.length">
                     <h4 class="font-semibold mb-2">อุปกรณ์ตกแต่ง</h4>
@@ -42,7 +49,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import axios from "axios";
 
 const props = defineProps({
@@ -53,7 +60,7 @@ const props = defineProps({
 
 const open = ref(false);
 const searchQuery = ref("");
-const searchResults = ref([]);
+const allAccessories = ref([]);
 const accessories = ref([]);
 const carId = ref(null);
 const config = useRuntimeConfig();
@@ -73,6 +80,20 @@ onMounted(async () => {
                     `${apiUrl}/standard-base?filter=unitType||$eq||${encodeURIComponent(unitType)}&filter=status||$eq||1`
                 );
                 if (carData?.length) carId.value = carData[0].id;
+                // fetch all accessories for this car once
+                if (carId.value) {
+                    try {
+                        const { data: list } = await axios.get(`${apiUrl}/standard-base/standard-name/${carId.value}`);
+                        allAccessories.value = (list?.[0]?.StandardAccBase || []).map(item => ({
+                            assType: item.accBase.assType,
+                            assName: item.accBase.assName,
+                            price: parseFloat(item.accBase.itemCostIncVat) || 0,
+                            id: item.idAccBase
+                        }));
+                    } catch (e) {
+                        console.error('Error fetching accessories list:', e);
+                    }
+                }
             }
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -80,35 +101,22 @@ onMounted(async () => {
     }
 });
 
-const searchAccessories = async () => {
-    if (!searchQuery.value || !carId.value) {
-        searchResults.value = [];
-        return;
-    }
-    try {
-        const { data } = await axios.get(`${apiUrl}/standard-base/standard-name/${carId.value}`);
-        const allAccessories = (data[0]?.StandardAccBase || []).map(item => ({
-            assType: item.accBase.assType,
-            assName: item.accBase.assName,
-            price: parseFloat(item.accBase.itemCostIncVat) || 0,
-            id: item.idAccBase
-        }));
-        const query = searchQuery.value.toLowerCase();
-        const currentNames = accessories.value.map(acc => acc.assName.toLowerCase());
-        searchResults.value = allAccessories.filter(
-            item => !currentNames.includes(item.assName.toLowerCase()) &&
-                item.assName.toLowerCase().includes(query)
-        );
-    } catch (err) {
-        console.error('Error searching accessories:', err);
-        searchResults.value = [];
-    }
-};
+// Suggestions: show all items (including standard) that are not currently selected
+const filteredAccessories = computed(() => {
+    const q = searchQuery.value.trim().toLowerCase();
+    const selectedIds = new Set(accessories.value.map(a => a.id));
+    return allAccessories.value.filter(item =>
+    !selectedIds.has(item.id) &&
+        (q === '' || item.assName.toLowerCase().includes(q) || item.assType.toLowerCase().includes(q))
+    );
+});
 
 const addAccessory = (item) => {
     if (!accessories.value.some(acc => acc.id === item.id)) {
         accessories.value.push(item);
     }
+    // clear search after adding, like a picker UX
+    searchQuery.value = '';
 };
 
 const removeAccessory = (index) => {
