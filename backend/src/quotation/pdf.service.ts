@@ -3,6 +3,8 @@ import * as path from 'path';
 import * as fs from 'fs';
 import puppeteer from 'puppeteer';
 import * as QRCode from 'qrcode';
+import * as https from 'https';
+import * as http from 'http';
 import { QuotationService } from './quotation.service';
 
 type QuotationData = any;
@@ -53,27 +55,59 @@ export class PdfService {
     }
   }
 
-  private loadLogoBase64(): string {
+  private async loadLogoBase64(): Promise<string> {
+    const envPath = process.env.PDF_LOGO_PATH || process.env.BACKEND_LOGO_PATH || '';
+
+    // If envPath is a URL, fetch it
+    if (envPath && /^https?:\/\//i.test(envPath)) {
+      try {
+        const data = await new Promise<Buffer>((resolve, reject) => {
+          const client = envPath.startsWith('https') ? https : http;
+          client
+            .get(envPath, (res) => {
+              const chunks: Uint8Array[] = [];
+              res.on('data', (c) => chunks.push(c));
+              res.on('end', () => resolve(Buffer.concat(chunks)));
+              res.on('error', reject);
+            })
+            .on('error', reject);
+        });
+        if (data && data.length > 0) {
+          return `data:image/png;base64,${data.toString('base64')}`;
+        }
+      } catch (e) {
+        // ignore and continue to file lookups
+      }
+    }
+
     const candidates = [
-      // when compiled to dist
-      path.resolve(
-        __dirname,
-        '../../../frontend/public/assets/isuzu-quotation-logo.png',
-      ),
-      // when running ts-node
-      path.resolve(
-        __dirname,
-        '../../frontend/public/assets/isuzu-quotation-logo.png',
-      ),
-    ];
+      // env override as local path
+      envPath,
+      // when compiled to dist (monorepo / nested project layout)
+      path.resolve(__dirname, '../../../frontend/public/assets/isuzu-quotation-logo.png'),
+      // when running ts-node or local dev layout
+      path.resolve(__dirname, '../../frontend/public/assets/isuzu-quotation-logo.png'),
+      // common layout when Railway builds from backend folder: backend/public/assets
+      path.resolve(process.cwd(), 'public/assets/isuzu-quotation-logo.png'),
+      path.resolve(process.cwd(), 'backend/public/assets/isuzu-quotation-logo.png'),
+      // fallback: project root frontend public (if available)
+      path.resolve(process.cwd(), 'frontend/public/assets/isuzu-quotation-logo.png'),
+      // relative to backend src/assets
+      path.resolve(__dirname, '../../assets/isuzu-quotation-logo.png'),
+    ].filter(Boolean);
+
     for (const p of candidates) {
       try {
+        if (!p) continue;
         if (fs.existsSync(p)) {
           const b = fs.readFileSync(p);
           return `data:image/png;base64,${b.toString('base64')}`;
         }
-      } catch {}
+      } catch (e) {
+        // ignore and continue
+      }
     }
+
     return '';
   }
 
@@ -115,8 +149,8 @@ export class PdfService {
     data: QuotationData,
     opts?: { preview?: boolean },
   ): Promise<string> {
-    const isPreview = !!opts?.preview;
-    const logo = this.loadLogoBase64();
+  const isPreview = !!opts?.preview;
+  const logo = await this.loadLogoBase64();
   const isSaved = !!(data && data.id);
   const showWatermark = isPreview || !isSaved;
     const date = new Date(
