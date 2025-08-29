@@ -39,15 +39,13 @@
     </div>
 </template>
 
-
-
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
 import { useRoute } from 'vue-router';
 import { useQuotationStore } from '~/stores/quotation';
 
-const config = useRuntimeConfig()
+const config = useRuntimeConfig();
 const backendUrl = config.public.backendUrl;
 
 const installmentPlans = ref([]);
@@ -64,18 +62,17 @@ const fetchInstallmentPlansFromStore = () => {
 };
 
 const fetchInstallmentPlansFromApi = async () => {
-    try {
-        const response = await axios.get(`${backendUrl}/quotation/${quotationId}`);
-        installmentPlans.value = response.data.installmentPlans || [];
-        carPrice.value = response.data.carDetails?.price || 0;
+  try {
+    const response = await axios.get(`${backendUrl}/quotation/${quotationId}`);
+    installmentPlans.value = response.data.installmentPlans || [];
+    carPrice.value = response.data.carDetails?.price || 0;
 
-        if (response.data.carDetails?.downPaymentPercent) {
-            activePlan.value.downPaymentPercent = response.data.carDetails.downPaymentPercent;
-        }
-
-    } catch (error) {
-        console.error('Error fetching data from API:', error);
+    if (response.data.carDetails?.downPaymentPercent) {
+      activePlan.value.downPaymentPercent = response.data.carDetails.downPaymentPercent;
     }
+  } catch (error) {
+    console.error("Error fetching data from API:", error);
+  }
 };
 
 onMounted(() => {
@@ -92,39 +89,41 @@ const setCarPriceFromStore = () => {
 };
 
 const calculateNetPrice = (order) => {
-    const discount = order.specialDiscount ?? 0;
-    const additionPrice = order.additionPrice ?? 0;
-    return carPrice.value - discount + additionPrice;
+  const discount = order.specialDiscount ?? 0;
+  const additionPrice = order.additionPrice ?? 0;
+  return carPrice.value - discount + additionPrice;
 };
 
 const calculateDownPayment = (order) => {
-    const downPaymentPercent = order.downPaymentPercent ?? 0;
-    const netPrice = calculateNetPrice(order);
-    return Math.round((downPaymentPercent / 100) * netPrice);
+  const downPaymentPercent = order.downPaymentPercent ?? 0;
+  const netPrice = calculateNetPrice(order);
+  return Math.round((downPaymentPercent / 100) * netPrice);
 };
 
 const calculateMonthlyInstallment = (order, plan) => {
-    if (plan.interestRate == null) return null;
+  if (plan.interestRate == null) return null;
 
-    const netPrice = calculateNetPrice(order);
-    const downPayment = calculateDownPayment(order);
-    const loanAmount = netPrice - downPayment;
-    const interestRate = plan.interestRate;
-    const period = plan.period;
+  const netPrice = calculateNetPrice(order);
+  const downPayment = calculateDownPayment(order);
+  const loanAmount = netPrice - downPayment;
+  const interestRate = plan.interestRate;
+  const period = plan.period;
 
-    if (interestRate === 0) {
-        return Math.round(loanAmount / period);
-    }
+  if (interestRate === 0) {
+    return Math.round(loanAmount / period);
+  }
 
-    const monthlyRate = (interestRate / 100) / 12;
-    const factor = Math.pow(1 + monthlyRate, period);
+  const monthlyRate = interestRate / 100 / 12;
+  const factor = Math.pow(1 + monthlyRate, period);
 
-    const monthlyPayment = loanAmount * ((monthlyRate * factor) / (factor - 1));
+  const monthlyPayment = loanAmount * ((monthlyRate * factor) / (factor - 1));
 
-    return Math.round(monthlyPayment);
+  return Math.round(monthlyPayment);
 };
 
-watch(() => activePlan.value.downPaymentPercent, (newDownPaymentPercent) => {
+watch(
+  () => activePlan.value.downPaymentPercent,
+  (newDownPaymentPercent) => {
     activePlan.value.downPayment = calculateDownPayment(newDownPaymentPercent);
 });
 
@@ -138,14 +137,14 @@ const formatBaht = (val) => {
 
 <style scoped>
 .overflow-x-auto {
-    max-width: 100%;
-    max-height: fit-content;
-    overflow: auto;
+  max-width: 100%;
+  max-height: fit-content;
+  overflow: auto;
 }
 
 table {
-    width: 100%;
-    table-layout: fixed;
+  width: 100%;
+  table-layout: fixed;
 }
 
 .scale-text {
@@ -159,11 +158,11 @@ table {
 
 th,
 td {
-    overflow: hidden;
+  overflow: hidden;
 }
 
 hr {
-    margin: 0;
+  margin: 0;
 }
 
 @media (max-width: 600px) {
