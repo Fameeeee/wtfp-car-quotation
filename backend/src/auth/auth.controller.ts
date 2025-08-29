@@ -25,14 +25,27 @@ export class AuthController {
     // service will create token; we set it as httpOnly cookie here
     const result = await this.authService.login(email, password);
     const token = result.access_token;
-    res.cookie('access_token', token, {
+    // Determine cookie flags: prefer SameSite=None and Secure when origin is https
+    const origin = req.get('origin') || '';
+    const isHttpsOrigin = origin.startsWith('https://');
+    const cookieOptions: any = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      // When frontend is hosted on a different origin (production), we need
-      // SameSite=None so the browser will send the cookie on cross-site XHR/fetch.
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 1000 * 60 * 60 * 24, // 1 day
-    });
+    };
+
+    // If the incoming origin is https or we're in production, set SameSite=None and secure
+    if (isHttpsOrigin || process.env.NODE_ENV === 'production') {
+      cookieOptions.sameSite = 'none';
+      cookieOptions.secure = true;
+    } else {
+      cookieOptions.sameSite = 'lax';
+      cookieOptions.secure = false;
+    }
+
+    // Optional domain override via env
+    if (process.env.COOKIE_DOMAIN) cookieOptions.domain = process.env.COOKIE_DOMAIN;
+
+    res.cookie('access_token', token, cookieOptions);
     return res.json({ success: true });
   }
 
