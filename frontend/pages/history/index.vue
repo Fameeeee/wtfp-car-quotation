@@ -7,7 +7,7 @@
                 class="w-full p-3 mb-4 border rounded-lg shadow-sm text-black" />
         </div>
 
-        <NuxtLink v-for="quotation in quotations" :key="quotation.id" :to="`/history/${quotation.quotationId}`"
+        <NuxtLink v-for="quotation in quotations" :key="quotation.quotationId" :to="`/history/${quotation.quotationId}`"
             class="w-full flex flex-col items-center gap-3 mt-4 text-black no-underline">
             <div class="w-11/12 bg-white border border-black/20 shadow-md rounded-lg p-4">
                 <div class="flex justify-between">
@@ -28,21 +28,25 @@
             </div>
         </NuxtLink>
 
+        <div v-if="!loading && quotations.length === 0" class="w-full max-w-2xl text-center text-gray-500 mt-6">
+            ไม่พบรายการ
+        </div>
+
         <div class="flex justify-center gap-2 mt-4">
-            <button v-if="visiblePages[0] > 1" @click="() => { currentPage = visiblePages[0] - 1; fetchQuotations(); }"
-                class="px-4 py-2 rounded-md border border-gray-400 bg-white text-black">
+            <button v-if="visiblePages[0] > 1" @click="goPrevGroup"
+                class="px-4 py-2 rounded-md border border-gray-400 bg-white text-black" :disabled="loading">
                 &laquo;
             </button>
 
-            <button v-for="page in visiblePages" :key="page" @click="() => { currentPage = page; fetchQuotations(); }"
-                class="px-4 py-2 rounded-md border border-gray-400"
+            <button v-for="page in visiblePages" :key="page" @click="goToPage(page)"
+                class="px-4 py-2 rounded-md border border-gray-400" :disabled="loading"
                 :class="{ 'bg-[#980000] text-white': currentPage === page, 'bg-white text-black': currentPage !== page }">
                 {{ page }}
             </button>
 
             <button v-if="visiblePages[visiblePages.length - 1] < totalPages"
-                @click="() => { currentPage = visiblePages[visiblePages.length - 1] + 1; fetchQuotations(); }"
-                class="px-4 py-2 rounded-md border border-gray-400 bg-white text-black">
+                @click="goNextGroup"
+                class="px-4 py-2 rounded-md border border-gray-400 bg-white text-black" :disabled="loading">
                 &raquo;
             </button>
         </div>
@@ -53,9 +57,9 @@
 
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 import axios from 'axios';
-import _ from 'lodash';
+import debounce from 'lodash/debounce';
 
 const config = useRuntimeConfig()
 const backendUrl = config.public.backendUrl;
@@ -65,24 +69,14 @@ const itemsPerPage = 4;
 const totalPages = ref(0);
 const total = ref(0);
 const loading = ref(false);
+let abortController = null;
 const searchQuery = ref("");
 const quotations = ref([]);
 
-const getStaffId = () => {
-    const token = localStorage.getItem("access_token");
-    if (!token) return null;
-    try {
-        const decodedToken = atob(token.split(".")[1]);
-        const parsedToken = JSON.parse(decodedToken);
-        return parsedToken.id;
-    } catch (error) {
-        console.error("Invalid token", error);
-        return null;
-    }
-};
+import { getStaffIdAsync } from '~/composables/useAuth'
 
 const fetchQuotations = async () => {
-    const staffId = getStaffId();
+    const staffId = await getStaffIdAsync();
     if (!staffId) {
         console.error("Staff ID is not available");
         return;
@@ -90,12 +84,18 @@ const fetchQuotations = async () => {
 
     loading.value = true;
     try {
+        // cancel previous in-flight request to avoid race conditions
+        if (abortController) {
+            abortController.abort();
+        }
+        abortController = new AbortController();
         const response = await axios.get(`${backendUrl}/quotation/staff/${staffId}`, {
             params: {
                 page: currentPage.value,
                 limit: itemsPerPage,
                 search: searchQuery.value,
             },
+            signal: abortController.signal,
         });
         quotations.value = response.data.data.map(q => ({
             quotationId: q.quotationId,
@@ -114,7 +114,13 @@ const fetchQuotations = async () => {
         totalPages.value = response.data.totalPages || 0;
         total.value = response.data.total || 0;
     } catch (error) {
-        console.error("Error fetching quotations:", error);
+        if (axios.isCancel?.(error)) {
+            // request was aborted; ignore
+        } else if (error?.name === 'CanceledError' || error?.code === 'ERR_CANCELED') {
+            // fetch aborted
+        } else {
+            console.error("Error fetching quotations:", error);
+        }
     } finally {
         loading.value = false;
     }
@@ -129,7 +135,7 @@ const formatDate = (date) => {
     return `${day}/${month}/${year}`;
 };
 
-const debouncedSearch = _.debounce(() => {
+const debouncedSearch = debounce(() => {
     currentPage.value = 1;
     fetchQuotations();
 }, 500);
@@ -147,6 +153,32 @@ const visiblePages = computed(() => {
 });
 
 onMounted(fetchQuotations);
+
+onBeforeUnmount(() => {
+    if (abortController) {
+        abortController.abort();
+    }
+});
+
+const goToPage = (page) => {
+    if (page === currentPage.value || page < 1 || page > totalPages.value) return;
+    currentPage.value = page;
+    fetchQuotations();
+};
+
+const goPrevGroup = () => {
+    const prev = visiblePages.value[0] - 1;
+    if (prev >= 1) {
+        goToPage(prev);
+    }
+};
+
+const goNextGroup = () => {
+    const next = visiblePages.value[visiblePages.value.length - 1] + 1;
+    if (next <= totalPages.value) {
+        goToPage(next);
+    }
+};
 
 definePageMeta({
     middleware: 'staff-auth'
