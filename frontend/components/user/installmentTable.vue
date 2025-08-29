@@ -1,51 +1,40 @@
 <template>
-    <div class="overflow-x-auto bg-white border">
-        <table class="min-w-full text-sm text-center text-black">
+        <div class="overflow-x-auto bg-white border">
+            <table class="min-w-full text-[11px] text-center text-black">
             <thead class="bg-[#980000]">
                 <tr>
+                      <th class="px-1.5 py-0.5 border scale-text text-white border-black">ลำดับ</th>
+                    <th class="px-2 py-1 border scale-text text-white border-black">ราคารถ</th>
                     <th class="px-2 py-1 border scale-text text-white border-black">ส่วนลด</th>
                     <th class="px-2 py-1 border scale-text text-white border-black">ส่วนเพิ่ม</th>
                     <th class="px-2 py-1 border scale-text text-white border-black">ราคาสุทธิ</th>
-                    <th class="px-2 py-1 border scale-text text-white border-black">จำนวนเงินดาวน์</th>
+                    <th class="px-2 py-1 border scale-text text-white border-black">เงินดาวน์</th>
                     <th class="px-2 py-1 border scale-text text-white border-black">จำนวนเดือน</th>
                     <th class="px-2 py-1 border scale-text text-white border-black">อัตราดอกเบี้ย</th>
-                    <th class="px-2 py-1 border scale-text text-white border-black">ค่างวดต่อเดือน</th>
+                      <th class="px-1.5 py-0.5 border scale-text text-white border-black">ค่างวดต่อเดือน</th>
                 </tr>
             </thead>
-            <template v-for="(order, index) in installmentPlans" :key="order.orderNumber">
-                <tbody>
-                    <tr>
-                        <td class="border scale-text">{{ order.specialDiscount ?? '0' }}</td>
-                        <td class="border scale-text">{{ order.additionPrice ?? '0' }}</td>
-                        <td class="border scale-text">{{ calculateNetPrice(order) ?? '0' }}</td>
-                        <td class="border scale-text">{{ calculateDownPayment(order) }}</td>
-                        <td class="border scale-text">
-                            <div v-for="(plan, i) in order.planDetails" :key="i" class="relative">
-                                {{ plan.period }}
-                                <hr v-if="plan.period && i !== order.planDetails.length - 1" class="my-1 border-t-1" />
-                            </div>
-                        </td>
-                        <td class="border scale-text">
-                            <div v-for="(plan, i) in order.planDetails" :key="i" class="relative">
-                                {{ plan.interestRate ?? '0' }}
-                                <hr v-if="i !== order.planDetails.length - 1" class="my-1 border-t-1" />
-                            </div>
-                        </td>
-                        <td class="border scale-text">
-                            <div v-for="(plan, i) in order.planDetails" :key="i" class="relative">
-                                {{ calculateMonthlyInstallment(order, plan) ?? '0' }}
-                                <hr v-if="i !== order.planDetails.length - 1" class="my-1 border-t-1" />
-                            </div>
-                        </td>
+            <tbody v-for="(order, index) in installmentPlans" :key="order.orderNumber">
+                <tr v-for="(plan, i) in (order.planDetails || [])" :key="i">
+                    <!-- merged cells per order -->
+                      <td v-if="i === 0" :rowspan="(order.planDetails || []).length" class="border scale-text px-1.5 py-0.5">{{ order.orderNumber }}</td>
+                      <td v-if="i === 0" :rowspan="(order.planDetails || []).length" class="border scale-text px-1.5 py-0.5">{{ formatBaht(carPrice) }}</td>
+                      <td v-if="i === 0" :rowspan="(order.planDetails || []).length" class="border scale-text px-1.5 py-0.5">{{ formatBaht(order.specialDiscount ?? 0) }}</td>
+                      <td v-if="i === 0" :rowspan="(order.planDetails || []).length" class="border scale-text px-1.5 py-0.5">{{ formatBaht(order.additionPrice ?? 0) }}</td>
+                      <td v-if="i === 0" :rowspan="(order.planDetails || []).length" class="border scale-text px-1.5 py-0.5">{{ formatBaht(calculateNetPrice(order)) }}</td>
+                      <td v-if="i === 0" :rowspan="(order.planDetails || []).length" class="border scale-text px-1.5 py-0.5">{{ formatBaht(calculateDownPayment(order)) }}</td>
 
-                    </tr>
-                </tbody>
-                <tbody v-if="index !== installmentPlans.length - 1">
-                    <tr>
-                        <td colspan="7" class="h-2"></td>
-                    </tr>
-                </tbody>
-            </template>
+                    <!-- per-plan cells -->
+                      <td class="border scale-text px-1.5 py-0.5">{{ plan?.period ?? '-' }}</td>
+                      <td class="border scale-text px-1.5 py-0.5">{{ plan?.interestRate ?? '-' }}</td>
+                      <td class="border scale-text px-1.5 py-0.5">{{ plan?.interestRate == null ? '-' : formatBaht(calculateMonthlyInstallment(order, plan)) }}</td>
+                </tr>
+
+                <!-- spacing row between orders -->
+                <tr v-if="index !== installmentPlans.length - 1">
+                    <td :colspan="9" class="h-1"></td>
+                </tr>
+            </tbody>
         </table>
     </div>
 </template>
@@ -53,9 +42,10 @@
 
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
 import { useRoute } from 'vue-router';
+import { useQuotationStore } from '~/stores/quotation';
 
 const config = useRuntimeConfig()
 const backendUrl = config.public.backendUrl;
@@ -66,10 +56,11 @@ const activePlan = ref({});
 
 const route = useRoute();
 const quotationId = route.params.id;
+const quotationStore = useQuotationStore();
 
-const fetchInstallmentPlansFromLocalStorage = () => {
-    const plansFromLocalStorage = JSON.parse(localStorage.getItem('installmentPlans') || '[]');
-    installmentPlans.value = plansFromLocalStorage;
+const fetchInstallmentPlansFromStore = () => {
+    installmentPlans.value = quotationStore.installmentPlans || [];
+    setCarPriceFromStore();
 };
 
 const fetchInstallmentPlansFromApi = async () => {
@@ -91,17 +82,13 @@ onMounted(() => {
     if (quotationId) {
         fetchInstallmentPlansFromApi();
     } else {
-        fetchInstallmentPlansFromLocalStorage();
-        setCarPrice();
+        fetchInstallmentPlansFromStore();
     }
 });
 
-const setCarPrice = () => {
-    const storedCar = localStorage.getItem('selectedCar');
-    if (storedCar) {
-        const carData = JSON.parse(storedCar);
-        carPrice.value = carData?.price || 0;
-    }
+const setCarPriceFromStore = () => {
+    const carData = quotationStore.selectedCar;
+    carPrice.value = carData?.price || 0;
 };
 
 const calculateNetPrice = (order) => {
@@ -140,6 +127,13 @@ const calculateMonthlyInstallment = (order, plan) => {
 watch(() => activePlan.value.downPaymentPercent, (newDownPaymentPercent) => {
     activePlan.value.downPayment = calculateDownPayment(newDownPaymentPercent);
 });
+
+const formatBaht = (val) => {
+    if (val === null || val === undefined || val === '') return '-';
+    const num = Number(val);
+    if (Number.isNaN(num)) return '-';
+    return `${num.toLocaleString('th-TH')} ฿`;
+};
 </script>
 
 <style scoped>
@@ -155,7 +149,7 @@ table {
 }
 
 .scale-text {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     overflow: hidden;
     line-height: 1.5;
     width: 100%;
@@ -174,7 +168,7 @@ hr {
 
 @media (max-width: 600px) {
     .scale-text {
-        font-size: 0.5rem;
+    font-size: 0.45rem;
     }
 }
 </style>

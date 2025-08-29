@@ -1,7 +1,32 @@
 <template>
-    <div class="flex text-black flex-col items-center justify-center w-full h-full p-8 gap-5">
-        <carDetailsDropdown label="รุ่นรถ" :quotation-id="quotationId"
-            @update="data => handleUpdate('carDetails', data)" />
+    <div class="flex text-black flex-col items-center w-full min-h-screen p-4 gap-5">
+        <!-- Read-only car details -->
+        <div class="w-full max-w-2xl bg-white border rounded-lg shadow-sm p-4">
+            <div class="text-lg font-bold mb-2">รุ่นรถ</div>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                    <div class="text-gray-500">รุ่นปีรถ</div>
+                    <div class="font-semibold">{{ allData.carDetails.modelClass || '-' }}</div>
+                </div>
+                <div>
+                    <div class="text-gray-500">รุ่นรถ</div>
+                    <div class="font-semibold">{{ allData.carDetails.modelGName || '-' }}</div>
+                </div>
+                <div>
+                    <div class="text-gray-500">รหัสรุ่น</div>
+                    <div class="font-semibold">{{ allData.carDetails.modelCodeName || '-' }}</div>
+                </div>
+                <div>
+                    <div class="text-gray-500">สีตัวถัง</div>
+                    <div class="font-semibold">{{ allData.carDetails.color || '-' }}</div>
+                </div>
+                <div>
+                    <div class="text-gray-500">ราคารถ</div>
+                    <div class="font-semibold">{{ allData.carDetails.price?.toLocaleString?.('th-TH') || '-' }} บาท</div>
+                </div>
+            </div>
+            <div class="mt-2 text-xs text-amber-600">ไม่สามารถแก้ไขรายละเอียดรถในหน้าปรับแก้ได้</div>
+        </div>
 
         <paymentDropdown label="รูปแบบการชำระเงิน" :quotation-id="quotationId"
             @update="data => handleUpdate('payment', data)" />

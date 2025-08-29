@@ -3,7 +3,7 @@
         <div class="bg-white p-8 rounded-xl shadow-lg max-w-sm w-full text-center">
             <p class="text-lg text-[#696969] mb-4">คุณต้องการบันทึกสิ่งนี้ใช่ไหม?</p>
 
-            <label class="flex items-center justify-center gap-2 mb-4 text-sm">
+            <label v-if="props.showSaveAsNew" class="flex items-center justify-center gap-2 mb-4 text-sm">
                 <input type="checkbox" v-model="saveAsNew" class="w-5 h-5" />
                 <span class="text-gray-700">บันทึกเป็นใบเสนอราคาใหม่</span>
             </label>
@@ -26,7 +26,8 @@
 import { ref } from 'vue';
 
 const props = defineProps({
-    message: String
+    message: String,
+    showSaveAsNew: { type: Boolean, default: true }
 })
 
 const emit = defineEmits(['confirm', 'cancel']);

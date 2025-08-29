@@ -3,7 +3,12 @@
         <div class="w-full max-w-md space-y-4">
             <div class="flex items-center gap-4">
                 <span class="font-semibold w-1/3 text-black">ราคารถ</span>
-                <div class="w-2/3 p-2 bg-gray-100 border rounded-lg text-gray-700">{{ selectedCar?.price ? Number(selectedCar.price).toLocaleString() : 'N/A' }} บาท</div>
+                <ClientOnly>
+                    <div class="w-2/3 p-2 bg-gray-100 border rounded-lg text-gray-700">{{ selectedCar?.price ? Number(selectedCar.price).toLocaleString() : 'N/A' }} บาท</div>
+                    <template #fallback>
+                        <div class="w-2/3 p-2 bg-gray-100 border rounded-lg text-gray-700">N/A บาท</div>
+                    </template>
+                </ClientOnly>
             </div>
 
             <div class="flex items-center gap-4">
@@ -20,8 +25,14 @@
 
             <div class="flex items-center gap-4">
                 <span class="font-semibold w-1/3 text-black">ราคาสุทธิ</span>
-                <input type="number" v-model="totalPrice" placeholder="ราคาสุทธิ" readonly 
-                    class="w-2/3 p-2 border rounded-lg text-gray-700 bg-gray-100" />
+                <ClientOnly>
+                    <input type="number" :value="totalPrice" placeholder="ราคาสุทธิ" readonly 
+                        class="w-2/3 p-2 border rounded-lg text-gray-700 bg-gray-100" />
+                    <template #fallback>
+                        <input type="number" value="" placeholder="ราคาสุทธิ" readonly 
+                            class="w-2/3 p-2 border rounded-lg text-gray-700 bg-gray-100" />
+                    </template>
+                </ClientOnly>
             </div>
         </div>
     </div>
@@ -29,8 +40,10 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
+import { useQuotationStore } from '~/stores/quotation';
 
-const selectedCar = ref({});
+const quotationStore = useQuotationStore();
+const selectedCar = computed(() => quotationStore.selectedCar);
 const specialDiscount = ref(null);
 const specialAddition = ref(null);
 
@@ -39,9 +52,10 @@ const totalPrice = computed(() => {
 });
 
 onMounted(() => {
-    const storedCar = localStorage.getItem('selectedCar');
-    if (storedCar) {
-        selectedCar.value = JSON.parse(storedCar);
+    // Optionally, initialize from store if needed
+    if (quotationStore.cashPlan) {
+        specialDiscount.value = quotationStore.cashPlan.specialDiscount || null;
+        specialAddition.value = quotationStore.cashPlan.specialAddition || null;
     }
 });
 
@@ -51,6 +65,6 @@ watch([specialDiscount, specialAddition, totalPrice], () => {
         specialAddition: specialAddition.value,
         totalPrice: totalPrice.value
     };
-    localStorage.setItem('cashPlan', JSON.stringify(cashPlan));
+    quotationStore.setCashPlan(cashPlan);
 });
 </script>
