@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { QuotationService } from './quotation.service';
+import { PdfService } from './pdf.service';
 import { QuotationController } from './quotation.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Quotation } from './entities/quotation.entity';
@@ -22,7 +23,7 @@ import { StaffModule } from 'src/staff/staff.module';
       }),
     ],
   controllers: [QuotationController],
-  providers: [QuotationService],
+  providers: [QuotationService, PdfService],
   exports: [QuotationService],
 })
 export class QuotationModule {}

@@ -23,6 +23,8 @@
     "jwt-decode": "^4.0.0",
     "nuxt": "^3.16.1",
     "nuxt-app": "file:",
+    "pinia": "^2.3.1",
+    "pinia-plugin-persistedstate": "^2.4.0",
     "vue": "latest",
     "vue-router": "latest"
   },

@@ -1,8 +1,8 @@
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineNuxtConfig({
-  modules: ['@pinia/nuxt','@nuxt/ui'],
-  css: ['~/public/assets/css/main.css'],
+  modules: ["@pinia/nuxt","@nuxt/ui"],
+  css: ["~/public/assets/css/main.css"],
   compatibilityDate: "2024-04-03",
   devtools: { enabled: true },
   app: {
@@ -14,12 +14,10 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiUrl: process.env.API_URL,
-      backendUrl: process.env.BACKEND_URL
+      backendUrl: process.env.BACKEND_URL,
     },
   },
   vite: {
-    plugins: [
-      tailwindcss(),
-    ],
+    plugins: [tailwindcss()],
   },
 });

@@ -1,7 +1,19 @@
 <template>
+    <!-- Mobile backdrop -->
+    <div v-if="isOpen" class="fixed inset-0 bg-black/30 sm:hidden z-[90]" @click="$emit('toggle')"></div>
+
     <aside
-        class="sidebar min-h-screen shadow-md flex flex-col fixed left-0 top-0 bg-white transition-all duration-300 ease-in-out z-[100]"
-        :class="isOpen ? 'w-[280px] min-w-[280px]' : 'w-[80px] min-w-[80px]'">
+        role="navigation"
+        aria-label="Admin sidebar"
+        class="sidebar h-screen min-h-screen shadow-md flex flex-col fixed left-0 top-0 bg-white transition-all duration-300 ease-in-out transform will-change-transform z-[100]"
+        :class="[
+            // width: desktop collapsed/expanded; mobile fixed drawer width
+            isOpen ? 'sm:w-[280px] sm:min-w-[280px]' : 'sm:w-[80px] sm:min-w-[80px]',
+            'w-[280px]',
+            // slide in/out on mobile
+            isOpen ? 'translate-x-0' : '-translate-x-full',
+            'sm:translate-x-0'
+        ]">
         <div class="first-row flex items-center justify-between p-5">
             <div class="logo" v-if="isOpen">
                 <img class="max-w-[150px] my-5 transition-all duration-300 ease-in-out" src="/assets/IsuzuLogo.png"
@@ -17,7 +29,7 @@
         <nav class="flex flex-col gap-2.5 w-full px-2">
             <NuxtLink to="/controller/staff" :class="{ active: $route.path.startsWith('/controller/staff') }"
                 class="flex items-center gap-3 text-black text-base font-bold transition-all duration-300 ease-in-out py-3 px-3 hover:bg-gray-100">
-                <span v-if="isOpen">Staff</span>
+                <span v-if="isOpen" class="transition-opacity duration-200">Staff</span>
                 <i v-else class="icon-staff">
                     <svg width="25" height="25" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"
                         xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -35,7 +47,7 @@
 
             <NuxtLink to="/controller/customer" :class="{ active: $route.path.startsWith('/controller/customer') }"
                 class="flex items-center gap-3 text-black text-base font-bold transition-all duration-300 ease-in-out py-3 px-3 hover:bg-gray-100">
-                <span v-if="isOpen">Customer</span>
+                <span v-if="isOpen" class="transition-opacity duration-200">Customer</span>
                 <i v-else class="icon-customer">
                     <svg width="25" height="25" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"
                         xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -54,7 +66,7 @@
 
             <NuxtLink to="/controller/history" :class="{ active: $route.path.startsWith('/controller/history') }"
                 class="flex items-center gap-3 text-black text-base font-bold transition-all duration-300 ease-in-out py-3 px-3 hover:bg-gray-100">
-                <span v-if="isOpen">History</span>
+                <span v-if="isOpen" class="transition-opacity duration-200">History</span>
                 <i v-else class="icon-history">
                     <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -66,9 +78,9 @@
         </nav>
 
         <button
-            class="logout bg-[#980000] text-white rounded-md cursor-pointer flex items-center justify-center mx-auto mt-auto mb-3 px-5 py-3 w-[90%] gap-2"
+            class="logout bg-[#980000] text-white rounded-md cursor-pointer flex items-center justify-center mx-auto mt-auto mb-3 px-5 py-3 w-[90%] gap-2 transition-all duration-200"
             @click="Logout">
-            <span v-if="isOpen">Log Out</span>
+            <span v-if="isOpen" class="transition-opacity duration-200">Log Out</span>
             <i v-else class="icon-logout">
                 <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -82,6 +94,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
+import { clearToken } from '~/composables/useAuth'
 
 defineProps({
     isOpen: {
@@ -95,7 +108,7 @@ const emit = defineEmits(['toggle'])
 const router = useRouter()
 
 const Logout = () => {
-    localStorage.removeItem('access_token')
+    clearToken()
     router.push('/controller/login')
 }
 </script>

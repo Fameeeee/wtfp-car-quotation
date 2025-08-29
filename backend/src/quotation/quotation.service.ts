@@ -250,7 +250,10 @@ export class QuotationService {
     id: number,
     updateData: Partial<Quotation>,
   ): Promise<Quotation> {
-    const quotation = await this.quotationRepository.findOne({
+  console.log(`[SERVICE] updateQuotation called id=${id}`);
+  console.log('updateData:', JSON.stringify(updateData));
+
+  const quotation = await this.quotationRepository.findOne({
       where: { id },
       relations: ['staff', 'customer'],
     });
@@ -262,10 +265,12 @@ export class QuotationService {
     if (updateData.customer) {
       await this.customerService.updateCustomer(quotation.customer.id, updateData.customer);
     }
-    
+
     Object.assign(quotation, { ...updateData, customer: quotation.customer });
 
-    return this.quotationRepository.save(quotation);
+    const saved = await this.quotationRepository.save(quotation);
+    console.log(`[SERVICE] quotation saved id=${saved.id}`);
+    return saved;
   }
 
   async deleteQuotation(id: number): Promise<string> {

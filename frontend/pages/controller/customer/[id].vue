@@ -1,90 +1,175 @@
 <template>
-  <div class="h-full bg-[#ececec] text-black p-5">
-    <div class="flex justify-between items-center py-3 mb-3">
-      <div class="text-5xl font-bold text-black">Customer</div>
-    </div>
+  <div class="min-h-screen bg-[#F5F5F5] text-black">
+    <!-- Sticky header -->
+    <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-gray-200">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button @click="goBack" class="h-9 px-3 rounded-md border text-sm hover:bg-gray-100 transition-colors">
+            กลับ
+          </button>
+          <h1 class="text-2xl font-bold">รายละเอียดลูกค้า</h1>
+        </div>
+        <div v-if="customerData" class="text-sm text-gray-600">
+          รหัสลูกค้า: {{ customerData.id }}
+        </div>
+      </div>
+    </header>
 
-    <div class="bg-white flex flex-col p-6 rounded-lg shadow-lg">
-      <div class="mb-2">
-        <button @click="goBack" class="w-24 h-10 bg-[#980000] hover:bg-red-800 cursor-pointer text-white rounded-md mb-2">
-          กลับ </button>
+    <main class="max-w-6xl mx-auto px-4 py-6">
+      <!-- Loading skeleton -->
+      <div v-if="loading" class="animate-pulse">
+        <div class="bg-white rounded-lg p-6 mb-6">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="w-20 h-20 bg-gray-200 rounded-full"></div>
+            <div class="flex-1 space-y-2">
+              <div class="h-6 bg-gray-200 rounded w-1/3"></div>
+              <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg p-6">
+          <div class="h-6 bg-gray-200 rounded w-1/4 mb-4"></div>
+          <div class="space-y-3">
+            <div class="h-4 bg-gray-200 rounded"></div>
+            <div class="h-4 bg-gray-200 rounded"></div>
+            <div class="h-4 bg-gray-200 rounded"></div>
+          </div>
+        </div>
       </div>
 
-      <div class="bg-[#ECECEC] rounded-lg p-2 flex gap-2 items-center mb-2">
-        <div class="bg-white flex justify-center items-center p-5 rounded-lg w-[100px] h-[100px]">
-          <svg width="50" height="50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M15.71 12.71C16.6904 11.9387 17.406 10.8809 17.7572 9.68394C18.1085 8.48697 18.0779 7.21027 17.6698 6.03147C17.2617 4.85267 16.4963 3.83039 15.4801 3.10686C14.4639 2.38332 13.2474 1.99451 12 1.99451C10.7525 1.99451 9.53611 2.38332 8.51993 3.10686C7.50374 3.83039 6.73834 4.85267 6.33021 6.03147C5.92208 7.21027 5.89151 8.48697 6.24276 9.68394C6.59401 10.8809 7.3096 11.9387 8.29 12.71C6.61007 13.383 5.14428 14.4994 4.04889 15.9399C2.95349 17.3805 2.26956 19.0913 2.07 20.89C2.05555 21.0213 2.06711 21.1542 2.10402 21.2811C2.14093 21.4079 2.20246 21.5263 2.28511 21.6293C2.45202 21.8375 2.69478 21.9708 2.96 22C3.22521 22.0292 3.49116 21.9518 3.69932 21.7849C3.90749 21.618 4.04082 21.3752 4.07 21.11C4.28958 19.1552 5.22168 17.3498 6.68822 16.0388C8.15475 14.7278 10.0529 14.003 12.02 14.003C13.9871 14.003 15.8852 14.7278 17.3518 16.0388C18.8183 17.3498 19.7504 19.1552 19.97 21.11C19.9972 21.3557 20.1144 21.5827 20.2991 21.747C20.4838 21.9114 20.7228 22.0015 20.97 22H21.08C21.3421 21.9698 21.5817 21.8373 21.7466 21.6313C21.9114 21.4252 21.9881 21.1624 21.96 20.9C21.7595 19.0962 21.0719 17.381 19.9708 15.9382C18.8698 14.4954 17.3969 13.3795 15.71 12.71ZM12 12C11.2089 12 10.4355 11.7654 9.77772 11.3259C9.11992 10.8864 8.60723 10.2616 8.30448 9.53074C8.00173 8.79983 7.92251 7.99557 8.07686 7.21964C8.2312 6.44372 8.61216 5.73099 9.17157 5.17158C9.73098 4.61217 10.4437 4.2312 11.2196 4.07686C11.9956 3.92252 12.7998 4.00173 13.5307 4.30448C14.2616 4.60724 14.8863 5.11993 15.3259 5.77772C15.7654 6.43552 16 7.20888 16 8C16 9.06087 15.5786 10.0783 14.8284 10.8284C14.0783 11.5786 13.0609 12 12 12Z"
-              fill="#1E1E1E" />
-          </svg>
-        </div>
-
-        <div class="ml-4 bg-[#ECECEC] p-2 rounded-lg flex flex-col flex-1">
-          <div v-if="loading" class="text-gray-500">Loading customer details...</div>
-          <div v-else-if="customerData">
-            <div class="row-1 flex gap-3.5 my-1.5 text-xl font-bold">
+      <!-- Customer info card -->
+      <div v-else-if="customerData" class="bg-white rounded-lg border shadow-sm p-6 mb-6">
+        <div class="flex items-start gap-6">
+          <!-- Avatar -->
+          <div class="w-20 h-20 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center text-2xl font-bold text-green-700">
+            {{ customerData.firstName?.charAt(0) }}{{ customerData.lastName?.charAt(0) }}
+          </div>
+          
+          <!-- Customer details -->
+          <div class="flex-1 min-w-0">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">
               {{ customerData.firstName }} {{ customerData.lastName }}
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              <div class="space-y-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-gray-500 w-20">อีเมล:</span>
+                  <span class="font-medium">{{ customerData.email || '-' }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-gray-500 w-20">เบอร์โทร:</span>
+                  <span class="font-medium">{{ customerData.phoneNumber || '-' }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-gray-500 w-20">เพศ:</span>
+                  <span class="font-medium">{{ customerData.gender || '-' }}</span>
+                </div>
+              </div>
+              <div class="space-y-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-gray-500 w-20">อายุ:</span>
+                  <span class="font-medium">{{ customerData.age || '-' }} ปี</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-gray-500 w-20">จังหวัด:</span>
+                  <span class="font-medium">{{ customerData.city || '-' }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-gray-500 w-20">ใบเสนอราคา:</span>
+                  <span class="font-bold text-green-600">{{ filteredQuotations.length }} รายการ</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="flex items-center mb-2">
-        <div class="relative w-100">
-          <input type="text" v-model="searchQuery" @input="debouncedSearch" placeholder="ค้นหา"
-            class="w-full pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 bg-white h-10 !pl-3" />
+      <!-- Quotations section -->
+      <div v-if="customerData" class="bg-white rounded-lg border shadow-sm">
+        <!-- Search header -->
+        <div class="sticky top-[73px] z-10 bg-white/95 backdrop-blur border-b border-gray-100 p-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h3 class="text-lg font-semibold text-gray-900">ใบเสนอราคา</h3>
+            <div class="flex items-center gap-3">
+              <div class="relative">
+                <input
+                  v-model="searchQuery"
+                  @input="debouncedSearch"
+                  type="text"
+                  placeholder="ค้นหาใบเสนอราคา..."
+                  class="w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                >
+                <svg class="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quotations table -->
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รหัส</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">วันที่</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รุ่นรถ</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">การชำระ</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">การดำเนินการ</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr v-if="paginatedQuotations.length === 0">
+                <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                  <div class="flex flex-col items-center gap-2">
+                    <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>ไม่มีใบเสนอราคา</span>
+                  </div>
+                </td>
+              </tr>
+              <tr v-for="quotation in paginatedQuotations" :key="quotation.id" 
+                  class="hover:bg-gray-50 transition-colors cursor-pointer"
+                  @click="goToHistory(quotation.id)">
+                <td class="px-4 py-3 text-sm font-medium text-green-600">{{ quotation.id }}</td>
+                <td class="px-4 py-3 text-sm text-gray-600">
+                  {{ quotation.quotationDate ? dayjs(quotation.quotationDate).format('DD/MM/YYYY') : '-' }}
+                </td>
+                <td class="px-4 py-3 text-sm text-gray-900">{{ quotation.carDetails?.modelClass || '-' }}</td>
+                <td class="px-4 py-3 text-sm">
+                  <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full"
+                        :class="quotation.paymentMethod === 'cash' 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-blue-100 text-blue-800'">
+                    {{ quotation.paymentMethod === 'cash' ? 'เงินสด' : 'ผ่อนชำระ' }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-sm">
+                  <button @click.stop="goToHistory(quotation.id)"
+                          class="text-green-600 hover:text-green-800 font-medium transition-colors">
+                    ดูรายละเอียด
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div v-if="filteredQuotations.length > 0" class="border-t border-gray-200 p-4">
+          <Pagination
+            :page="currentPage"
+            :total-pages="totalPages"
+            :show-page-size="true"
+            :page-size="itemsPerPage"
+            @update:page="changePage"
+            @update:pageSize="updatePageSize"
+          />
         </div>
       </div>
-
-      <div class="overflow-x-auto">
-        <table v-if="customerData && customerData.quotations.length"
-          class="w-full border-collapse min-w-[700px] border-spacing-0 table-fixed">
-          <thead class="bg-[#f1f5f9] text-white font-bold text-[0.9rem] border-b-2 border-gray-300 text-left">
-            <tr>
-              <th
-                class="p-[10px] px-[15px] text-left bg-[#f1f5f9] text-gray-700 font-semibold text-[0.9rem] border-b-2 border-gray-300">
-                ไอดี</th>
-              <th
-                class="p-[10px] px-[15px] text-left bg-[#f1f5f9] text-gray-700 font-semibold text-[0.9rem] border-b-2 border-gray-300">
-                วันที่</th>
-              <th
-                class="p-[10px] px-[15px] text-left bg-[#f1f5f9] text-gray-700 font-semibold text-[0.9rem] border-b-2 border-gray-300">
-                ใบเสนอราคา</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(quotation, index) in paginatedQuotations" :key="index" @click="goToHistory(quotation.id)"
-              class="odd:bg-white even:bg-gray-50 transition-colors duration-200 hover:bg-gray-100 cursor-pointer">
-              <td class="p-[10px] px-[15px] text-gray-700 border-b border-gray-200 ml-2">{{ quotation.id }}</td>
-              <td class="p-[10px] px-[15px] text-gray-700 border-b border-gray-200 ">
-                {{ dayjs(quotation.quotationDate).format('DD/MM/YYYY') }}
-              </td>
-              <td class="p-[10px] px-[15px] text-gray-700 border-b border-gray-200 ">
-                {{ quotation.carDetails.modelClass }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <p v-else>ไม่มีข้อมูลใบเสนอราคา</p>
-      </div>
-
-
-    </div>
-    <div class="flex justify-center items-center gap-4 mt-6" style="margin-top: 10px;">
-      <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1"
-        class="px-4 py-2 bg-blue-500 text-white font-medium rounded-lg cursor-pointer transition-all duration-200 ease-in-out min-w-[42px] h-[38px] flex items-center justify-center shadow-md hover:bg-blue-600 hover:shadow-lg disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed">
-        ⬅
-      </button>
-
-      <span class="text-gray-700 font-medium text-sm px-2 min-w-[120px] text-center">
-        Page {{ currentPage }} of {{ totalPages }}
-      </span>
-
-      <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages"
-        class="px-4 py-2 bg-blue-500 text-white font-medium rounded-lg cursor-pointer transition-all duration-200 ease-in-out min-w-[42px] h-[38px] flex items-center justify-center shadow-md hover:bg-blue-600 hover:shadow-lg disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed">
-        ➡
-      </button>
-    </div>
+    </main>
   </div>
 </template>
 
@@ -94,6 +179,7 @@ import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import _ from 'lodash';
 import dayjs from 'dayjs';
+import Pagination from "~/components/common/Pagination.vue";
 
 const config = useRuntimeConfig()
 const backendUrl = config.public.backendUrl;
@@ -107,8 +193,6 @@ const loading = ref(true);
 const searchQuery = ref("");
 const itemsPerPage = ref(6);
 const currentPage = ref(1);
-const totalPages = ref(1);
-const total = ref(0);
 
 const debouncedSearch = _.debounce(() => {
   currentPage.value = 1;
@@ -146,6 +230,10 @@ const paginatedQuotations = computed(() => {
   return filteredQuotations.value.slice(start, start + itemsPerPage.value);
 });
 
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil(filteredQuotations.value.length / itemsPerPage.value))
+);
+
 
 const goBack = () => {
   router.push('/controller/customer');
@@ -158,6 +246,13 @@ const goToHistory = (quotationId) => {
 const changePage = (page) => {
   if (page < 1 || page > totalPages.value) return;
   currentPage.value = page;
+};
+
+const updatePageSize = (n) => {
+  const val = Number(n) || itemsPerPage.value;
+  if (val === itemsPerPage.value) return;
+  itemsPerPage.value = val;
+  currentPage.value = 1;
 };
 
 const adjustItemsPerPage = () => {
