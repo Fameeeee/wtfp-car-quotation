@@ -1,10 +1,15 @@
-import { isStaffOrManager } from '../composables/useAuth'
+import { isStaffOrManager, getToken } from '../composables/useAuth'
 
 export default async function ({ to, from }) {
   if (process.client) {
     try {
       const backend = useRuntimeConfig().public.backendUrl || 'http://localhost:3001'
-      const res = await fetch(`${backend}/auth/me`, { credentials: 'include' });
+      const token = getToken();
+      if (!token) {
+        if (!isStaffOrManager()) return navigateTo('/');
+        return;
+      }
+      const res = await fetch(`${backend}/auth/me`, { headers: { Authorization: `Bearer ${token}` } });
       if (res.ok) {
         const json = await res.json();
         const role = json?.user?.role

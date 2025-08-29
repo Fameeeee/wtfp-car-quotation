@@ -118,40 +118,14 @@ const handleLogin = async () => {
     const response = await axios.post(`${backendUrl}/auth/login`, {
       email: email.value,
       password: password.value
-    }, { withCredentials: true });
+    });
 
-    if (response.status >= 200 && response.status < 300) {
-      // backend set cookie; if it still returns a token, store it for compatibility
-      if (response.data?.access_token) {
-        setToken(response.data.access_token);
-        router.push('/controller/staff');
-        return;
-      }
-
-      // If backend relies on httpOnly cookie, verify session via /auth/me before navigating.
-      try {
-        const backend = useRuntimeConfig().public.backendUrl;
-        // race: wait up to 3s for the server to report authenticated
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 3000);
-        const meRes = await fetch(`${backend}/auth/me`, { credentials: 'include', signal: controller.signal });
-        clearTimeout(timer);
-        if (meRes.ok) {
-          const json = await meRes.json();
-          if (json?.authenticated) {
-            router.push('/controller/staff');
-            return;
-          }
-        }
-        // fallback: still navigate but show a warning
-        router.push('/controller/staff');
-      } catch (e) {
-        // network/cors or timeout -> still navigate as fallback
-        router.push('/controller/staff');
-      }
-    } else {
-      errorMessage.value = 'Login failed: No token received.';
+    if (response.status >= 200 && response.status < 300 && response.data?.access_token) {
+      setToken(response.data.access_token);
+      router.push('/controller/staff');
+      return;
     }
+    errorMessage.value = 'Login failed: No token received.';
   } catch (error) {
     console.error(error.response || error);
     errorMessage.value = error.response?.data?.message || 'การเข้าสู่ระบบล้มเหลว กรุณาลองใหม่';

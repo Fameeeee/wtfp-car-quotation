@@ -75,10 +75,10 @@ const handleLogin = async () => {
   isLoading.value = true;
 
   try {
-    const response = await axios.post(`${backendUrl}/auth/login`, form.value, { withCredentials: true });
+    const response = await axios.post(`${backendUrl}/auth/login`, form.value);
 
-    if (response.status >= 200 && response.status < 300) {
-      if (response.data?.access_token) setToken(response.data.access_token);
+    if (response.status >= 200 && response.status < 300 && response.data?.access_token) {
+      setToken(response.data.access_token);
       router.push('/home');
       alert('เข้าสู่ระบบสำเร็จ');
     } else {

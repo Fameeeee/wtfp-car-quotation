@@ -6,11 +6,19 @@ export default defineNuxtPlugin(() => {
   const backend = config.public.backendUrl || 'http://localhost:3001'
   const instance = axios.create({
     baseURL: backend,
-    withCredentials: true,
   })
 
   instance.interceptors.request.use((config) => {
-  // credentials (cookies) are included via withCredentials
+    // attach bearer token from localStorage
+    try {
+      const token = getToken();
+      if (token) {
+        config.headers = config.headers || {}
+        config.headers.Authorization = `Bearer ${token}`
+      }
+    } catch (e) {
+      // noop
+    }
     return config
   })
 
