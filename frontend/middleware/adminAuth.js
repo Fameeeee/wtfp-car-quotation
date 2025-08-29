@@ -1,21 +1,20 @@
-export default function ({ to, from }) {
+import { isManager } from '../composables/useAuth'
+
+export default async function ({ to, from }) {
   if (process.client) {
-    const token = localStorage.getItem("access_token");
-
-    if (!token) {
-      return navigateTo("/controller/login");
-    }
-
     try {
-      const decodedToken = JSON.parse(atob(token.split(".")[1]));
-      const { role } = decodedToken;
-
-      if (role !== "manager") {
-        return navigateTo("/controller/login");
+      const backend = useRuntimeConfig().public.backendUrl || 'http://localhost:3001'
+      const res = await fetch(`${backend}/auth/me`, { credentials: 'include' });
+      if (res.ok) {
+        const json = await res.json();
+        if (!json?.authenticated || json?.user?.role !== 'manager') {
+          return navigateTo('/controller/login')
+        }
+        return
       }
-    } catch (error) {
-      console.error("Error decoding token:", error);
-      return navigateTo("/controller/login");
+    } catch (e) {
+      // fallback to client-side check
+      if (!isManager()) return navigateTo('/controller/login')
     }
   }
 }

@@ -1,21 +1,20 @@
-export default function ({ to, from }) {
+import { isStaffOrManager } from '../composables/useAuth'
+
+export default async function ({ to, from }) {
   if (process.client) {
-    const token = localStorage.getItem("access_token");
-
-    if (!token) {
-      return navigateTo("/");
-    }
-
     try {
-      const decodedToken = JSON.parse(atob(token.split(".")[1]));
-      const { role } = decodedToken;
-
-      if (role !== "staff" && role !== "manager") {
-        return navigateTo("/");
+      const backend = useRuntimeConfig().public.backendUrl || 'http://localhost:3001'
+      const res = await fetch(`${backend}/auth/me`, { credentials: 'include' });
+      if (res.ok) {
+        const json = await res.json();
+        const role = json?.user?.role
+        if (!json?.authenticated || (role !== 'staff' && role !== 'manager')) {
+          return navigateTo('/')
+        }
+        return
       }
-    } catch (error) {
-      console.error("Error decoding token:", error);
-      return navigateTo("/");
+    } catch (e) {
+      if (!isStaffOrManager()) return navigateTo('/')
     }
   }
 }
