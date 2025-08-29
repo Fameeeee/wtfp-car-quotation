@@ -39,4 +39,12 @@ export class AuthService {
 
     return { access_token };
   }
+
+  verifyToken(token: string) {
+    try {
+      return this.jwtService.verify(token);
+    } catch (e) {
+      return null;
+    }
+  }
 }
