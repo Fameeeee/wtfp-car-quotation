@@ -107,9 +107,19 @@ const emit = defineEmits(['toggle'])
 
 const router = useRouter()
 
-const Logout = () => {
-    clearToken()
-    router.push('/controller/login')
+import { ref } from 'vue'
+
+const isLoggingOut = ref(false)
+
+const Logout = async () => {
+    if (isLoggingOut.value) return
+    isLoggingOut.value = true
+    try {
+        await clearToken()
+    } finally {
+        isLoggingOut.value = false
+        router.push('/controller/login')
+    }
 }
 </script>
 

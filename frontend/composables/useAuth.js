@@ -69,17 +69,17 @@ export function setToken(token) {
   }
 }
 
-export function clearToken() {
+export async function clearToken() {
   if (process.client) {
     try {
       localStorage.removeItem('access_token');
     } catch (e) {
       // noop
     }
-    // also inform server to clear cookie
+    // also inform server to clear cookie; await so callers can rely on completion
     try {
       const backend = useRuntimeConfig().public.backendUrl || 'http://localhost:3001'
-      fetch(`${backend}/auth/logout`, { method: 'POST', credentials: 'include' });
+      await fetch(`${backend}/auth/logout`, { method: 'POST', credentials: 'include' });
     } catch (e) {
       // noop
     }
