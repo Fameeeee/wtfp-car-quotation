@@ -99,7 +99,7 @@
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
 import { ref, reactive, onMounted } from 'vue';
-import { getStaffId } from '~/composables/useAuth'
+import { getStaffIdAsync } from '~/composables/useAuth'
 
 import paymentDropdown from '~/components/user/paymentDropdown.vue';
 import accessoriesDropdown from '~/components/user/accessoriesDropdown.vue';
@@ -145,8 +145,8 @@ const allData = reactive({
 
 console.log(quotationId)
 
-onMounted(() => {
-    const sid = getStaffId();
+onMounted(async () => {
+    const sid = await getStaffIdAsync();
     if (sid) allData.staffId = sid;
 })
 

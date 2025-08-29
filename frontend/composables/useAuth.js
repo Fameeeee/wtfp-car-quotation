@@ -27,6 +27,24 @@ export function getStaffId() {
   return parsed?.id || parsed?.sub || parsed?.staffId || null;
 }
 
+export async function getMe() {
+  if (!process.client) return null;
+  try {
+    const backend = useRuntimeConfig().public.backendUrl || 'http://localhost:3001';
+    const res = await fetch(`${backend}/auth/me`, { credentials: 'include' });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.user || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+export async function getStaffIdAsync() {
+  const me = await getMe();
+  return me?.id || me?.staffId || null;
+}
+
 export function isManager() {
   const token = getToken();
   const parsed = parseToken(token);
