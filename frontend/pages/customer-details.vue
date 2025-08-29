@@ -27,8 +27,8 @@
                     <div class="flex items-center justify-between w-full">
                         <div class="font-semibold text-black">เบอร์โทรศัพท์</div>
                         <input type="tel" v-model="customer.phoneNumber" placeholder="ป้อนเบอร์โทรศัพท์"
-                            class="p-2 border border-gray-300 rounded-lg text-gray-700 w-2/3"
-                            @input="handleInput('phoneNumber')" />
+                            class="p-2 border border-gray-300 rounded-lg text-gray-700 w-2/3" inputmode="numeric"
+                            pattern="[0-9]*" maxlength="10" autocomplete="tel" @input="handleInput('phoneNumber')" />
                     </div>
                     <div v-if="errors.phoneNumber" class="text-red-500 text-sm mt-1 italic">{{ errors.phoneNumber }}
                     </div>
@@ -47,10 +47,12 @@
 <script setup>
 import buttonGroup from '~/components/user/buttonGroup.vue';
 import modalDiscard from '~/components/user/modalDiscard.vue';
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useQuotationStore } from '~/stores/quotation';
 
 const router = useRouter();
+const quotationStore = useQuotationStore();
 const showModal = ref(false);
 
 const customer = ref({
@@ -66,19 +68,19 @@ const errors = ref({
 });
 
 onMounted(() => {
-    const savedData = localStorage.getItem('customerDetails');
-    if (savedData) {
-        customer.value = JSON.parse(savedData);
+    const saved = quotationStore?.customerDetails || {};
+    if (saved && Object.keys(saved).length) {
+        customer.value = { ...customer.value, ...saved };
     }
 });
 
 const validateField = (field) => {
     if (field === 'firstName') {
         errors.value.firstName = customer.value.firstName ? '' : 'กรุณากรอกชื่อลูกค้า';
-    } 
+    }
     if (field === 'lastName') {
         errors.value.lastName = customer.value.lastName ? '' : 'กรุณากรอกนามสกุล';
-    } 
+    }
     if (field === 'phoneNumber') {
         const phonePattern = /^[0-9]{10}$/;
         errors.value.phoneNumber = phonePattern.test(customer.value.phoneNumber) ? '' : 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก)';
@@ -86,8 +88,11 @@ const validateField = (field) => {
 };
 
 const handleInput = (field) => {
+    if (field === 'phoneNumber') {
+        customer.value.phoneNumber = (customer.value.phoneNumber || '').replace(/\D/g, '').slice(0, 10);
+    }
     validateField(field);
-    localStorage.setItem('customerDetails', JSON.stringify(customer.value));
+    try { quotationStore.setCustomerDetails(customer.value); } catch { }
 };
 
 const validateForm = () => {
@@ -114,7 +119,7 @@ const closeModal = () => {
 
 const discardChanges = () => {
     showModal.value = false;
-    localStorage.removeItem('customerDetails');
+    try { quotationStore.setCustomerDetails({}); } catch { }
     router.push('/add-cost');
 };
 
