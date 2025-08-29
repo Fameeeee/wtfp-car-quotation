@@ -59,7 +59,7 @@ const handleLogout = async () => {
         await clearToken()
         // do not clear entire localStorage (may include persisted app state);
         isDropdownOpen.value = false;
-        router.push('/controller/login');
+        router.push('/');
     } finally {
         isLoggingOut.value = false
     }
