@@ -31,10 +31,12 @@ export async function getMe() {
   if (!process.client) return null;
   try {
     const backend = useRuntimeConfig().public.backendUrl || 'http://localhost:3001';
-    const res = await fetch(`${backend}/auth/me`, { credentials: 'include' });
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.user || null;
+  const token = getToken();
+  if (!token) return null;
+  const res = await fetch(`${backend}/auth/me`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) return null;
+  const json = await res.json();
+  return json.user || null;
   } catch (e) {
     return null;
   }
@@ -73,13 +75,6 @@ export async function clearToken() {
   if (process.client) {
     try {
       localStorage.removeItem('access_token');
-    } catch (e) {
-      // noop
-    }
-    // also inform server to clear cookie; await so callers can rely on completion
-    try {
-      const backend = useRuntimeConfig().public.backendUrl || 'http://localhost:3001'
-      await fetch(`${backend}/auth/logout`, { method: 'POST', credentials: 'include' });
     } catch (e) {
       // noop
     }
