@@ -46,15 +46,23 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
+import { clearToken } from '~/composables/useAuth'
 
 const router = useRouter();
 const isDropdownOpen = ref(false);
+const isLoggingOut = ref(false)
 
-const handleLogout = () => {
-    console.log('Logging out...');
-    localStorage.clear();
-    isDropdownOpen.value = false;
-    router.push('/');
+const handleLogout = async () => {
+    if (isLoggingOut.value) return
+    isLoggingOut.value = true
+    try {
+        await clearToken()
+        // do not clear entire localStorage (may include persisted app state);
+        isDropdownOpen.value = false;
+        router.push('/controller/login');
+    } finally {
+        isLoggingOut.value = false
+    }
 };
 
 const closeDropdown = () => {
