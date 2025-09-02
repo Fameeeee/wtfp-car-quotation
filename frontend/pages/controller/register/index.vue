@@ -144,7 +144,7 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 
 const config = useRuntimeConfig()
-const backendUrl = config.public.backendUrl;
+const api = useApi();
 
 const router = useRouter();
 
@@ -163,7 +163,7 @@ async function handleRegister() {
   }
 
   try {
-    const response = await axios.post(`${backendUrl}/auth/register`, {
+  const response = await api.post(`/auth/register`, {
       email: email.value,
       password: password.value,
       firstName: firstname.value,

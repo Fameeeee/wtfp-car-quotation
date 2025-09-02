@@ -176,13 +176,13 @@
 <script setup>
 import { useRouter, useRoute } from 'vue-router';
 import { ref, onMounted, computed } from 'vue';
-import axios from 'axios';
+import { useApi } from '~/composables/useApi';
 import _ from 'lodash';
 import dayjs from 'dayjs';
 import Pagination from "~/components/common/Pagination.vue";
 
 const config = useRuntimeConfig()
-const backendUrl = config.public.backendUrl;
+const api = useApi();
 
 const route = useRoute();
 const router = useRouter();
@@ -201,7 +201,7 @@ const debouncedSearch = _.debounce(() => {
 const fetchCustomerData = async () => {
   loading.value = true;
   try {
-    const response = await axios.get(`${backendUrl}/customer/${customerId}`);
+  const response = await api.get(`/customer/${customerId}`);
     customerData.value = response.data;
   } catch (error) {
     console.error("Error fetching customer data:", error);
