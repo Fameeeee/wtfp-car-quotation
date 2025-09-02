@@ -34,7 +34,12 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const payload = { id: staff.id, email: staff.email, role: staff.role };
+    // Allow login only for active staff
+    if (staff.status && staff.status !== 'active') {
+      throw new UnauthorizedException('Account is not active');
+    }
+
+    const payload = { id: staff.id, email: staff.email, role: staff.role, status: staff.status };
     const access_token = this.jwtService.sign(payload);
 
     return { access_token };
