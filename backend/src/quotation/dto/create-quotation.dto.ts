@@ -44,8 +44,10 @@ class InstallmentPlanDetailDto {
     @IsNumber()
     period: number;
 
+    @IsOptional()
     @IsNumber()
-    interestRate: number;
+    // allow null when user leaves interest blank; frontend will send null
+    interestRate: number | null;
 }
 
 
