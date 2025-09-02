@@ -1,15 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query, DefaultValuePipe, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query, DefaultValuePipe, ParseIntPipe, Logger } from '@nestjs/common';
 import { CustomerService } from './customer.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { Customer } from './entities/customer.entity';
 
 @Controller('customer')
 export class CustomerController {
+  private readonly logger = new Logger(CustomerController.name);
   constructor(private readonly customerService: CustomerService) { }
 
   @Post('create')
   async createCustomer(@Body() createCustomerDto: CreateCustomerDto): Promise<Customer> {
-    return this.customerService.createCustomer(createCustomerDto);
+  this.logger.log('POST /customer/create');
+  return this.customerService.createCustomer(createCustomerDto);
   }
 
   @Get()
@@ -23,16 +25,23 @@ export class CustomerController {
 
   @Get(':id')
   async findById(@Param('id') id: number) {
-    return await this.customerService.findById(+id);
+  return await this.customerService.findById(+id);
+  }
+
+  @Get('phone/:phone')
+  async findByPhone(@Param('phone') phone: string) {
+    return await this.customerService.findByPhone(phone);
   }
 
   @Put(':id')
   async updateCustomer(@Param('id') id: number, @Body() updateData: Partial<Customer>) {
-    return await this.customerService.updateCustomer(id, updateData);
+  this.logger.log(`PUT /customer/${id}`);
+  return await this.customerService.updateCustomer(id, updateData);
   }
 
   @Delete(':id')
   async deleteCustomer(@Param('id') id: number) {
-    return await this.customerService.deleteCustomer(id);
+  this.logger.log(`DELETE /customer/${id}`);
+  return await this.customerService.deleteCustomer(id);
   }
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class CustomerService {
+  private readonly logger = new Logger(CustomerService.name);
   constructor(
     @InjectRepository(Customer)
     private customerRepository: Repository<Customer>,
@@ -74,6 +75,12 @@ export class CustomerService {
     });
   }
 
+  async findByPhone(phoneNumber: string): Promise<Customer | null> {
+    if (!phoneNumber) return null;
+    const customer = await this.customerRepository.findOne({ where: { phoneNumber } });
+    return customer || null;
+  }
+
   async findById(id: number): Promise<Customer | null> {
     const customer = await this.customerRepository
       .createQueryBuilder('customer')
@@ -82,7 +89,7 @@ export class CustomerService {
       .getOne();
 
     if (!customer) {
-      return null;
+  return null;
     }
 
     customer.quotations = customer.quotations.map((quotation) => ({
@@ -98,25 +105,21 @@ export class CustomerService {
   }
 
   async updateCustomer(id: number, updateData: Partial<Customer>): Promise<Customer> {
-    const customer = await this.customerRepository.findOne({ where: { id } })
+  const customer = await this.customerRepository.findOne({ where: { id } });
+  if (!customer) throw new NotFoundException('Customer not found');
 
-    if (!customer) {
-      throw new Error('Customer not found')
-    }
-
-    Object.assign(customer, updateData);
-    return this.customerRepository.save(customer)
-
+  Object.assign(customer, updateData);
+  const saved = await this.customerRepository.save(customer);
+  this.logger.log(`Customer updated id=${saved.id}`);
+  return saved;
   }
 
   async deleteCustomer(id: number): Promise<string> {
-    const customer = await this.customerRepository.findOne({ where: { id } })
+  const customer = await this.customerRepository.findOne({ where: { id } });
+  if (!customer) throw new NotFoundException('Customer not found');
 
-    if (!customer) {
-      throw new Error('Customer not found')
-    }
-
-    await this.customerRepository.remove(customer);
-    return 'Customer deleted successfully'
+  await this.customerRepository.remove(customer);
+  this.logger.log(`Customer deleted id=${id}`);
+  return 'Customer deleted successfully';
   }
 }
