@@ -46,7 +46,7 @@
 
 <script setup>
 import { ref, onMounted, watch } from "vue";
-import axios from "axios";
+import { useApi } from "~/composables/useApi";
 
 const props = defineProps({
     label: String,
@@ -62,7 +62,7 @@ const customer = ref({
 });
 const errors = ref({});
 const config = useRuntimeConfig();
-const backendUrl = config.public.backendUrl;
+const api = useApi();
 const emit = defineEmits(['update']);
 
 const localData = ref({ ...props.modelValue });
@@ -83,9 +83,9 @@ const handlePhoneInput = (e) => {
 };
 
 onMounted(async () => {
-    if (backendUrl && props.quotationId) {
+    if (props.quotationId) {
         try {
-            const res = await axios.get(`${backendUrl}/quotation/${props.quotationId}`);
+                const res = await api.get(`/quotation/${props.quotationId}`);
             if (res.data.customer) {
                 customer.value = { ...res.data.customer };
                                 initialCustomer.value = { ...customer.value };
@@ -151,7 +151,7 @@ async function runDuplicateCheck() {
 
 async function lookupCustomersByPhone(phone) {
     try {
-        const resp = await axios.get(`${backendUrl}/customer`, { params: { search: phone, page: 1, limit: 50 } });
+        const resp = await api.get(`/customer`, { params: { search: phone, page: 1, limit: 50 } });
         const payload = resp?.data;
         // Backend returns { data, total, page, limit, totalPages }
         const list = Array.isArray(payload?.data) ? payload.data : [];

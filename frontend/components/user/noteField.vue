@@ -13,7 +13,7 @@ import axios from 'axios';
 import { useQuotationStore } from '~/stores/quotation';
 
 const config = useRuntimeConfig()
-const backendUrl = config.public.backendUrl;
+const api = useApi();
 
 
 const note = ref('');
@@ -23,7 +23,7 @@ const quotationStore = useQuotationStore();
 
 const fetchNoteFromApi = async () => {
   try {
-    const response = await axios.get(`${backendUrl}/quotation/${quotationId}`);
+  const response = await api.get(`/quotation/${quotationId}`);
     note.value = response.data?.additionCosts?.note || '';
   } catch (error) {
     console.error('Error fetching note from API:', error);

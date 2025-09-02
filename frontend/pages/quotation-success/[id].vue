@@ -49,12 +49,11 @@
 
 <script setup>
 import { useRouter, useRoute } from 'vue-router';
-import axios from 'axios';
+import { useApi } from '~/composables/useApi'
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useQuotationStore } from '~/stores/quotation'
 
-const config = useRuntimeConfig()
-const backendUrl = config.public.backendUrl;
+const api = useApi();
 
 const route = useRoute();
 const quotationId = route.params.id;
@@ -66,11 +65,11 @@ const pdfLoading = ref(false);
 onMounted(async () => {
     try {
         pdfLoading.value = true;
-        // Load basic data for naming
-        const meta = await axios.get(`${backendUrl}/quotation/${quotationId}`);
-        quotationData.value = meta.data || {};
-        // Load the actual PDF to display
-        const res = await axios.get(`${backendUrl}/quotation/${quotationId}/pdf`, { responseType: 'blob' });
+    // Load basic data for naming
+    const meta = await api.get(`/quotation/${quotationId}`);
+    quotationData.value = meta.data || {};
+    // Load the actual PDF to display
+    const res = await api.get(`/quotation/${quotationId}/pdf`, { responseType: 'blob' });
         const blob = new Blob([res.data], { type: 'application/pdf' });
         pdfUrl.value = URL.createObjectURL(blob);
     } catch (e) {
@@ -99,7 +98,7 @@ const pdfFileName = computed(() => {
 
 const saveAsPdf = async () => {
     try {
-        const res = await axios.get(`${backendUrl}/quotation/${quotationId}/pdf`, { responseType: 'blob' });
+    const res = await api.get(`/quotation/${quotationId}/pdf`, { responseType: 'blob' });
         const blob = new Blob([res.data], { type: 'application/pdf' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -121,7 +120,7 @@ const openInNewTab = () => {
         return;
     }
     // Fallback: open the backend PDF endpoint directly
-    const directUrl = `${backendUrl}/quotation/${quotationId}/pdf`;
+    const directUrl = api.defaults.baseURL + `/quotation/${quotationId}/pdf`;
     window.open(directUrl, '_blank', 'noopener,noreferrer');
 };
 

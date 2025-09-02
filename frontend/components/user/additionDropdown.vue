@@ -96,7 +96,7 @@
 
 <script setup>
 import { ref, onMounted, watch } from "vue";
-import axios from "axios";
+import { useApi } from '~/composables/useApi'
 
 const props = defineProps({
   label: String,
@@ -115,8 +115,7 @@ const NOTE_MAX_LINES = 5;
 const warrantyYears = ref(3);
 const warrantyKm = ref(100000);
 
-const config = useRuntimeConfig();
-const backendUrl = config.public.backendUrl;
+const api = useApi();
 
 const emit = defineEmits(["update"]);
 
@@ -165,7 +164,7 @@ watch([cmiCheck, insuranceCheck, fuelValue, warrantyYears, warrantyKm], emitChan
 onMounted(async () => {
   if (props.quotationId) {
     try {
-      const res = await axios.get(`${backendUrl}/quotation/${props.quotationId}`);
+      const res = await api.get(`/quotation/${props.quotationId}`);
       const ac = res.data.additionCosts || {};
       // map incoming to local fields
       cmiCheck.value = typeof ac.cmi === 'boolean' ? (ac.cmi ? 'do' : 'not_do') : (ac.cmiCheck || '');

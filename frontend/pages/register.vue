@@ -68,10 +68,10 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
+import { useApi } from '~/composables/useApi'
+import { isValidPhone } from '~/utils/validators';
 
-const config = useRuntimeConfig()
-const backendUrl = config.public.backendUrl;
+const api = useApi();
 
 const form = ref({
   email: '',
@@ -109,14 +109,14 @@ const registerUser = async () => {
     return;
   }
 
-  if (!/^\d{10}$/.test(form.value.phoneNumber)) {
+  if (!isValidPhone(form.value.phoneNumber)) {
     errorMessage.value = 'เบอร์โทรศัพท์ต้องมีตัวเลข 10 หลัก';
     return;
   }
 
   try {
-    await axios.post(`${backendUrl}/auth/register`, form.value);
-    successMessage.value = 'สมัครสมาชิกสำเร็จ!';
+  await api.post('/auth/register', form.value);
+  successMessage.value = 'สมัครสมาชิกสำเร็จ!';
     alert('สมัครสมาชิกสำเร็จ!');
     router.push('/');
   } catch (error) {

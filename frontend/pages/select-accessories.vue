@@ -64,11 +64,13 @@ import modalDiscard from '~/components/user/modalDiscard.vue';
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { useExternalApi } from '~/composables/useExternalApi';
 import { useQuotationStore } from '~/stores/quotation';
 
 const router = useRouter();
 const config = useRuntimeConfig();
 const apiUrl = config.public.apiUrl;
+const external = useExternalApi();
 
 const accessories = ref([]);
 const showModal = ref(false);
@@ -82,8 +84,14 @@ const fetchAccessories = async () => {
   const car = selectedCar.value;
   if (car?.id) {
     try {
-      const response = await axios.get(`${apiUrl}/standard-base/standard-name/${car.id}`);
-      const data = await response.data;
+      let response = null;
+      if (external) {
+        response = await external.get(`/standard-base/standard-name/${car.id}`);
+      } else {
+        const client = axios;
+        response = await client.get(`${apiUrl?.replace(/\/$/, '')}/standard-base/standard-name/${car.id}`);
+      }
+      const data = response.data;
       accessories.value = data[0].StandardAccBase.map(item => ({
         assType: item.accBase.assType,
         assName: item.accBase.assName,

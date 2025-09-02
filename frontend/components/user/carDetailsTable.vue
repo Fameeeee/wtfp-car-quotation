@@ -19,12 +19,12 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import axios from 'axios';
+import { useApi } from '~/composables/useApi';
 import { useRoute } from 'vue-router';
 import { useQuotationStore } from '~/stores/quotation';
 
 const config = useRuntimeConfig()
-const backendUrl = config.public.backendUrl;
+const api = useApi();
 
 const carDetails = ref({});
 
@@ -38,7 +38,7 @@ const fetchDataFromStore = () => {
 
 const fetchDataFromApi = async () => {
   try {
-    const response = await axios.get(`${backendUrl}/quotation/${quotationId}`);
+  const response = await api.get(`/quotation/${quotationId}`);
     carDetails.value = response.data.carDetails || {};
   } catch (error) {
     console.error('Error fetching data from API:', error);
