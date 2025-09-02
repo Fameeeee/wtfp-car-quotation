@@ -52,11 +52,11 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
+import { useApi } from '~/composables/useApi'
 import { setToken } from '~/composables/useAuth'
 
 const config = useRuntimeConfig()
-const backendUrl = config.public.backendUrl;
+const api = useApi();
 
 const form = ref({ email: '', password: '' });
 const emailError = ref(false);
@@ -74,9 +74,9 @@ const handleLogin = async () => {
 
   isLoading.value = true;
 
+  const api = useApi();
   try {
-    const response = await axios.post(`${backendUrl}/auth/login`, form.value);
-
+    const response = await api.post('/auth/login', form.value);
     if (response.status >= 200 && response.status < 300 && response.data?.access_token) {
       setToken(response.data.access_token);
       router.push('/home');
@@ -85,7 +85,8 @@ const handleLogin = async () => {
       errorMessage.value = 'Login failed: No token received.';
     }
   } catch (error) {
-    errorMessage.value = error.response?.data?.message || 'การเข้าสู่ระบบล้มเหลว กรุณาลองใหม่';
+    // error may be axios error
+    errorMessage.value = error?.response?.data?.message || 'การเข้าสู่ระบบล้มเหลว กรุณาลองใหม่';
     alert(errorMessage.value);
   } finally {
     isLoading.value = false;

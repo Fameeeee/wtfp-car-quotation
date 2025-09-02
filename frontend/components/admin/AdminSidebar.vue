@@ -27,6 +27,16 @@
         </div>
 
         <nav class="flex flex-col gap-2.5 w-full px-2">
+            <NuxtLink to="/controller/admin" :class="{ active: $route.path.startsWith('/controller/admin') }"
+                class="flex items-center gap-3 text-black text-base font-bold transition-all duration-300 ease-in-out py-3 px-3 hover:bg-gray-100">
+                <span v-if="isOpen" class="transition-opacity duration-200">Dashboard</span>
+                <i v-else class="icon-dashboard">
+                    <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 13h8V3H3v10zM3 21h8v-6H3v6zM13 21h8V11h-8v10zM13 3v6h8V3h-8z" fill="black"/>
+                    </svg>
+                </i>
+            </NuxtLink>
+
             <NuxtLink to="/controller/staff" :class="{ active: $route.path.startsWith('/controller/staff') }"
                 class="flex items-center gap-3 text-black text-base font-bold transition-all duration-300 ease-in-out py-3 px-3 hover:bg-gray-100">
                 <span v-if="isOpen" class="transition-opacity duration-200">Staff</span>
@@ -72,6 +82,16 @@
                         <path
                             d="M12 21C9.9 21 8.04167 20.3627 6.425 19.088C4.80833 17.8133 3.75833 16.184 3.275 14.2C3.20833 13.95 3.25833 13.721 3.425 13.513C3.59167 13.305 3.81667 13.184 4.1 13.15C4.36667 13.1167 4.60833 13.1667 4.825 13.3C5.04167 13.4333 5.19167 13.6333 5.275 13.9C5.675 15.4 6.5 16.625 7.75 17.575C9 18.525 10.4167 19 12 19C13.95 19 15.6043 18.321 16.963 16.963C18.3217 15.605 19.0007 13.9507 19 12C18.9993 10.0493 18.3203 8.39533 16.963 7.038C15.6057 5.68067 13.9513 5.00133 12 5C10.85 5 9.775 5.26667 8.775 5.8C7.775 6.33333 6.93333 7.06667 6.25 8H8C8.28333 8 8.521 8.096 8.713 8.288C8.905 8.48 9.00067 8.71733 9 9C8.99933 9.28267 8.90333 9.52033 8.712 9.713C8.52067 9.90567 8.28333 10.0013 8 10H4C3.71667 10 3.47933 9.904 3.288 9.712C3.09667 9.52 3.00067 9.28267 3 9V5C3 4.71667 3.096 4.47933 3.288 4.288C3.48 4.09667 3.71733 4.00067 4 4C4.28267 3.99933 4.52033 4.09533 4.713 4.288C4.90567 4.48067 5.00133 4.718 5 5V6.35C5.85 5.28333 6.88767 4.45833 8.113 3.875C9.33833 3.29167 10.634 3 12 3C13.25 3 14.421 3.23767 15.513 3.713C16.605 4.18833 17.555 4.82967 18.363 5.637C19.171 6.44433 19.8127 7.39433 20.288 8.487C20.7633 9.57967 21.0007 10.7507 21 12C20.9993 13.2493 20.762 14.4203 20.288 15.513C19.814 16.6057 19.1723 17.5557 18.363 18.363C17.5537 19.1703 16.6037 19.812 15.513 20.288C14.4223 20.764 13.2513 21.0013 12 21ZM13 11.6L15.5 14.1C15.6833 14.2833 15.775 14.5167 15.775 14.8C15.775 15.0833 15.6833 15.3167 15.5 15.5C15.3167 15.6833 15.0833 15.775 14.8 15.775C14.5167 15.775 14.2833 15.6833 14.1 15.5L11.3 12.7C11.2 12.6 11.125 12.4877 11.075 12.363C11.025 12.2383 11 12.109 11 11.975V8C11 7.71667 11.096 7.47933 11.288 7.288C11.48 7.09667 11.7173 7.00067 12 7C12.2827 6.99933 12.5203 7.09533 12.713 7.288C12.9057 7.48067 13.0013 7.718 13 8V11.6Z"
                             fill="black" />
+                    </svg>
+                </i>
+            </NuxtLink>
+
+            <NuxtLink to="/controller/audit" :class="{ active: $route.path.startsWith('/controller/audit') }"
+                class="flex items-center gap-3 text-black text-base font-bold transition-all duration-300 ease-in-out py-3 px-3 hover:bg-gray-100">
+                <span v-if="isOpen" class="transition-opacity duration-200">Audit</span>
+                <i v-else class="icon-audit">
+                    <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 3h18v2H3V3zm0 6h12v2H3V9zm0 6h18v2H3v-2z" fill="black" />
                     </svg>
                 </i>
             </NuxtLink>

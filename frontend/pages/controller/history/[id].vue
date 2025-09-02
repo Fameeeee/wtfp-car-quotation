@@ -53,6 +53,8 @@
       </div>
     </main>
   </div>
+  
+  <!-- Email UI removed -->
 </template>
 
 <script setup>
@@ -61,7 +63,7 @@ import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import axios from 'axios'
 
 const config = useRuntimeConfig()
-const backendUrl = config.public.backendUrl;
+const api = useApi();
 const route = useRoute()
 const router = useRouter()
 const quotationId = route.params.id
@@ -73,7 +75,7 @@ let objectUrl = ''
 
 const fetchHistoryData = async () => {
   try {
-    const response = await axios.get(`${backendUrl}/quotation/${quotationId}`)
+  const response = await api.get(`/quotation/${quotationId}`)
     historyData.value = response.data
     await fetchPdf()
   } catch (error) {
@@ -117,7 +119,7 @@ const paymentLabel = computed(() => {
 
 async function fetchPdf () {
   try {
-    const res = await axios.get(`${backendUrl}/quotation/${quotationId}/pdf`, { responseType: 'blob' })
+  const res = await api.get(`/quotation/${quotationId}/pdf`, { responseType: 'blob' })
     const blob = new Blob([res.data], { type: 'application/pdf' })
     if (objectUrl) URL.revokeObjectURL(objectUrl)
     objectUrl = URL.createObjectURL(blob)
@@ -131,6 +133,8 @@ async function fetchPdf () {
 onBeforeUnmount(() => {
   if (objectUrl) URL.revokeObjectURL(objectUrl)
 })
+
+// Email feature removed from UI
 
 
 definePageMeta({

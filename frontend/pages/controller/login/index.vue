@@ -82,11 +82,10 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
+import { useApi } from '~/composables/useApi'
 import { setToken } from '~/composables/useAuth'
 
-const config = useRuntimeConfig()
-const backendUrl = config.public.backendUrl;
+const api = useApi();
 
 const email = ref('');
 const password = ref('');
@@ -115,9 +114,9 @@ const handleLogin = async () => {
   isLoading.value = true;
 
   try {
-    const response = await axios.post(`${backendUrl}/auth/login`, {
+    const response = await api.post('/auth/login', {
       email: email.value,
-      password: password.value
+      password: password.value,
     });
 
     if (response.status >= 200 && response.status < 300 && response.data?.access_token) {

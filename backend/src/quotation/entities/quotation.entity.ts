@@ -1,6 +1,6 @@
 import { Customer } from "src/customer/entities/customer.entity";
 import { Staff } from "src/staff/entities/staff.entity";
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
 
 export enum PaymentMethod {
     CASH = 'cash',
@@ -67,4 +67,11 @@ export class Quotation {
 
     @ManyToOne(() => Customer, (customer) => customer.quotations, { onDelete: 'SET NULL', nullable: true })
     customer: Customer;
+
+    @ManyToOne(() => Quotation, { nullable: true, onDelete: 'SET NULL' })
+    @JoinColumn({ name: 'modifiedFromId' })
+    modifiedFrom?: Quotation;
+
+    @Column({ type: 'int', nullable: true })
+    modifiedFromId?: number | null;
 }

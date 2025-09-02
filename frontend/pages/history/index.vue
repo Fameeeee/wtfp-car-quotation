@@ -58,11 +58,11 @@
 
 <script setup>
 import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
-import axios from 'axios';
+import { useApi } from '~/composables/useApi';
 import debounce from 'lodash/debounce';
 
 const config = useRuntimeConfig()
-const backendUrl = config.public.backendUrl;
+const api = useApi();
 
 const currentPage = ref(1);
 const itemsPerPage = 4;
@@ -89,7 +89,7 @@ const fetchQuotations = async () => {
             abortController.abort();
         }
         abortController = new AbortController();
-        const response = await axios.get(`${backendUrl}/quotation/staff/${staffId}`, {
+    const response = await api.get(`/quotation/staff/${staffId}`, {
             params: {
                 page: currentPage.value,
                 limit: itemsPerPage,

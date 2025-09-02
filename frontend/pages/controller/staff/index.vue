@@ -27,6 +27,7 @@
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">นามสกุล</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">จังหวัด/สาขา</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ตำแหน่ง</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">การดำเนินการ</th>
             </tr>
           </thead>
@@ -49,9 +50,34 @@
               <td class="px-4 py-3 text-sm text-gray-900">{{ s.lastName }}</td>
               <td class="px-4 py-3 text-sm text-gray-600">{{ s.city || s.branch || '—' }}</td>
               <td class="px-4 py-3 text-sm">
-                <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
-                  {{ s.role || 'พนักงาน' }}
-                </span>
+                <div v-if="isManagerUser">
+                  <select :value="s.role || 'staff'" @click.stop @change.stop="onChangeRole($event, s)" class="text-sm border rounded px-2 py-1">
+                    <option value="staff">พนักงาน</option>
+                    <option value="manager">ผู้จัดการ</option>
+                    <option value="admin">แอดมิน</option>
+                  </select>
+                </div>
+                <div v-else>
+                  <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                    {{ s.role || 'พนักงาน' }}
+                  </span>
+                </div>
+              </td>
+              <td class="px-4 py-3 text-sm">
+                <div v-if="isManagerUser">
+                  <select :value="s.status || 'active'" @click.stop @change.stop="onChangeStatus($event, s)" class="text-sm border rounded px-2 py-1">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="suspended">Suspended</option>
+                    <option value="terminated">Terminated</option>
+                    <option value="unemployed">Unemployed</option>
+                  </select>
+                </div>
+                <div v-else>
+                  <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">
+                    {{ s.status || 'active' }}
+                  </span>
+                </div>
               </td>
               <td class="px-4 py-3 text-sm">
                 <button @click.stop="goToStaffDetail(s.id)"
@@ -82,8 +108,10 @@
 <script setup>
 import { ref, onMounted, watch } from "vue";
 import { useRouter } from 'vue-router';
-import axios from "axios";
+import { useApi } from '~/composables/useApi'
 import _ from 'lodash';
+import { isManager } from '~/composables/useAuth'
+const { $axios } = useNuxtApp();
 import Pagination from "~/components/common/Pagination.vue";
 
 definePageMeta({
@@ -92,8 +120,7 @@ definePageMeta({
 });
 
 const router = useRouter();
-const config = useRuntimeConfig()
-const backendUrl = config.public.backendUrl;
+const api = useApi();
 
 const searchQuery = ref("");
 const staffList = ref([]);
@@ -110,8 +137,8 @@ const debouncedSearch = _.debounce(() => {
 
 const fetchData = async () => {
   loading.value = true;
-  try {
-    const response = await axios.get(`${backendUrl}/staff`, {
+    try {
+    const response = await api.get(`/staff`, {
       params: {
         page: currentPage.value,
         limit: itemsPerPage.value,
@@ -167,4 +194,37 @@ const updatePageSize = (n) => {
   currentPage.value = 1;
   fetchData();
 };
+
+// manager flag for UI
+const isManagerUser = isManager();
+
+const onChangeRole = async (event, staff) => {
+  const newRole = event.target.value;
+  const prev = staff.role;
+  // optimistic update
+  staff.role = newRole;
+  try {
+  await api.patch(`/staff/${staff.id}/role`, { role: newRole });
+  } catch (e) {
+    console.error('Failed to update role', e);
+    staff.role = prev; // revert
+    alert('ไม่สามารถอัปเดตตำแหน่งได้');
+  }
+}
+
+const onChangeStatus = async (event, staff) => {
+  const newStatus = event.target.value;
+  const prev = staff.status;
+  staff.status = newStatus;
+  try {
+  const res = await api.patch(`/staff/${staff.id}/status`, { status: newStatus });
+  // refresh list from server to confirm persisted change
+  await fetchData();
+  } catch (e) {
+    console.error('Failed to update status', e);
+    staff.status = prev;
+  const msg = e?.response?.data?.message || e?.message || 'ไม่สามารถอัปเดตสถานะได้';
+  alert(msg);
+  }
+}
 </script>

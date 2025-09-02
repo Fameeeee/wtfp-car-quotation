@@ -6,6 +6,14 @@ export enum StaffRole {
     MANAGER = 'manager',
   }
   
+export enum StaffStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  SUSPENDED = 'suspended',
+  TERMINATED = 'terminated',
+  UNEMPLOYED = 'unemployed',
+}
+  
 
 @Entity('staff')
 export class Staff {
@@ -38,6 +46,9 @@ export class Staff {
 
     @Column({ type: 'enum', enum: StaffRole, default: StaffRole.STAFF })
     role: StaffRole;
+
+  @Column({ type: 'enum', enum: StaffStatus, default: StaffStatus.ACTIVE })
+  status: StaffStatus;
 
     @OneToMany(() => Quotation, (quotation) => quotation.staff)
     quotations: Quotation[];

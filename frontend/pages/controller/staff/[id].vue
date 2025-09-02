@@ -4,7 +4,8 @@
         <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-gray-200">
             <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <button @click="goBack" class="h-9 px-3 rounded-md border text-sm hover:bg-gray-100 transition-colors">
+                    <button @click="goBack"
+                        class="h-9 px-3 rounded-md border text-sm hover:bg-gray-100 transition-colors">
                         กลับ
                     </button>
                     <h1 class="text-2xl font-bold">รายละเอียดพนักงาน</h1>
@@ -41,10 +42,11 @@
             <div v-else-if="staffData" class="bg-white rounded-lg border shadow-sm p-6 mb-6">
                 <div class="flex items-start gap-6">
                     <!-- Avatar -->
-                    <div class="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center text-2xl font-bold text-blue-700">
+                    <div
+                        class="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center text-2xl font-bold text-blue-700">
                         {{ staffData.firstName?.charAt(0) }}{{ staffData.lastName?.charAt(0) }}
                     </div>
-                    
+
                     <!-- Staff details -->
                     <div class="flex-1 min-w-0">
                         <h2 class="text-2xl font-bold text-gray-900 mb-2">
@@ -68,9 +70,41 @@
                             <div class="space-y-2">
                                 <div class="flex items-center gap-2">
                                     <span class="text-gray-500 w-20">ตำแหน่ง:</span>
-                                    <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                                        {{ staffData.role || 'พนักงาน' }}
-                                    </span>
+                                    <div v-if="isManagerUser">
+                                        <select :value="staffData.role || 'staff'"
+                                            @change.stop="onChangeRoleSingle($event)"
+                                            class="text-sm border rounded px-2 py-1">
+                                            <option value="staff">พนักงาน</option>
+                                            <option value="manager">ผู้จัดการ</option>
+                                            <option value="admin">แอดมิน</option>
+                                        </select>
+                                    </div>
+                                    <div v-else>
+                                        <span
+                                            class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                                            {{ staffData.role || 'พนักงาน' }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-gray-500 w-20">สถานะ:</span>
+                                    <div v-if="isManagerUser">
+                                        <select :value="staffData.status || 'active'"
+                                            @change.stop="onChangeStatusSingle($event)"
+                                            class="text-sm border rounded px-2 py-1">
+                                            <option value="active">Active</option>
+                                            <option value="inactive">Inactive</option>
+                                            <option value="suspended">Suspended</option>
+                                            <option value="terminated">Terminated</option>
+                                            <option value="unemployed">Unemployed</option>
+                                        </select>
+                                    </div>
+                                    <div v-else>
+                                        <span
+                                            class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
+                                            {{ staffData.status || 'active' }}
+                                        </span>
+                                    </div>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <span class="text-gray-500 w-20">จังหวัด:</span>
@@ -98,15 +132,13 @@
                         <h3 class="text-lg font-semibold text-gray-900">ใบเสนอราคา</h3>
                         <div class="flex items-center gap-3">
                             <div class="relative">
-                                <input
-                                    v-model="searchQuery"
-                                    @input="debouncedSearch"
-                                    type="text"
+                                <input v-model="searchQuery" @input="debouncedSearch" type="text"
                                     placeholder="ค้นหาใบเสนอราคา..."
-                                    class="w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                >
-                                <svg class="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    class="w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <svg class="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </div>
                         </div>
@@ -118,47 +150,62 @@
                     <table class="w-full">
                         <thead class="bg-gray-50 border-b border-gray-200">
                             <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รหัส</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลูกค้า</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รุ่นรถ</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">วันที่</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">การชำระ</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">การดำเนินการ</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    รหัส</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    ลูกค้า</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    รุ่นรถ</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    วันที่</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    การชำระ</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    การดำเนินการ</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             <tr v-if="paginatedQuotations.length === 0">
                                 <td colspan="7" class="px-4 py-8 text-center text-gray-500">
                                     <div class="flex flex-col items-center gap-2">
-                                        <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                         </svg>
                                         <span>ไม่มีใบเสนอราคา</span>
                                     </div>
                                 </td>
                             </tr>
-                            <tr v-for="quotation in paginatedQuotations" :key="quotation.id" 
+                            <tr v-for="quotation in paginatedQuotations" :key="quotation.id"
                                 class="hover:bg-gray-50 transition-colors cursor-pointer"
                                 @click="goToHistory(quotation.id)">
                                 <td class="px-4 py-3 text-sm font-medium text-blue-600">{{ quotation.id }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-900">
                                     {{ quotation.customer?.firstName }} {{ quotation.customer?.lastName }}
                                 </td>
-                                <td class="px-4 py-3 text-sm text-gray-600">{{ quotation.carDetails?.modelClass || '-' }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-600">{{ quotation.carDetails?.modelClass || '-'
+                                    }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-600">
-                                    {{ quotation.quotationDate ? new Date(quotation.quotationDate).toLocaleDateString('th-TH') : '-' }}
+                                    {{ quotation.quotationDate ? new
+                                        Date(quotation.quotationDate).toLocaleDateString('th-TH') : '-' }}
                                 </td>
                                 <td class="px-4 py-3 text-sm">
-                                    <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full"
-                                          :class="quotation.paymentMethod === 'cash' 
-                                            ? 'bg-green-100 text-green-800' 
-                                            : 'bg-blue-100 text-blue-800'">
+                                    <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full" :class="quotation.paymentMethod === 'cash'
+                                        ? 'bg-green-100 text-green-800'
+                                        : 'bg-blue-100 text-blue-800'">
                                         {{ quotation.paymentMethod === 'cash' ? 'เงินสด' : 'ผ่อนชำระ' }}
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 text-sm">
                                     <button @click.stop="goToHistory(quotation.id)"
-                                            class="text-blue-600 hover:text-blue-800 font-medium transition-colors">
+                                        class="text-blue-600 hover:text-blue-800 font-medium transition-colors">
                                         ดูรายละเอียด
                                     </button>
                                 </td>
@@ -169,14 +216,8 @@
 
                 <!-- Pagination -->
                 <div v-if="filteredQuotations.length > 0" class="border-t border-gray-200 p-4">
-                    <Pagination
-                        :page="currentPage"
-                        :total-pages="totalPages"
-                        :show-page-size="true"
-                        :page-size="itemsPerPage"
-                        @update:page="changePage"
-                        @update:pageSize="updatePageSize"
-                    />
+                    <Pagination :page="currentPage" :total-pages="totalPages" :show-page-size="true"
+                        :page-size="itemsPerPage" @update:page="changePage" @update:pageSize="updatePageSize" />
                 </div>
             </div>
         </main>
@@ -186,12 +227,13 @@
 <script setup>
 import { useRouter, useRoute } from 'vue-router';
 import { ref, onMounted, computed } from 'vue';
-import axios from "axios";
+import { useApi } from '~/composables/useApi'
 import _ from 'lodash';
 import Pagination from "~/components/common/Pagination.vue";
+import { isManager } from '~/composables/useAuth'
+const { $axios } = useNuxtApp();
 
-const config = useRuntimeConfig();
-const backendUrl = config.public.backendUrl;
+const api = useApi();
 
 const route = useRoute();
 const router = useRouter();
@@ -201,16 +243,16 @@ const staffData = ref(null);
 const loading = ref(true);
 const searchQuery = ref("");
 const currentPage = ref(1);
-const itemsPerPage = ref(6); 
+const itemsPerPage = ref(6);
 
 const debouncedSearch = _.debounce(() => {
-    currentPage.value = 1; 
+    currentPage.value = 1;
 }, 400);
 
 const fetchStaffData = async () => {
     loading.value = true;
     try {
-        const response = await axios.get(`${backendUrl}/staff/${staffId}`);
+        const response = await api.get(`/staff/${staffId}`);
         staffData.value = response.data;
     } catch (error) {
         console.error("Error fetching staff data:", error);
@@ -279,4 +321,37 @@ definePageMeta({
     middleware: 'staff-auth',
     layout: 'admin'
 });
+
+// manager helper and handlers
+const isManagerUser = isManager();
+
+const onChangeRoleSingle = async (event) => {
+    const newRole = event.target.value;
+    const prev = staffData.value.role;
+    staffData.value.role = newRole;
+    try {
+    await api.patch(`/staff/${staffId}/role`, { role: newRole });
+        await fetchStaffData();
+    } catch (e) {
+        console.error('Failed to update role', e);
+        staffData.value.role = prev;
+        const msg = e?.response?.data?.message || e?.message || 'ไม่สามารถอัปเดตตำแหน่งได้';
+        alert(msg);
+    }
+}
+
+const onChangeStatusSingle = async (event) => {
+    const newStatus = event.target.value;
+    const prev = staffData.value.status;
+    staffData.value.status = newStatus;
+    try {
+    await api.patch(`/staff/${staffId}/status`, { status: newStatus });
+        await fetchStaffData();
+    } catch (e) {
+        console.error('Failed to update status', e);
+        staffData.value.status = prev;
+        const msg = e?.response?.data?.message || e?.message || 'ไม่สามารถอัปเดตสถานะได้';
+        alert(msg);
+    }
+}
 </script>

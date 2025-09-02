@@ -64,7 +64,6 @@
 
 <script setup>
 import { useRouter, useRoute } from 'vue-router';
-import axios from 'axios';
 import { ref, reactive, onMounted } from 'vue';
 import modalDiscard from '~/components/user/modalDiscard.vue';
 import paymentDropdown from '~/components/user/paymentDropdown.vue';
@@ -85,7 +84,7 @@ const showModal = ref(false);
 const showSaveModal = ref(false);
 
 const config = useRuntimeConfig()
-const backendUrl = config.public.backendUrl;
+const api = useApi();
 
 
 const allData = reactive({
@@ -126,8 +125,8 @@ onMounted(async () => {
 
 const store = useQuotationStore();
 
-axios
-    .get(`${backendUrl}/quotation/${quotationId}`)
+api
+    .get(`/quotation/${quotationId}`)
     .then((response) => {
         quotationData.value = response.data;
         // hydrate local allData from existing quotation
@@ -175,23 +174,82 @@ const handleSaveConfirm = async () => {
             if (!proceed) return;
         }
 
-        // Build payload with current payment details from store
-        const payload = { ...allData };
-        if (allData.paymentMethod === 'cash') {
-            payload.cashPlans = store.cashPlan || {};
-            payload.installmentPlans = [];
-        } else if (allData.paymentMethod === 'installment') {
-            payload.installmentPlans = store.installmentPlans || [];
-            delete payload.cashPlans;
+        // Diagnostic: log store snapshot before building payload
+        try {
+            console.info('Quotation store snapshot before save:', {
+                cashPlan: JSON.parse(JSON.stringify(store.cashPlan || null)),
+                installmentPlans: JSON.parse(JSON.stringify(store.installmentPlans || null)),
+                paymentMethod: store.paymentMethod ?? allData.paymentMethod,
+                selectedCar: JSON.parse(JSON.stringify(store.selectedCar || null)),
+            });
+        } catch (e) {
+            console.info('Quotation store snapshot (partial) before save:', {
+                cashPlan: store.cashPlan,
+                installmentPlans: store.installmentPlans,
+                paymentMethod: store.paymentMethod ?? allData.paymentMethod,
+                selectedCar: store.selectedCar,
+            });
         }
 
-        // Always create a new quotation
-        await axios.post(`${backendUrl}/quotation/create`, payload);
+        // Build payload with current payment details from store
+        const payload = { ...allData };
+        // Determine authoritative payment method: prefer store (shared across components)
+        const chosenMethod = store.paymentMethod || allData.paymentMethod || null;
+        if (chosenMethod && chosenMethod !== allData.paymentMethod) {
+            console.warn('Payment method mismatch between local allData and store; using store value', { allData: allData.paymentMethod, store: store.paymentMethod });
+        }
+        payload.paymentMethod = chosenMethod;
 
-        alert('บันทึกข้อมูลเรียบร้อยแล้ว');
-        router.push(`/history`);
+        // Always prefer store values for payment-specific plans when available
+        if (store.cashPlan && Object.keys(store.cashPlan || {}).length > 0) {
+            payload.cashPlans = JSON.parse(JSON.stringify(store.cashPlan));
+            // coerce numeric-ish fields for safety
+            if (payload.cashPlans.totalPrice) payload.cashPlans.totalPrice = Number(payload.cashPlans.totalPrice);
+            if (payload.cashPlans.specialDiscount) payload.cashPlans.specialDiscount = Number(payload.cashPlans.specialDiscount);
+            if (payload.cashPlans.specialAddition) payload.cashPlans.specialAddition = Number(payload.cashPlans.specialAddition);
+            payload.installmentPlans = [];
+        } else if (store.installmentPlans && store.installmentPlans.length > 0) {
+            payload.installmentPlans = JSON.parse(JSON.stringify(store.installmentPlans));
+            // coerce nested numbers
+            payload.installmentPlans = payload.installmentPlans.map((plan) => ({
+                ...plan,
+                orderNumber: plan.orderNumber ? Number(plan.orderNumber) : plan.orderNumber,
+                specialDiscount: plan.specialDiscount ? Number(plan.specialDiscount) : plan.specialDiscount,
+                additionPrice: plan.additionPrice ? Number(plan.additionPrice) : plan.additionPrice,
+                downPaymentPercent: plan.downPaymentPercent ? Number(plan.downPaymentPercent) : plan.downPaymentPercent,
+                planDetails: (plan.planDetails || []).map((d) => ({
+                    period: Number(d.period),
+                    interestRate: d.interestRate === '' || d.interestRate === null || d.interestRate === undefined ? null : Number(d.interestRate)
+                }))
+            }));
+            delete payload.cashPlans;
+        } else {
+            // fallback to local allData values
+            if (allData.paymentMethod === 'cash') {
+                payload.cashPlans = allData.cashPlans || {};
+                payload.installmentPlans = [];
+            } else if (allData.paymentMethod === 'installment') {
+                payload.installmentPlans = allData.installmentPlans || [];
+                delete payload.cashPlans;
+            }
+        }
+
+        // ensure staffId is numeric
+        if (payload.staffId) payload.staffId = Number(payload.staffId);
+
+        // Update existing quotation instead of creating a new one
+        console.info('Updating quotation payload:', JSON.parse(JSON.stringify(payload)));
+        const res = await api.put(`/quotation/${quotationId}`, payload);
+
+    alert('บันทึกข้อมูลเรียบร้อยแล้ว');
+    router.push(`/history`);
     } catch (error) {
-        console.error("Error saving quotation:", error);
+        if (error?.response) {
+            console.error('Error saving quotation:', error.response.status, error.response.data);
+            try { alert('Failed to save: ' + (error.response.data?.message || JSON.stringify(error.response.data))); } catch(e){}
+        } else {
+            console.error("Error saving quotation:", error);
+        }
     }
 };
 
@@ -227,12 +285,12 @@ const checkCustomerDuplicate = async (cust) => {
         if (!phone) return false;
         let resp = null;
         // Try common endpoints progressively
-        try { resp = await axios.get(`${backendUrl}/customer/phone/${encodeURIComponent(phone)}`); } catch {}
+        try { resp = await api.get(`/customer/phone/${encodeURIComponent(phone)}`); } catch {}
         if (!resp || !resp.data) {
-            try { resp = await axios.get(`${backendUrl}/customer`, { params: { phoneNumber: phone } }); } catch {}
+            try { resp = await api.get(`/customer`, { params: { phoneNumber: phone } }); } catch {}
         }
         if (!resp || !resp.data) {
-            try { resp = await axios.get(`${backendUrl}/customer/search`, { params: { phone: phone } }); } catch {}
+            try { resp = await api.get(`/customer/search`, { params: { phone: phone } }); } catch {}
         }
         const records = Array.isArray(resp?.data) ? resp.data : (resp?.data ? [resp.data] : []);
         if (records.length === 0) return false;

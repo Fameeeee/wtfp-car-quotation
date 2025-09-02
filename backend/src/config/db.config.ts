@@ -2,6 +2,7 @@
 import { Customer } from 'src/customer/entities/customer.entity';
 import { Quotation } from 'src/quotation/entities/quotation.entity';
 import { Staff } from 'src/staff/entities/staff.entity';
+import { AuditLog } from 'src/audit/audit.entity';
 import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOptions';
 
 export default (): MysqlConnectionOptions => ({
@@ -12,5 +13,5 @@ export default (): MysqlConnectionOptions => ({
   password: process.env.MYSQLPASSWORD || process.env.dbPassword,
   database: process.env.MYSQLDATABASE || process.env.dbName,
   synchronize: true,
-  entities: [Staff, Customer, Quotation],
+  entities: [Staff, Customer, Quotation, AuditLog],
 });

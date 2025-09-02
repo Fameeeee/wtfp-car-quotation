@@ -77,7 +77,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from 'vue-router';
-import axios from "axios";
+import { useApi } from '~/composables/useApi';
 import _ from 'lodash';
 import Pagination from "~/components/common/Pagination.vue";
 
@@ -88,7 +88,7 @@ definePageMeta({
 
 const router = useRouter();
 const config = useRuntimeConfig()
-const backendUrl = config.public.backendUrl;
+const api = useApi();
 
 const searchQuery = ref("");
 const customerList = ref([]);
@@ -105,7 +105,7 @@ const debouncedSearch = _.debounce(() => {
 const fetchData = async () => {
   loading.value = true;
   try {
-    const response = await axios.get(`${backendUrl}/customer`, {
+  const response = await api.get(`/customer`, {
       params: {
         page: currentPage.value,
         limit: itemsPerPage.value,

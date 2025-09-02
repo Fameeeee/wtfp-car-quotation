@@ -84,14 +84,15 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { useQuotationStore } from '~/stores/quotation';
+import { useApi } from '~/composables/useApi';
+import { useExternalApi } from '~/composables/useExternalApi';
 
-const config = useRuntimeConfig();
-const apiUrl = config.public.apiUrl;
 const router = useRouter();
 const quotationStore = useQuotationStore();
+const api = useApi();
+const external = useExternalApi();
 
 const unitTypes = ref([]);
 const modelClasses = ref([]);
@@ -117,8 +118,9 @@ const nextButtonVisible = computed(() => {
 const fetchUnitTypes = async () => {
     loading.value = true;
     try {
-        const response = await axios.get(`${apiUrl}/model-code/unit-type`);
-        unitTypes.value = response.data;
+    const client = external || api;
+    const response = await client.get('/model-code/unit-type');
+    unitTypes.value = response.data;
         loading.value = false;
     } catch (err) {
         error.value = 'Failed to load unit types.';
@@ -133,7 +135,8 @@ const fetchModelClasses = async () => {
     }
     loading.value = true;
     try {
-        const response = await axios.get(`${apiUrl}/model-code/model-class?unit-type=${selectedUnitType.value}`);
+    const client = external || api;
+    const response = await client.get('/model-code/model-class', { params: { 'unit-type': selectedUnitType.value } });
         modelClasses.value = response.data;
         loading.value = false;
     } catch (err) {
@@ -149,9 +152,13 @@ const fetchModelCodeName = async () => {
     }
     loading.value = true;
     try {
-        const response = await axios.get(
-            `${apiUrl}/model-code/model-code-name?unit-type=${selectedUnitType.value}&model-class=${selectedModelClass.value}`
-        );
+    const client = external || api;
+    const response = await client.get('/model-code/model-code-name', {
+            params: {
+                'unit-type': selectedUnitType.value,
+                'model-class': selectedModelClass.value,
+            },
+        });
         modelDetails.value.modelCodeNames = response.data;
         loading.value = false;
     } catch (err) {
@@ -168,9 +175,14 @@ const fetchModelGname = async () => {
     }
     loading.value = true;
     try {
-        const response = await axios.get(
-            `${apiUrl}/model-code/model-g-name?unit-type=${selectedUnitType.value}&model-class=${selectedModelClass.value}&model-code-name=${selectedModelCodeName.value}`
-        );
+    const client = external || api;
+    const response = await client.get('/model-code/model-g-name', {
+            params: {
+                'unit-type': selectedUnitType.value,
+                'model-class': selectedModelClass.value,
+                'model-code-name': selectedModelCodeName.value,
+            },
+        });
         modelDetails.value.modelGnames = response.data;
         loading.value = false;
     } catch (err) {
@@ -186,10 +198,16 @@ const fetchPrice = async () => {
     }
     loading.value = true;
     try {
-        const response = await axios.get(
-            `${apiUrl}/model-code/price?unit-type=${selectedUnitType.value}&model-class=${selectedModelClass.value}&model-code-name=${selectedModelCodeName.value}&model-gname=${selectedModelGname.value}`
-        );
-        const prices = response.data
+    const client = external || api;
+    const response = await client.get('/model-code/price', {
+            params: {
+                'unit-type': selectedUnitType.value,
+                'model-class': selectedModelClass.value,
+                'model-code-name': selectedModelCodeName.value,
+                'model-gname': selectedModelGname.value,
+            },
+        });
+        const prices = response.data;
         modelDetails.value.prices = prices;
         selectedPrice.value = prices.length > 0 ? prices[0] : '';
         loading.value = false;
@@ -206,9 +224,16 @@ const fetchColor = async () => {
     }
     loading.value = true;
     try {
-        const response = await axios.get(
-            `${apiUrl}/model-code/color?unit-type=${selectedUnitType.value}&model-class=${selectedModelClass.value}&model-code-name=${selectedModelCodeName.value}&model-gname=${selectedModelGname.value}&price=${selectedPrice.value}`
-        );
+    const client = external || api;
+    const response = await client.get('/model-code/color', {
+            params: {
+                'unit-type': selectedUnitType.value,
+                'model-class': selectedModelClass.value,
+                'model-code-name': selectedModelCodeName.value,
+                'model-gname': selectedModelGname.value,
+                price: selectedPrice.value,
+            },
+        });
         modelDetails.value.colors = response.data;
         loading.value = false;
     } catch (err) {

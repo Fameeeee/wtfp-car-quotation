@@ -30,10 +30,12 @@ export function getStaffId() {
 export async function getMe() {
   if (!process.client) return null;
   try {
-    const backend = useRuntimeConfig().public.backendUrl || 'http://localhost:3001';
+  const cfg = useRuntimeConfig().public || {};
+  const backend = cfg.backendUrl || 'http://localhost:3001';
+  const externalApi = cfg.apiUrl || null;
   const token = getToken();
   if (!token) return null;
-  const res = await fetch(`${backend}/auth/me`, { headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetch(`${backend.replace(/\/$/, '')}/api/auth/me`, { headers: { Authorization: `Bearer ${token}` } });
   if (!res.ok) return null;
   const json = await res.json();
   return json.user || null;

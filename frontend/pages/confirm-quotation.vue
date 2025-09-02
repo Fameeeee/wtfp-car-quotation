@@ -59,14 +59,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import { useApi } from '~/composables/useApi'
 import modalConfirm from '~/components/user/modalConfirm.vue';
 import { useRouter } from 'vue-router';
 import { useQuotationStore } from '~/stores/quotation';
 import { getMe, getStaffIdAsync } from '~/composables/useAuth'
 
-const config = useRuntimeConfig()
-const backendUrl = config.public.backendUrl;
+const api = useApi();
 
 const router = useRouter();
 const quotationStore = useQuotationStore();
@@ -129,7 +128,7 @@ const confirm = async () => {
         additionCosts: {
             cmi: additionCost.cmiCheck ? true : false,
             insurance: additionCost.insuranceCheck ? true : false,
-            fuelValue: additionCost.fuelValue || null,
+            fuelValue: additionCost.fuelValue ? Number(additionCost.fuelValue) : null,
             // Show note even if user hasn't finalized add-cost step yet
             note: additionCost.noteText || additionCost.noteExtra || null
         },
@@ -138,30 +137,62 @@ const confirm = async () => {
             modelClass: selectedCar.modelClass,
             modelCodeName: selectedCar.modelCodeName,
             modelGName: selectedCar.modelGName,
-            price: selectedCar.price,
+            price: Number(selectedCar.price),
             color: selectedCar.color
         },
-        accessories: selectedAccessories.map((item) => ({ assType: item.assType, assName: item.assName, price: item.price })),
-        staffId: staffId.value
+        accessories: selectedAccessories.map((item) => ({ assType: item.assType, assName: item.assName, price: Number(item.price) })),
+        staffId: Number(staffId.value)
     }
 
     if (dataToSend.paymentMethod === 'cash' && hasCash) {
-        dataToSend.cashPlans = storeCashPlan;
+        // ensure numeric fields in cash plan
+        dataToSend.cashPlans = {
+            totalPrice: storeCashPlan.totalPrice ? Number(storeCashPlan.totalPrice) : storeCashPlan.totalPrice,
+            specialDiscount: storeCashPlan.specialDiscount ? Number(storeCashPlan.specialDiscount) : storeCashPlan.specialDiscount,
+            additionPrice: storeCashPlan.additionPrice ? Number(storeCashPlan.additionPrice) : storeCashPlan.additionPrice,
+            ...storeCashPlan
+        };
     } else if (dataToSend.paymentMethod === 'installment' && hasInstallment) {
-        dataToSend.installmentPlans = storeInstallmentPlans;
+        // coerce installment numbers, but preserve null/empty interestRate (do not convert to 0)
+        dataToSend.installmentPlans = storeInstallmentPlans.map((plan) => ({
+            ...plan,
+            orderNumber: Number(plan.orderNumber),
+            specialDiscount: plan.specialDiscount ? Number(plan.specialDiscount) : plan.specialDiscount,
+            additionPrice: plan.additionPrice ? Number(plan.additionPrice) : plan.additionPrice,
+            downPaymentPercent: plan.downPaymentPercent ? Number(plan.downPaymentPercent) : plan.downPaymentPercent,
+            planDetails: (plan.planDetails || []).map((d) => ({
+                period: Number(d.period),
+                interestRate: d.interestRate === '' || d.interestRate === null || d.interestRate === undefined ? null : Number(d.interestRate)
+            }))
+        }));
     }
 
-    axios.post(`${backendUrl}/quotation/create`, dataToSend)
-        .then(response => {
-            const quotationId = response.data.quotationId;
-            showModal.value = false;
-            router.push(`/quotation-success/${quotationId}`);
-        })
-        .catch(error => {
+    // Ensure we have an authenticated staff id before sending
+    if (!staffId.value) {
+        console.error('Cannot create quotation: missing staffId (user not authenticated)');
+        router.push('/register');
+        return;
+    }
+
+    // Debug: log payload so developer can inspect the exact shape sent
+    console.info('Creating quotation payload:', JSON.parse(JSON.stringify(dataToSend)));
+
+    try {
+        const response = await api.post('/quotation/create', dataToSend);
+        const quotationId = response.data.quotationId;
+        showModal.value = false;
+        router.push(`/quotation-success/${quotationId}`);
+    } catch (error) {
+        // Surface backend response body where available for easier debugging
+        if (error && error.response) {
+            console.error('Create quotation failed', error.response.status, error.response.data);
+        } else {
             console.error('Error creating quotation:', error);
-            showModal.value = false;
         }
-        );
+        showModal.value = false;
+        // Optional: show a basic alert to the user
+        try { alert('Failed to create quotation: ' + (error?.response?.data?.message || error?.message || 'Unknown error')); } catch(e){}
+    }
 }
 
 const closeModal = () => {
@@ -172,7 +203,8 @@ const closeModal = () => {
 const fetchStaffInfo = async () => {
     try {
         if (!staffId.value) return;
-        const res = await axios.get(`${backendUrl}/staff/${staffId.value}`);
+    const api = useApi();
+    const res = await api.get(`/staff/${staffId.value}`);
         const s = res.data || {};
         staffInfo.value = {
             firstName: s.firstName || staffInfo.value.firstName || '',
@@ -204,7 +236,7 @@ const buildPreviewPayload = () => {
         additionCosts: {
             cmi: additionCost.cmiCheck ? true : false,
             insurance: additionCost.insuranceCheck ? true : false,
-            fuelValue: additionCost.fuelValue || null,
+            fuelValue: additionCost.fuelValue ? Number(additionCost.fuelValue) : null,
             // Prefer finalized noteText; otherwise fallback to live noteExtra
             note: additionCost.noteText || additionCost.noteExtra || null
         },
@@ -213,18 +245,37 @@ const buildPreviewPayload = () => {
             modelClass: selectedCar.modelClass,
             modelCodeName: selectedCar.modelCodeName,
             modelGName: selectedCar.modelGName,
-            price: selectedCar.price,
+            price: Number(selectedCar.price),
             color: selectedCar.color
         },
-        accessories: selectedAccessories.map((item) => ({ assType: item.assType, assName: item.assName, price: item.price })),
+        accessories: selectedAccessories.map((item) => ({ assType: item.assType, assName: item.assName, price: Number(item.price) })),
         staff: { ...staffInfo.value }
     };
 
     // request full multi-page output when toggled
     if (showFull.value) base.full = true;
 
-    if (base.paymentMethod === 'cash' && hasCash) base.cashPlans = storeCashPlan;
-    if (base.paymentMethod === 'installment' && hasInstallment) base.installmentPlans = storeInstallmentPlans;
+    if (base.paymentMethod === 'cash' && hasCash) {
+        base.cashPlans = {
+            ...storeCashPlan,
+            totalPrice: storeCashPlan.totalPrice ? Number(storeCashPlan.totalPrice) : storeCashPlan.totalPrice,
+            specialDiscount: storeCashPlan.specialDiscount ? Number(storeCashPlan.specialDiscount) : storeCashPlan.specialDiscount,
+            additionPrice: storeCashPlan.additionPrice ? Number(storeCashPlan.additionPrice) : storeCashPlan.additionPrice,
+        };
+    }
+    if (base.paymentMethod === 'installment' && hasInstallment) {
+        base.installmentPlans = storeInstallmentPlans.map((plan) => ({
+            ...plan,
+            orderNumber: Number(plan.orderNumber),
+            specialDiscount: plan.specialDiscount ? Number(plan.specialDiscount) : plan.specialDiscount,
+            additionPrice: plan.additionPrice ? Number(plan.additionPrice) : plan.additionPrice,
+            downPaymentPercent: plan.downPaymentPercent ? Number(plan.downPaymentPercent) : plan.downPaymentPercent,
+            planDetails: (plan.planDetails || []).map((d) => ({
+                period: Number(d.period),
+                interestRate: d.interestRate === '' || d.interestRate === null || d.interestRate === undefined ? null : Number(d.interestRate)
+            }))
+        }));
+    }
     return base;
 };
 
@@ -233,8 +284,9 @@ const generatePdfPreview = async () => {
         pdfLoading.value = true;
         pdfUrl.value = '';
         const payload = buildPreviewPayload();
-        const response = await axios.post(`${backendUrl}/quotation/pdf`, payload, { responseType: 'blob' });
-        const blob = new Blob([response.data], { type: 'application/pdf' });
+    const api = useApi();
+    const response = await api.post('/quotation/pdf', payload, { responseType: 'blob' });
+    const blob = new Blob([response.data], { type: 'application/pdf' });
         pdfUrl.value = URL.createObjectURL(blob);
     } catch (e) {
         console.error('Failed to generate PDF preview', e);

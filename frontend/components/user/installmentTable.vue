@@ -46,7 +46,7 @@ import { useRoute } from 'vue-router';
 import { useQuotationStore } from '~/stores/quotation';
 
 const config = useRuntimeConfig();
-const backendUrl = config.public.backendUrl;
+const api = useApi();
 
 const installmentPlans = ref([]);
 const carPrice = ref(0);
@@ -63,7 +63,7 @@ const fetchInstallmentPlansFromStore = () => {
 
 const fetchInstallmentPlansFromApi = async () => {
   try {
-    const response = await axios.get(`${backendUrl}/quotation/${quotationId}`);
+  const response = await api.get(`/quotation/${quotationId}`);
     installmentPlans.value = response.data.installmentPlans || [];
     carPrice.value = response.data.carDetails?.price || 0;
 

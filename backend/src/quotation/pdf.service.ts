@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import * as path from 'path';
 import * as fs from 'fs';
 import puppeteer from 'puppeteer';
@@ -11,6 +11,7 @@ type QuotationData = any;
 
 @Injectable()
 export class PdfService {
+  private readonly logger = new Logger(PdfService.name);
   constructor(private readonly quotationService: QuotationService) {}
 
   async generateById(
@@ -35,23 +36,27 @@ export class PdfService {
     html: string,
     opts?: { preview?: boolean },
   ): Promise<Buffer> {
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+  let browser: any = null;
     try {
+      browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
       const page = await browser.newPage();
       await page.setContent(html, { waitUntil: 'networkidle0' });
       const pdf = await page.pdf({
         format: 'A4',
         printBackground: true,
         margin: { top: '15mm', bottom: '15mm', left: '15mm', right: '15mm' },
-        // In preview mode, force single page; otherwise allow multi-page output
         pageRanges: opts?.preview ? '1' : undefined,
       });
       return Buffer.from(pdf);
+    } catch (e) {
+      this.logger.error('Failed to render PDF', e?.message || e);
+      throw e;
     } finally {
-      await browser.close();
+      try {
+        if (browser) await browser.close();
+      } catch (e) {
+        this.logger.warn('Failed to close puppeteer browser', e?.message || e);
+      }
     }
   }
 
@@ -197,7 +202,9 @@ export class PdfService {
     const left = cappedList.slice(0, rows);
     const right = cappedList.slice(rows);
 
-    const cash = data?.cashPlans || {};
+  const cash = data?.cashPlans || {};
+  // Accept both `additionPrice` and legacy `specialAddition` keys from frontend payloads
+  const cashAddition = cash?.additionPrice ?? cash?.specialAddition ?? null;
   const instAll = (data?.installmentPlans || []) as any[];
   // Always show all installment orders in the table
   const inst = instAll;
@@ -352,7 +359,7 @@ export class PdfService {
         <tbody>
           <tr>
             <td>${this.thBaht(cash?.specialDiscount)}</td>
-            <td>${this.thBaht(cash?.specialAddition)}</td>
+            <td>${this.thBaht(cashAddition)}</td>
             <td>${this.thBaht(cash?.totalPrice)}</td>
           </tr>
         </tbody>
@@ -393,21 +400,14 @@ export class PdfService {
               const rowSpan = Math.max(plans.length, 1);
 
               if (plans.length === 0) {
-                return `<tr>
-                  <td rowspan="1">${order?.orderNumber ?? ''}</td>
-                  <td rowspan="1">${this.thBaht(car?.price)}</td>
-                  <td rowspan="1">${this.thBaht(order?.specialDiscount)}</td>
-                  <td rowspan="1">${this.thBaht(order?.additionPrice)}</td>
-                  <td rowspan="1">${this.thBaht(net)}</td>
-                  <td rowspan="1">${this.thBaht(down)}</td>
-                  <td>-</td>
-                  <td>-</td>
-                  <td>-</td>
-                </tr>`;
+                // If there are no valid plan rows (interestRate null/empty), omit this order entirely
+                return '';
               }
 
               const rows = plans
                 .map((p: any, i: number) => {
+                  // Skip rows where interestRate is explicitly null/undefined/empty
+                  if (p?.interestRate === null || p?.interestRate === undefined || `${p.interestRate}` === '') return '';
                   const rateVal = p?.interestRate;
                   const periodVal = p?.period;
                   const loan = net - down;
@@ -432,16 +432,16 @@ export class PdfService {
 
                   if (i === 0) {
                     return `<tr>
-                    <td rowspan="${rowSpan}">${order?.orderNumber ?? ''}</td>
-                    <td rowspan="${rowSpan}">${this.thBaht(car?.price)}</td>
-                    <td rowspan="${rowSpan}">${this.thBaht(order?.specialDiscount)}</td>
-                    <td rowspan="${rowSpan}">${this.thBaht(order?.additionPrice)}</td>
-                    <td rowspan="${rowSpan}">${this.thBaht(net)}</td>
-                    <td rowspan="${rowSpan}">${this.thBaht(down)}</td>
-                    <td>${periodVal ?? '-'}</td>
-                    <td>${rateVal == null ? '-' : rateVal + '%'}</td>
-                    <td>${monthly == null ? '-' : this.thBaht(monthly)}</td>
-                  </tr>`;
+                      <td rowspan="${rowSpan}">${order?.orderNumber ?? ''}</td>
+                      <td rowspan="${rowSpan}">${this.thBaht(car?.price)}</td>
+                      <td rowspan="${rowSpan}">${this.thBaht(order?.specialDiscount)}</td>
+                      <td rowspan="${rowSpan}">${this.thBaht(order?.additionPrice)}</td>
+                      <td rowspan="${rowSpan}">${this.thBaht(net)}</td>
+                      <td rowspan="${rowSpan}">${this.thBaht(down)}</td>
+                      <td>${periodVal ?? '-'}</td>
+                      <td>${rateVal == null ? '-' : rateVal + '%'}</td>
+                      <td>${monthly == null ? '-' : this.thBaht(monthly)}</td>
+                    </tr>`;
                   }
 
                   return `<tr>
@@ -509,7 +509,7 @@ export class PdfService {
         <tbody>
           <tr>
             <td>${this.thBaht(cash?.specialDiscount)}</td>
-            <td>${this.thBaht(cash?.specialAddition)}</td>
+            <td>${this.thBaht(cashAddition)}</td>
             <td>${this.thBaht(cash?.totalPrice)}</td>
           </tr>
         </tbody>
@@ -550,17 +550,8 @@ export class PdfService {
               const rowSpan = Math.max(plans.length, 1);
 
               if (plans.length === 0) {
-                return `<tr>
-                  <td rowspan="1">${order?.orderNumber ?? ''}</td>
-                  <td rowspan="1">${this.thBaht(car?.price)}</td>
-                  <td rowspan="1">${this.thBaht(order?.specialDiscount)}</td>
-                  <td rowspan="1">${this.thBaht(order?.additionPrice)}</td>
-                  <td rowspan="1">${this.thBaht(net)}</td>
-                  <td rowspan="1">${this.thBaht(down)}</td>
-                  <td>-</td>
-                  <td>-</td>
-                  <td>-</td>
-                </tr>`;
+                  // If there are no valid plan rows (interestRate null/empty), omit this order entirely
+                  return '';
               }
 
               const rows = plans

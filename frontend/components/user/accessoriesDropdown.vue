@@ -35,7 +35,7 @@
                     <h4 class="font-semibold mb-2">อุปกรณ์ตกแต่ง</h4>
                     <div v-for="(item, index) in accessories" :key="item.id"
                         class="flex justify-between items-center p-2 border border-gray-400 rounded mb-2">
-                        <div>{{ item.assName }} - ฿{{ item.price }}</div>
+                        <div>{{ item.assName }} - ฿{{ (item.price != null && item.price.toLocaleString) ? item.price.toLocaleString() : item.price }}</div>
                         <button @click="removeAccessory(index)"
                             class="px-2 py-1 bg-[#980000] text-white rounded cursor-pointer">ลบ</button>
                     </div>
@@ -50,7 +50,8 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
-import axios from "axios";
+import { useApi } from '~/composables/useApi'
+import { useExternalApi } from '~/composables/useExternalApi'
 
 const props = defineProps({
     label: String,
@@ -63,33 +64,61 @@ const searchQuery = ref("");
 const allAccessories = ref([]);
 const accessories = ref([]);
 const carId = ref(null);
+const api = useApi();
+const externalApi = useExternalApi();
 const config = useRuntimeConfig();
-const backendUrl = config.public.backendUrl;
 const apiUrl = config.public.apiUrl;
 
 const toggle = () => (open.value = !open.value);
 
 onMounted(async () => {
-    if (backendUrl && props.quotationId) {
+    if (props.quotationId) {
         try {
-            const { data } = await axios.get(`${backendUrl}/quotation/${props.quotationId}`);
+            const { data } = await api.get(`/quotation/${props.quotationId}`);
             accessories.value = data.accessories || [];
             const unitType = data.carDetails?.unitType;
-            if (unitType) {
-                const { data: carData } = await axios.get(
-                    `${apiUrl}/standard-base?filter=unitType||$eq||${encodeURIComponent(unitType)}&filter=status||$eq||1`
-                );
+                if (unitType) {
+                // Prefer external API for catalog lookups; fallback to backend if missing
+                let carDataResp = null;
+                if (externalApi) {
+                    carDataResp = await externalApi.get(`/standard-base?filter=unitType||$eq||${encodeURIComponent(unitType)}&filter=status||$eq||1`);
+                } else {
+                    carDataResp = await api.get(`/standard-base?filter=unitType||$eq||${encodeURIComponent(unitType)}&filter=status||$eq||1`);
+                }
+                const carData = carDataResp?.data;
                 if (carData?.length) carId.value = carData[0].id;
                 // fetch all accessories for this car once
                 if (carId.value) {
                     try {
-                        const { data: list } = await axios.get(`${apiUrl}/standard-base/standard-name/${carId.value}`);
+                        // Prefer external API when available (API_URL from runtime config)
+                        let listResp = null;
+                        if (externalApi) {
+                            listResp = await externalApi.get(`/standard-base/standard-name/${carId.value}`);
+                        } else {
+                            listResp = await api.get(`/standard-base/standard-name/${carId.value}`);
+                        }
+                        const list = listResp?.data;
                         allAccessories.value = (list?.[0]?.StandardAccBase || []).map(item => ({
                             assType: item.accBase.assType,
                             assName: item.accBase.assName,
                             price: parseFloat(item.accBase.itemCostIncVat) || 0,
                             id: item.idAccBase
                         }));
+
+                        if (accessories.value && accessories.value.length) {
+                            accessories.value = accessories.value.map(a => {
+                                const priceNum = Number(a.price || 0);
+                                const keyName = (a.assName || '').toString();
+                                const keyType = (a.assType || '').toString();
+                                const match = allAccessories.value.find(x => x.assName === keyName && x.assType === keyType && (Number(x.price) === Number(priceNum) || !x.price));
+                                return {
+                                    assType: keyType,
+                                    assName: keyName,
+                                    price: priceNum,
+                                    id: match ? match.id : (a.id ?? null)
+                                };
+                            });
+                        }
                     } catch (e) {
                         console.error('Error fetching accessories list:', e);
                     }
@@ -104,16 +133,24 @@ onMounted(async () => {
 // Suggestions: show all items (including standard) that are not currently selected
 const filteredAccessories = computed(() => {
     const q = searchQuery.value.trim().toLowerCase();
-    const selectedIds = new Set(accessories.value.map(a => a.id));
-    return allAccessories.value.filter(item =>
-    !selectedIds.has(item.id) &&
-        (q === '' || item.assName.toLowerCase().includes(q) || item.assType.toLowerCase().includes(q))
-    );
+    // Use name+type key to determine selection so items that came from the DB (without id)
+    // still correctly exclude matching catalog items.
+    const selectedKeys = new Set(accessories.value.map(a => `${(a.assName||'').toString()}::${(a.assType||'').toString()}`));
+    return allAccessories.value.filter(item => {
+        const key = `${item.assName}::${item.assType}`;
+        if (selectedKeys.has(key)) return false;
+        if (q === '') return true;
+        return item.assName.toLowerCase().includes(q) || item.assType.toLowerCase().includes(q);
+    });
 });
 
 const addAccessory = (item) => {
-    if (!accessories.value.some(acc => acc.id === item.id)) {
-        accessories.value.push(item);
+    // normalize shape when adding so selected list matches expected backend shape
+    const normalized = { assType: item.assType, assName: item.assName, price: Number(item.price || 0), id: item.id ?? null };
+    const key = `${normalized.assName}::${normalized.assType}`;
+    const exists = accessories.value.some(a => `${(a.assName||'').toString()}::${(a.assType||'').toString()}` === key);
+    if (!exists) {
+        accessories.value.push(normalized);
     }
     // clear search after adding, like a picker UX
     searchQuery.value = '';

@@ -33,7 +33,8 @@
                     <div v-if="selectedMethod === 'cash'" class="space-y-4">
                         <div class="flex items-center gap-4">
                             <span class="font-semibold w-1/3 text-black">ราคารถ</span>
-                            <div class="w-2/3 p-2 bg-gray-100 border rounded-lg text-gray-700">{{ displayPrice }} บาท</div>
+                            <div class="w-2/3 p-2 bg-gray-100 border rounded-lg text-gray-700">{{ displayPrice }} บาท
+                            </div>
                         </div>
                         <div class="flex items-center gap-4">
                             <span class="font-semibold w-1/3 text-black">ส่วนลด</span>
@@ -56,7 +57,8 @@
                     <div v-if="selectedMethod === 'installment'" class="space-y-4">
                         <div class="flex items-center gap-4">
                             <span class="font-semibold w-1/3 text-black">ราคารถ</span>
-                            <div class="w-2/3 p-2 bg-gray-100 border rounded-lg text-gray-700">{{ displayPrice }} บาท</div>
+                            <div class="w-2/3 p-2 bg-gray-100 border rounded-lg text-gray-700">{{ displayPrice }} บาท
+                            </div>
                         </div>
                         <div class="flex items-center gap-4">
                             <span class="font-semibold w-1/3 text-black">ส่วนลด</span>
@@ -77,8 +79,8 @@
                         <div>
                             <span class="font-semibold text-black">จำนวนเงินดาวน์</span>
                             <div class="flex items-center gap-4 mt-2 w-full">
-                                <input v-model.number="activePlan.downPaymentPercent" type="number" placeholder="%" min="0" max="100"
-                                    @input="updateDownPayment"
+                                <input v-model.number="activePlan.downPaymentPercent" type="number" placeholder="%"
+                                    min="0" max="100" @input="updateDownPayment"
                                     class="w-1/2 p-2 border rounded-lg text-black placeholder-gray-400 border-black" />
                                 <span class="text-black">หรือ</span>
                                 <input v-model.number="downPaymentBaht" type="number" placeholder="บาท"
@@ -98,14 +100,16 @@
                             <div v-if="activePlan?.planDetails?.length">
                                 <p class="text-center font-semibold text-sm text-black">อัตราดอกเบี้ย</p>
                                 <div v-for="(plan, index) in activePlan.planDetails" :key="index" class="mt-2">
-                                    <input v-model.number="plan.interestRate" @blur="handleInterestRateBlur(plan, index)" type="number"
+                                    <input v-model="plan.interestRate" @blur="handleInterestRateBlur(plan, index)"
+                                        type="number"
                                         class="w-full p-2 border rounded-lg text-center text-black placeholder-gray-400 border-black"
                                         placeholder="%" />
                                 </div>
                             </div>
                             <div v-if="activePlan?.planDetails?.length">
                                 <p class="text-center font-semibold text-sm text-black">ค่างวดต่อเดือน</p>
-                                <div v-for="(installment, index) in calculateMonthlyPayments()" :key="index" class="mt-2">
+                                <div v-for="(installment, index) in calculateMonthlyPayments()" :key="index"
+                                    class="mt-2">
                                     <input :value="installment" type="text"
                                         class="w-full p-2 border border-black rounded-lg text-center text-black placeholder-gray-400"
                                         readonly />
@@ -115,7 +119,8 @@
                         <div class="flex items-center justify-center gap-4 p-4">
                             <span class="text-black">เงื่อนไขที่ </span>
                             <div v-if="installmentPlans.length > 0" class="flex gap-2">
-                                <button v-for="(plan, index) in installmentPlans" :key="index" @click="toggleActivePlan(index)"
+                                <button v-for="(plan, index) in installmentPlans" :key="index"
+                                    @click="toggleActivePlan(index)"
                                     :class="['p-4 border rounded-lg text-black w-[50px]', { 'bg-black text-white w-[50px]': activePlanIndex === index }]">
                                     {{ index + 1 }}
                                 </button>
@@ -134,7 +139,7 @@
 
 <script setup>
 import { ref, reactive, watch, onMounted, computed } from "vue";
-import axios from "axios";
+import { useApi } from "~/composables/useApi";
 import { useQuotationStore } from "~/stores/quotation";
 
 const props = defineProps({
@@ -147,7 +152,7 @@ const open = ref(false);
 const loading = ref(false);
 const selectedMethod = ref(null);
 const config = useRuntimeConfig();
-const backendUrl = config.public.backendUrl;
+const api = useApi();
 const store = useQuotationStore();
 
 const carDetails = reactive({
@@ -194,13 +199,13 @@ const displayPrice = computed(() => {
 const fetchQuotationData = async () => {
     loading.value = true;
     try {
-        const response = await axios.get(`${backendUrl}/quotation/${props.quotationId}`);
+        const response = await api.get(`/quotation/${props.quotationId}`);
         const data = response.data;
 
-    selectedMethod.value = data.paymentMethod;
-    // keep store in sync
-    if (typeof store.setPaymentMethod === 'function') store.setPaymentMethod(selectedMethod.value);
-    else store.paymentMethod = selectedMethod.value;
+        selectedMethod.value = data.paymentMethod;
+        // keep store in sync
+        if (typeof store.setPaymentMethod === 'function') store.setPaymentMethod(selectedMethod.value);
+        else store.paymentMethod = selectedMethod.value;
         if (data.carDetails?.price) carDetails.price = data.carDetails.price;
 
         // cache both sets if provided
@@ -272,7 +277,7 @@ const selectMethod = (method) => {
         if (initialInstallmentFromApi.value.length) {
             installmentPlans.value = JSON.parse(JSON.stringify(initialInstallmentFromApi.value));
         }
-    if (installmentPlans.value.length === 0) {
+        if (installmentPlans.value.length === 0) {
             installmentPlans.value.push({
                 additionPrice: null,
                 specialDiscount: null,
@@ -288,9 +293,20 @@ const selectMethod = (method) => {
             downPaymentBaht.value = 0;
         }
     }
-    emit("update", { paymentMethod: selectedMethod.value, installmentPlans: installmentPlans.value, cashPlans: {
-        specialDiscount: cashDiscount.value, specialAddition: cashAddition.value, totalPrice: cashTotal.value
-    }});
+    // Emit only the relevant payment data to avoid stale fields
+    if (selectedMethod.value === 'cash') {
+        emit('update', {
+            paymentMethod: selectedMethod.value,
+            cashPlans: { specialDiscount: cashDiscount.value, specialAddition: cashAddition.value, totalPrice: cashTotal.value },
+            installmentPlans: null,
+        });
+    } else {
+        emit('update', {
+            paymentMethod: selectedMethod.value,
+            installmentPlans: installmentPlans.value,
+            cashPlans: null,
+        });
+    }
 };
 
 const updateDownPayment = () => {
@@ -312,11 +328,15 @@ const calculateMonthlyPayments = () => {
     const loanAmount = totalPrice - (downPaymentBaht.value || 0);
 
     return activePlan.value.planDetails.map(plan => {
-        const months = plan.period;
+        const months = Number(plan.period || 0);
         if (!months || loanAmount <= 0) return 0;
-        if (!plan.interestRate || plan.interestRate <= 0) return 0;
 
-        const monthlyRate = plan.interestRate / 100 / 12;
+        const rate = plan.interestRate === null || plan.interestRate === undefined || plan.interestRate === ''
+            ? NaN
+            : Number(plan.interestRate);
+        if (Number.isNaN(rate) || rate <= 0) return 0;
+
+        const monthlyRate = rate / 100 / 12;
         const monthlyPayment =
             loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, months)) /
             (Math.pow(1 + monthlyRate, months) - 1);
@@ -326,9 +346,15 @@ const calculateMonthlyPayments = () => {
 };
 
 const handleInterestRateBlur = (plan, index) => {
-    if (plan.interestRate === "" || plan.interestRate === null) {
+    const raw = plan.interestRate;
+    // Empty input -> null
+    if (raw === "" || raw === null || raw === undefined) {
         activePlan.value.planDetails[index].interestRate = null;
+        return;
     }
+    // Otherwise try to parse number, fallback to null when invalid
+    const parsed = Number(String(raw).trim());
+    activePlan.value.planDetails[index].interestRate = Number.isNaN(parsed) ? null : parsed;
 };
 
 // Calculate total price like installmentPayment.vue

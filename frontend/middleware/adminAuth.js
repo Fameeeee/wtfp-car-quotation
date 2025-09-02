@@ -9,7 +9,7 @@ export default async function ({ to, from }) {
         if (!isManager()) return navigateTo('/controller/login');
         return;
       }
-      const res = await fetch(`${backend}/auth/me`, { headers: { Authorization: `Bearer ${token}` } });
+          const res = await fetch(`${backend.replace(/\/$/, '')}/api/auth/me`, { headers: { Authorization: `Bearer ${token}` } });
       if (res.ok) {
         const json = await res.json();
         if (!json?.authenticated || json?.user?.role !== 'manager') {

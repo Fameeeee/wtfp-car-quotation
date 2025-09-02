@@ -1,14 +1,15 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { StaffModule } from 'src/staff/staff.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { RolesGuard } from './roles.guard';
 
 @Module({
   imports: [
-    StaffModule,
+    forwardRef(() => StaffModule),
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -20,7 +21,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
-  exports: [AuthService]
+  providers: [AuthService, RolesGuard],
+  exports: [AuthService, RolesGuard],
 })
 export class AuthModule {}

@@ -50,6 +50,7 @@ import modalDiscard from '~/components/user/modalDiscard.vue';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuotationStore } from '~/stores/quotation';
+import { isValidPhone, sanitizePhone } from '~/utils/validators';
 
 const router = useRouter();
 const quotationStore = useQuotationStore();
@@ -82,14 +83,13 @@ const validateField = (field) => {
         errors.value.lastName = customer.value.lastName ? '' : 'กรุณากรอกนามสกุล';
     }
     if (field === 'phoneNumber') {
-        const phonePattern = /^[0-9]{10}$/;
-        errors.value.phoneNumber = phonePattern.test(customer.value.phoneNumber) ? '' : 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก)';
+        errors.value.phoneNumber = isValidPhone(customer.value.phoneNumber) ? '' : 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก)';
     }
 };
 
 const handleInput = (field) => {
     if (field === 'phoneNumber') {
-        customer.value.phoneNumber = (customer.value.phoneNumber || '').replace(/\D/g, '').slice(0, 10);
+        customer.value.phoneNumber = sanitizePhone(customer.value.phoneNumber);
     }
     validateField(field);
     try { quotationStore.setCustomerDetails(customer.value); } catch { }

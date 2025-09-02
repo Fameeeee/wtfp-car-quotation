@@ -63,11 +63,11 @@
 
 <script setup>
 import { useRouter, useRoute } from 'vue-router';
-import axios from 'axios';
+import { useApi } from '~/composables/useApi';
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 
 const config = useRuntimeConfig()
-const backendUrl = config.public.backendUrl;
+const api = useApi();
 
 const route = useRoute();
 const quotationId = route.params.id;
@@ -79,9 +79,9 @@ const pdfLoading = ref(false);
 onMounted(async () => {
     try {
         pdfLoading.value = true;
-        const meta = await axios.get(`${backendUrl}/quotation/${quotationId}`);
+        const meta = await api.get(`/quotation/${quotationId}`);
         quotationData.value = meta.data || {};
-        const res = await axios.get(`${backendUrl}/quotation/${quotationId}/pdf`, { responseType: 'blob' });
+    const res = await api.get(`/quotation/${quotationId}/pdf`, { responseType: 'blob' });
         const blob = new Blob([res.data], { type: 'application/pdf' });
         pdfUrl.value = URL.createObjectURL(blob);
     } catch (e) {
@@ -106,7 +106,7 @@ const pdfFileName = computed(() => {
 
 const saveAsPdf = async () => {
     try {
-        const res = await axios.get(`${backendUrl}/quotation/${quotationId}/pdf`, { responseType: 'blob' });
+        const res = await api.get(`/quotation/${quotationId}/pdf`, { responseType: 'blob' });
         const blob = new Blob([res.data], { type: 'application/pdf' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -126,7 +126,7 @@ const openInNewTab = () => {
         window.open(pdfUrl.value, '_blank', 'noopener,noreferrer');
         return;
     }
-    const directUrl = `${backendUrl}/quotation/${quotationId}/pdf`;
+    const directUrl = `${api.defaults.baseURL.replace(/\/$/, '')}/quotation/${quotationId}/pdf`;
     window.open(directUrl, '_blank', 'noopener,noreferrer');
 };
 
