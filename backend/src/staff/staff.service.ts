@@ -1,4 +1,11 @@
-import { BadRequestException, ConflictException, Injectable, UnauthorizedException, NotFoundException, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+  NotFoundException,
+  Logger,
+} from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { CreateStaffDto } from './dto/create-staff.dto';
 import { UpdateStaffDto } from './dto/update-staff.dto';
@@ -25,7 +32,7 @@ export class StaffService {
     return this.staffRepository.findOne({ where: { email } });
   }
 
-  async createStaff(staffData: Partial<Staff>): Promise<void> {
+  async createStaff(staffData: Partial<Staff>): Promise<Staff> {
     const { email, firstName, lastName, phoneNumber } = staffData;
 
     const existingStaff = await this.staffRepository.findOne({
@@ -50,7 +57,8 @@ export class StaffService {
     const hashedPassword = await bcrypt.hash(staffData.password, 10);
     staffData.password = hashedPassword;
 
-    await this.staffRepository.save(staffData);
+    const saved = await this.staffRepository.save(staffData);
+    return saved;
   }
 
   async getAllStaff(
@@ -131,27 +139,25 @@ export class StaffService {
   async updateStaff(id: number, updateData: Partial<Staff>): Promise<Staff> {
     const staff = await this.staffRepository.findOne({ where: { id } });
 
-  if (!staff) throw new NotFoundException('Staff not found');
+    if (!staff) throw new NotFoundException('Staff not found');
 
-  Object.assign(staff, updateData);
-  const saved = await this.staffRepository.save(staff);
-  this.logger.log(`Staff updated id=${saved.id}`);
-  return saved;
+    Object.assign(staff, updateData);
+    const saved = await this.staffRepository.save(staff);
+    this.logger.log(`Staff updated id=${saved.id}`);
+    return saved;
   }
 
-  // Update staff status and optionally reassign their quotations to another staff
   async updateStatus(
     id: number,
     status: string,
     reassignTo?: number,
   ): Promise<Staff> {
-  const staff = await this.staffRepository.findOne({ where: { id } });
-  if (!staff) throw new NotFoundException('Staff not found');
+    const staff = await this.staffRepository.findOne({ where: { id } });
+    if (!staff) throw new NotFoundException('Staff not found');
 
-  staff.status = status as any;
-  const saved = await this.staffRepository.save(staff);
+    staff.status = status as any;
+    const saved = await this.staffRepository.save(staff);
 
-    // Optionally reassign quotations
     if (reassignTo && reassignTo !== id) {
       await this.quotationRepository
         .createQueryBuilder()
@@ -177,10 +183,10 @@ export class StaffService {
   async deleteStaff(id: number): Promise<string> {
     const staff = await this.staffRepository.findOne({ where: { id } });
 
-  if (!staff) throw new NotFoundException('Staff not found');
+    if (!staff) throw new NotFoundException('Staff not found');
 
-  await this.staffRepository.remove(staff);
-  this.logger.log(`Staff deleted id=${id}`);
-  return 'Staff deleted successfully';
+    await this.staffRepository.remove(staff);
+    this.logger.log(`Staff deleted id=${id}`);
+    return 'Staff deleted successfully';
   }
 }

@@ -1,9 +1,16 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  Logger,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import * as path from 'path';
 import * as fs from 'fs';
 import puppeteer from 'puppeteer';
 import * as QRCode from 'qrcode';
 import { QuotationService } from './quotation.service';
+import { AuditService } from 'src/audit/audit.service';
 import { BROCHURE_MAPPINGS } from './brochure-map';
 
 type QuotationData = any;
@@ -11,14 +18,42 @@ type QuotationData = any;
 @Injectable()
 export class PdfService {
   private readonly logger = new Logger(PdfService.name);
-  constructor(private readonly quotationService: QuotationService) {}
+  constructor(
+    private readonly quotationService: QuotationService,
+    @Inject(forwardRef(() => AuditService))
+    private readonly auditService: AuditService,
+  ) {}
 
   async generateById(
     id: number,
     opts?: { preview?: boolean; templateKey?: string },
   ): Promise<Buffer> {
     const data = await this.quotationService.findById(id);
-    if (!data) throw new NotFoundException('Quotation not found');
+    if (!data) {
+      try {
+        await this.auditService.record(
+          'pdf_failed',
+          'quotation',
+          id,
+          null,
+          { reason: 'Quotation not found', id },
+          'ERROR',
+          'pdf',
+        );
+      } catch (e) {}
+      throw new NotFoundException('Quotation not found');
+    }
+    try {
+      await this.auditService.record(
+        'pdf',
+        'quotation',
+        id,
+        data.staffId || null,
+        { id },
+        'INFO',
+        'pdf',
+      );
+    } catch (e) {}
     return this.renderPdf(data, opts);
   }
 

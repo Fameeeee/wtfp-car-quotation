@@ -14,12 +14,13 @@ export class AuditController {
     @Query('performedBy') performedBy?: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
+    @Query('level') level?: string,
   ) {
     const p = Number(page) || 1;
     const l = Number(limit) || 50;
     const pb = performedBy ? Number(performedBy) : undefined;
-    this.logger.log(`GET /audit entity=${entity} page=${p} limit=${l}`);
-    return this.auditService.list(entity, p, l, pb, startDate, endDate);
+    this.logger.log(`GET /audit entity=${entity} page=${p} limit=${l} level=${level}`);
+    return this.auditService.list(entity, p, l, pb, startDate, endDate, level);
   }
 
   @Get('export')
@@ -29,13 +30,14 @@ export class AuditController {
     @Query('performedBy') performedBy?: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
+    @Query('level') level?: string,
     @Query('page') page = '1',
     @Query('limit') limit = '50',
   ) {
     const pb = performedBy ? Number(performedBy) : undefined;
     const p = Number(page) || 1;
     const l = Number(limit) || 50;
-    const csv = await this.auditService.exportCsv(entity, action, pb, startDate, endDate, p, l);
+    const csv = await this.auditService.exportCsv(entity, action, pb, startDate, endDate, level, p, l);
     return {
       headers: { 'content-type': 'text/csv' },
       data: csv,

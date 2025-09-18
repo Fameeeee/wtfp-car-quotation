@@ -34,6 +34,17 @@ export class QuotationService {
 
     const staff = await this.staffService.findById(dto.staffId);
     if (!staff) {
+      try {
+        await this.auditService.record(
+          'create_failed',
+          'quotation',
+          0,
+          dto.staffId || null,
+          { reason: 'Staff not found', dto },
+          'ERROR',
+          'quotation',
+        );
+      } catch (e) {}
       throw new BadRequestException('Staff not found');
     }
 
@@ -79,9 +90,16 @@ export class QuotationService {
 
     await this.quotationRepository.save(quotation);
 
-    // record creation audit (best-effort)
     try {
-      await this.auditService.record('create', 'quotation', quotation.id, dto.staffId, { createdFrom: null });
+      await this.auditService.record(
+        'create',
+        'quotation',
+        quotation.id,
+        dto.staffId,
+        { createdFrom: null, dto },
+  'INFO',
+        'quotation',
+      );
     } catch (e) {
       this.logger.warn('Failed to record audit for createQuotation', e?.message || e);
     }

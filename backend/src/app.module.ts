@@ -23,7 +23,7 @@ import dbConfig from './config/db.config';
     StaffModule,
     CustomerModule,
     QuotationModule,
-  AuditModule,
+    AuditModule,
     AuthModule,
   ],
   controllers: [AppController],
