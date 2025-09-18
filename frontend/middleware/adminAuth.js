@@ -1,4 +1,4 @@
-import { isManager, getToken } from '../composables/useAuth'
+import { isManager, getToken } from '../composables/useAuth.ts'
 
 export default async function ({ to, from }) {
   if (process.client) {
@@ -18,7 +18,6 @@ export default async function ({ to, from }) {
         return
       }
     } catch (e) {
-      // fallback to client-side check
       if (!isManager()) return navigateTo('/controller/login')
     }
   }

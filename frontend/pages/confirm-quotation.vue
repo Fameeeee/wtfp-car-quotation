@@ -63,7 +63,7 @@ import { useApi } from '~/composables/useApi'
 import modalConfirm from '~/components/user/modalConfirm.vue';
 import { useRouter } from 'vue-router';
 import { useQuotationStore } from '~/stores/quotation';
-import { getMe, getStaffIdAsync } from '~/composables/useAuth'
+import { getMe, getStaffIdAsync } from '~/composables/useAuth.ts'
 
 const api = useApi();
 
@@ -73,7 +73,7 @@ const showModal = ref(false);
 const staffId = ref(null);
 const pdfUrl = ref('');
 const pdfLoading = ref(false);
-const showFull = ref(false); // when true, ask backend for full multi-page PDF
+const showFull = ref(false); 
 const staffInfo = ref({ firstName: '', lastName: '', phoneNumber: '' });
 
 const goBack = () => {
@@ -85,7 +85,6 @@ const goNext = () => {
 };
 
 onMounted(async () => {
-    // Try server-side /auth/me first
     const me = await getMe();
     if (me) {
         staffId.value = me.id || me.staffId || null;
@@ -95,7 +94,6 @@ onMounted(async () => {
             phoneNumber: me.phoneNumber || me.phone || me.mobile || ''
         };
     } else {
-        // fallback to async staff id fetch
         staffId.value = await getStaffIdAsync();
     }
 
@@ -110,7 +108,6 @@ onMounted(async () => {
 
 const confirm = async () => {
     showModal.value = false;
-    // Use Pinia store for ephemeral quotation data (persisted). Avoid direct localStorage reads.
     const selectedCar = quotationStore.selectedCar || {};
     const storeCashPlan = quotationStore.cashPlan || {};
     const storeInstallmentPlans = quotationStore.installmentPlans || [];
@@ -129,7 +126,6 @@ const confirm = async () => {
             cmi: additionCost.cmiCheck ? true : false,
             insurance: additionCost.insuranceCheck ? true : false,
             fuelValue: additionCost.fuelValue ? Number(additionCost.fuelValue) : null,
-            // Show note even if user hasn't finalized add-cost step yet
             note: additionCost.noteText || additionCost.noteExtra || null
         },
         carDetails: {
@@ -145,7 +141,6 @@ const confirm = async () => {
     }
 
     if (dataToSend.paymentMethod === 'cash' && hasCash) {
-        // ensure numeric fields in cash plan
         dataToSend.cashPlans = {
             totalPrice: storeCashPlan.totalPrice ? Number(storeCashPlan.totalPrice) : storeCashPlan.totalPrice,
             specialDiscount: storeCashPlan.specialDiscount ? Number(storeCashPlan.specialDiscount) : storeCashPlan.specialDiscount,
@@ -153,7 +148,6 @@ const confirm = async () => {
             ...storeCashPlan
         };
     } else if (dataToSend.paymentMethod === 'installment' && hasInstallment) {
-        // coerce installment numbers, but preserve null/empty interestRate (do not convert to 0)
         dataToSend.installmentPlans = storeInstallmentPlans.map((plan) => ({
             ...plan,
             orderNumber: Number(plan.orderNumber),
@@ -167,14 +161,12 @@ const confirm = async () => {
         }));
     }
 
-    // Ensure we have an authenticated staff id before sending
     if (!staffId.value) {
         console.error('Cannot create quotation: missing staffId (user not authenticated)');
         router.push('/register');
         return;
     }
 
-    // Debug: log payload so developer can inspect the exact shape sent
     console.info('Creating quotation payload:', JSON.parse(JSON.stringify(dataToSend)));
 
     try {
@@ -183,14 +175,12 @@ const confirm = async () => {
         showModal.value = false;
         router.push(`/quotation-success/${quotationId}`);
     } catch (error) {
-        // Surface backend response body where available for easier debugging
         if (error && error.response) {
             console.error('Create quotation failed', error.response.status, error.response.data);
         } else {
             console.error('Error creating quotation:', error);
         }
         showModal.value = false;
-        // Optional: show a basic alert to the user
         try { alert('Failed to create quotation: ' + (error?.response?.data?.message || error?.message || 'Unknown error')); } catch(e){}
     }
 }
@@ -199,7 +189,6 @@ const closeModal = () => {
     showModal.value = false;
 };
 
-// PDF preview/download
 const fetchStaffInfo = async () => {
     try {
         if (!staffId.value) return;
@@ -217,7 +206,6 @@ const fetchStaffInfo = async () => {
 };
 
 const buildPreviewPayload = () => {
-    // Use Pinia store data (persisted across pages)
     const selectedCar = quotationStore.selectedCar || {};
     const storeCashPlan = quotationStore.cashPlan || {};
     const storeInstallmentPlans = quotationStore.installmentPlans || [];
@@ -229,7 +217,7 @@ const buildPreviewPayload = () => {
     const chosenMethod = quotationStore.paymentMethod || (hasCash ? 'cash' : (hasInstallment ? 'installment' : null));
 
     const base = {
-        id: null, // no doc number in preview
+        id: null, 
         quotationDate: new Date().toISOString(),
         customer: customerDetails,
         paymentMethod: chosenMethod,
@@ -237,7 +225,6 @@ const buildPreviewPayload = () => {
             cmi: additionCost.cmiCheck ? true : false,
             insurance: additionCost.insuranceCheck ? true : false,
             fuelValue: additionCost.fuelValue ? Number(additionCost.fuelValue) : null,
-            // Prefer finalized noteText; otherwise fallback to live noteExtra
             note: additionCost.noteText || additionCost.noteExtra || null
         },
         carDetails: {
@@ -252,7 +239,6 @@ const buildPreviewPayload = () => {
         staff: { ...staffInfo.value }
     };
 
-    // request full multi-page output when toggled
     if (showFull.value) base.full = true;
 
     if (base.paymentMethod === 'cash' && hasCash) {
@@ -300,7 +286,6 @@ const openPdfInNewTab = () => {
     window.open(pdfUrl.value, '_blank', 'noopener');
 };
 
-// UI toggle for full vs single-page preview
 function toggleFullPreview() {
     showFull.value = !showFull.value;
     generatePdfPreview();

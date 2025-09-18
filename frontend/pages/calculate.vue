@@ -4,22 +4,23 @@
         <div class="flex space-x-4 mb-6">
             <button @click="selectedPayment = 'cash'"
                 :class="{ 'bg-black text-white': selectedPayment === 'cash', 'bg-white text-black border': selectedPayment !== 'cash' }"
-                class="px-6 py-2 rounded-lg border transition">
+                class="px-6 py-2 rounded-lg border transition w-50">
                 ราคาซื้อสด
             </button>
             <button @click="selectedPayment = 'installment'"
                 :class="{ 'bg-black text-white': selectedPayment === 'installment', 'bg-white text-black border': selectedPayment !== 'installment' }"
-                class="px-6 py-2 rounded-lg border transition">
+                class="px-6 py-2 rounded-lg border transition w-50">
                 คำนวณเงินผ่อน
             </button>
         </div>
 
         <div class="w-full max-w-md">
             <cashPayment v-if="selectedPayment === 'cash'" />
-            <installmentPayment v-if="selectedPayment === 'installment'" ref="installmentRef" @validity="isInstallmentValid = $event" />
+            <installmentPayment v-if="selectedPayment === 'installment'" ref="installmentRef"
+                @validity="isInstallmentValid = $event" />
         </div>
 
-    <buttonGroup :goBack="goBack" :goNext="goNext" />
+        <buttonGroup :goBack="goBack" :goNext="goNext" />
     </div>
 
     <modalDiscard v-if="showModal" message="คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการเปลี่ยนแปลงของคุณ?" confirmText="ยืนยัน"
@@ -43,7 +44,6 @@ const showModal = ref(false);
 const isInstallmentValid = ref(false);
 const installmentRef = ref(null);
 
-// keep store in sync when user toggles between cash/installment
 watch(selectedPayment, (val) => {
     quotationStore.setPaymentMethod(val);
     if (val === 'cash') {
@@ -58,7 +58,6 @@ const goBack = () => {
 }
 const goNext = () => {
     if (selectedPayment.value === 'installment') {
-        // Trigger child validation on submit
         const ok = installmentRef.value?.validateOnSubmit?.() ?? false;
         if (!ok) return;
     }
@@ -80,7 +79,6 @@ const discardChanges = () => {
 
 definePageMeta({ middleware: 'staff-auth' });
 
-// initialize from store if present, else set default
 onMounted(() => {
     if (quotationStore.paymentMethod === 'cash' || quotationStore.paymentMethod === 'installment') {
         selectedPayment.value = quotationStore.paymentMethod;

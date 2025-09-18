@@ -2,15 +2,11 @@
     <!-- Mobile backdrop -->
     <div v-if="isOpen" class="fixed inset-0 bg-black/30 sm:hidden z-[90]" @click="$emit('toggle')"></div>
 
-    <aside
-        role="navigation"
-        aria-label="Admin sidebar"
+    <aside role="navigation" aria-label="Admin sidebar"
         class="sidebar h-screen min-h-screen shadow-md flex flex-col fixed left-0 top-0 bg-white transition-all duration-300 ease-in-out transform will-change-transform z-[100]"
         :class="[
-            // width: desktop collapsed/expanded; mobile fixed drawer width
             isOpen ? 'sm:w-[280px] sm:min-w-[280px]' : 'sm:w-[80px] sm:min-w-[80px]',
             'w-[280px]',
-            // slide in/out on mobile
             isOpen ? 'translate-x-0' : '-translate-x-full',
             'sm:translate-x-0'
         ]">
@@ -27,12 +23,12 @@
         </div>
 
         <nav class="flex flex-col gap-2.5 w-full px-2">
-            <NuxtLink to="/controller/admin" :class="{ active: $route.path.startsWith('/controller/admin') }"
+            <NuxtLink to="/controller/dashboard" :class="{ active: $route.path.startsWith('/controller/dashboard') }"
                 class="flex items-center gap-3 text-black text-base font-bold transition-all duration-300 ease-in-out py-3 px-3 hover:bg-gray-100">
                 <span v-if="isOpen" class="transition-opacity duration-200">Dashboard</span>
                 <i v-else class="icon-dashboard">
                     <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3 13h8V3H3v10zM3 21h8v-6H3v6zM13 21h8V11h-8v10zM13 3v6h8V3h-8z" fill="black"/>
+                        <path d="M3 13h8V3H3v10zM3 21h8v-6H3v6zM13 21h8V11h-8v10zM13 3v6h8V3h-8z" fill="black" />
                     </svg>
                 </i>
             </NuxtLink>
@@ -95,7 +91,18 @@
                     </svg>
                 </i>
             </NuxtLink>
+            <NuxtLink to="/home"
+                class="bg-gray-200 text-black rounded-md cursor-pointer flex items-center justify-center mx-auto mt-auto mb-2 px-5 py-3 w-[90%] gap-2 transition-all duration-200 hover:bg-gray-300">
+                <span v-if="isOpen" class="transition-opacity duration-200">Back to User Site</span>
+                <i v-else>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 19l-7-7 7-7v4h8v6h-8v4z" fill="black" />
+                    </svg>
+                </i>
+            </NuxtLink>
         </nav>
+
+
 
         <button
             class="logout bg-[#980000] text-white rounded-md cursor-pointer flex items-center justify-center mx-auto mt-auto mb-3 px-5 py-3 w-[90%] gap-2 transition-all duration-200"
@@ -114,7 +121,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { clearToken } from '~/composables/useAuth'
+import { clearToken } from '~/composables/useAuth.ts'
 
 defineProps({
     isOpen: {

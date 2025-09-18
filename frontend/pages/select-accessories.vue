@@ -1,10 +1,10 @@
 <template>
-  <div class="flex flex-col items-center h-full p-4 space-y-6">
+  <div class="flex flex-col items-center h-full p-4 ">
     <h2 class="text-4xl font-extrabold text-[#696969] my-4">อุปกรณ์ตกแต่ง</h2>
     <input v-model="searchQuery" type="text" placeholder="ค้นหาอุปกรณ์"
-      class="w-full p-3 mb-4 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 text-black placeholder-gray-500" />
+      class="w-full max-w-xl p-3 mb-4 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 text-black placeholder-gray-500" />
 
-    <div v-if="searchQuery" class="w-full max-w-lg bg-white shadow-lg rounded-lg mt-2 max-h-60 overflow-auto">
+    <div v-if="searchQuery" class="w-full max-w-xl bg-white shadow-lg rounded-lg mt-2 max-h-60 overflow-auto">
       <div v-for="item in filteredAccessories" :key="item.id"
         class="p-3 border-b flex items-center justify-between hover:bg-gray-100">
         <div class="flex flex-col">
@@ -20,7 +20,7 @@
       </div>
     </div>
 
-    <div class="w-full bg-white shadow-lg rounded-lg p-4">
+    <div class="w-full max-w-xl bg-white shadow-lg rounded-lg p-4">
       <table class="min-w-full table-auto border-collapse">
         <thead>
           <tr class="bg-gray-100 border-b">
@@ -50,7 +50,7 @@
       </table>
     </div>
 
-    <div class="mb-0 text-lg font-bold text-black">ราคารวม: {{ totalPrice.toLocaleString() }} ฿</div>
+    <div class="mt-5 text-lg font-bold text-black">ราคารวม: {{ totalPrice.toLocaleString() }} ฿</div>
 
     <buttonGroup :goBack="goBack" :goNext="goNext" />
   </div>
@@ -98,7 +98,6 @@ const fetchAccessories = async () => {
         price: isNaN(parseFloat(item.accBase.itemCostIncVat)) ? 0 : parseFloat(item.accBase.itemCostIncVat),
         id: item.idAccBase
       }));
-      // Prefer existing selection from store; otherwise default to standard accessories
       if (quotationStore.selectedAccessories && quotationStore.selectedAccessories.length) {
         selectedAccessories.value = [...quotationStore.selectedAccessories];
       } else {
@@ -113,7 +112,6 @@ const fetchAccessories = async () => {
 
 onMounted(fetchAccessories);
 
-// If we arrive before the ID is present, refetch as soon as it appears
 watch(
   () => selectedCar.value?.id,
   (newId, oldId) => {
@@ -170,7 +168,7 @@ const handleSelectionChange = (item) => {
 const updateStore = () => {
   try {
     quotationStore.setSelectedAccessories(selectedAccessories.value);
-  } catch {}
+  } catch { }
 };
 
 watch(selectedAccessories, updateStore, { deep: true });
@@ -179,13 +177,13 @@ const goBack = async () => {
   if (selectedAccessories.value) {
     showModal.value = true;
   } else {
-    try { quotationStore.setSelectedAccessories([]); } catch {}
+    try { quotationStore.setSelectedAccessories([]); } catch { }
     router.push('/calculate');
   }
 };
 
 const discardChanges = () => {
-  try { quotationStore.setSelectedAccessories([]); } catch {}
+  try { quotationStore.setSelectedAccessories([]); } catch { }
   router.push('/calculate');
   closeModal();
 };

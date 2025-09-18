@@ -1,5 +1,5 @@
 <script setup>
 import { useRouter } from 'vue-router'
 const router = useRouter()
-router.replace('/controller/admin')
+router.replace('/controller/dashboard')
 </script>

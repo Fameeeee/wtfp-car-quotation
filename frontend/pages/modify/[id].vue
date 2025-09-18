@@ -29,23 +29,30 @@
         </div>
 
         <!-- Payment method selector -->
-        <paymentDropdown label="รูปแบบการชำระเงิน" :quotation-id="quotationId"
-            @update="data => handleUpdate('payment', data)" />
-
+        <div class="w-full max-w-2xl">
+            <paymentDropdown label="รูปแบบการชำระเงิน" :quotation-id="quotationId"
+                @update="data => handleUpdate('payment', data)" />
+        </div>
 
         <!-- Accessories editable -->
-        <accessoriesDropdown label="อุปกรณ์ตกแต่ง" :quotation-id="quotationId"
-            @update="data => handleUpdate('accessories', data)" />
+        <div class="w-full max-w-2xl">
+            <accessoriesDropdown label="อุปกรณ์ตกแต่ง" :quotation-id="quotationId"
+                @update="data => handleUpdate('accessories', data)" />
+        </div>
 
         <!-- Addition costs like add-cost -->
-        <additionDropdown label="ค่าใช้จ่ายเพิ่มเติม" :quotation-id="quotationId"
-            @update="data => handleUpdate('additionCosts', data)" />
+        <div class="w-full max-w-2xl">
+            <additionDropdown label="ค่าใช้จ่ายเพิ่มเติม" :quotation-id="quotationId"
+                @update="data => handleUpdate('additionCosts', data)" />
+        </div>
 
         <!-- Customer info with duplicate check on save -->
-        <customerDropdown label="ข้อมูลลูกค้า" :quotation-id="quotationId"
-            @update="data => handleUpdate('customer', data)" />
+        <div class="w-full max-w-2xl">
+            <customerDropdown label="ข้อมูลลูกค้า" :quotation-id="quotationId"
+                @update="data => handleUpdate('customer', data)" />
+        </div>
 
-        <div class="flex flex-col space-y-4 w-full max-w-md my-4">
+        <div class="flex flex-col space-y-4 w-full max-w-2xl my-4">
             <button @click="goBack" class="py-3 px-4 text-[#696969] bg-gray-200 rounded-lg border hover:bg-gray-300">
                 กลับ
             </button>
@@ -71,9 +78,7 @@ import accessoriesDropdown from '~/components/user/accessoriesDropdown.vue';
 import additionDropdown from '~/components/user/additionDropdown.vue';
 import customerDropdown from '~/components/user/customerDropdown.vue';
 import modalSave from '~/components/user/modalSave.vue';
-import { getStaffIdAsync } from '~/composables/useAuth'
-import cashPayment from '~/components/user/cashPayment.vue';
-import installmentPayment from '~/components/user/installmentPayment.vue';
+import { getStaffIdAsync } from '~/composables/useAuth.ts'
 import { useQuotationStore } from '~/stores/quotation';
 
 const route = useRoute();
@@ -129,14 +134,12 @@ api
     .get(`/quotation/${quotationId}`)
     .then((response) => {
         quotationData.value = response.data;
-        // hydrate local allData from existing quotation
         allData.customer = response.data.customer || allData.customer;
         allData.paymentMethod = response.data.paymentMethod || '';
         allData.installmentPlans = response.data.installmentPlans || [];
         allData.additionCosts = response.data.additionCosts || allData.additionCosts;
         allData.carDetails = response.data.carDetails || allData.carDetails;
         allData.accessories = response.data.accessories || [];
-        // hydrate store for payment detail components
     try {
             store.selectedCar = allData.carDetails;
             if (response.data.cashPlans) {
@@ -158,7 +161,6 @@ const goBack = () => {
 };
 
 const goNext = () => {
-    // open confirm modal before saving
     showSaveModal.value = true;
 };
 
@@ -167,14 +169,12 @@ const handleSaveConfirm = async () => {
     showSaveModal.value = false;
 
     try {
-        // Check duplicate customer
         const conflict = await checkCustomerDuplicate(allData.customer);
         if (conflict) {
             const proceed = window.confirm('พบเบอร์โทรซ้ำ แต่ชื่อ-สกุลไม่ตรงกับข้อมูลเดิมในระบบ ต้องการบันทึกต่อหรือไม่?');
             if (!proceed) return;
         }
 
-        // Diagnostic: log store snapshot before building payload
         try {
             console.info('Quotation store snapshot before save:', {
                 cashPlan: JSON.parse(JSON.stringify(store.cashPlan || null)),
@@ -191,26 +191,21 @@ const handleSaveConfirm = async () => {
             });
         }
 
-        // Build payload with current payment details from store
         const payload = { ...allData };
-        // Determine authoritative payment method: prefer store (shared across components)
         const chosenMethod = store.paymentMethod || allData.paymentMethod || null;
         if (chosenMethod && chosenMethod !== allData.paymentMethod) {
             console.warn('Payment method mismatch between local allData and store; using store value', { allData: allData.paymentMethod, store: store.paymentMethod });
         }
         payload.paymentMethod = chosenMethod;
 
-        // Always prefer store values for payment-specific plans when available
         if (store.cashPlan && Object.keys(store.cashPlan || {}).length > 0) {
             payload.cashPlans = JSON.parse(JSON.stringify(store.cashPlan));
-            // coerce numeric-ish fields for safety
             if (payload.cashPlans.totalPrice) payload.cashPlans.totalPrice = Number(payload.cashPlans.totalPrice);
             if (payload.cashPlans.specialDiscount) payload.cashPlans.specialDiscount = Number(payload.cashPlans.specialDiscount);
             if (payload.cashPlans.specialAddition) payload.cashPlans.specialAddition = Number(payload.cashPlans.specialAddition);
             payload.installmentPlans = [];
         } else if (store.installmentPlans && store.installmentPlans.length > 0) {
             payload.installmentPlans = JSON.parse(JSON.stringify(store.installmentPlans));
-            // coerce nested numbers
             payload.installmentPlans = payload.installmentPlans.map((plan) => ({
                 ...plan,
                 orderNumber: plan.orderNumber ? Number(plan.orderNumber) : plan.orderNumber,
@@ -224,7 +219,6 @@ const handleSaveConfirm = async () => {
             }));
             delete payload.cashPlans;
         } else {
-            // fallback to local allData values
             if (allData.paymentMethod === 'cash') {
                 payload.cashPlans = allData.cashPlans || {};
                 payload.installmentPlans = [];
@@ -234,10 +228,8 @@ const handleSaveConfirm = async () => {
             }
         }
 
-        // ensure staffId is numeric
         if (payload.staffId) payload.staffId = Number(payload.staffId);
 
-        // Update existing quotation instead of creating a new one
         console.info('Updating quotation payload:', JSON.parse(JSON.stringify(payload)));
         const res = await api.put(`/quotation/${quotationId}`, payload);
 
@@ -272,19 +264,16 @@ const handleUpdate = (key, data) => {
         allData.paymentMethod = data.paymentMethod;
         if (data.installmentPlans) allData.installmentPlans = data.installmentPlans;
     } else if (key === 'carDetails') {
-        // ignore carDetails updates in modify page (read-only)
         return;
     } else {
         allData[key] = data;
     }
 };
-// Check duplicate customer: same phone but different first/last name
 const checkCustomerDuplicate = async (cust) => {
     try {
         const phone = (cust?.phoneNumber || '').trim();
         if (!phone) return false;
         let resp = null;
-        // Try common endpoints progressively
         try { resp = await api.get(`/customer/phone/${encodeURIComponent(phone)}`); } catch {}
         if (!resp || !resp.data) {
             try { resp = await api.get(`/customer`, { params: { phoneNumber: phone } }); } catch {}
@@ -304,8 +293,4 @@ const checkCustomerDuplicate = async (cust) => {
         return false;
     }
 };
-
-
-
-
 </script>

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getToken, clearToken } from "~/composables/useAuth";
+import { getToken, clearToken } from "~/composables/useAuth.ts";
 
 export default defineNuxtPlugin(() => {
   const config = useRuntimeConfig();
@@ -40,10 +40,22 @@ export default defineNuxtPlugin(() => {
     (res) => res,
     (err) => {
       if (err?.response?.status === 401) {
+        // Do not force-redirect on explicit login failures; let the page show its error
+        const url = err?.config?.url || "";
+        const isLoginAttempt = /\/auth\/login\b/.test(url);
         clearToken();
-        if (process.client) {
+        if (process.client && !isLoginAttempt) {
           try {
-            window.location.href = "/controller/login";
+            const path =
+              (typeof window !== "undefined"
+                ? window.location.pathname
+                : "/") || "/";
+            // If user is on admin area, send to admin login; otherwise send to user login
+            if (path.startsWith("/controller")) {
+              window.location.href = "/controller/login";
+            } else {
+              window.location.href = "/";
+            }
           } catch (e) {
             // noop
           }

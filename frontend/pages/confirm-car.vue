@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col items-center h-full p-4">
+    <div class="flex flex-col items-center h-full p-4 w-full">
         <h2 class="text-4xl font-extrabold text-[#696969] my-4">ยืนยันรายการที่เลือก</h2>
         <div class="flex space-x-4 mb-6">
             <div class="space-y-2">
@@ -56,7 +56,6 @@ const fetchUnitId = async (unitType) => {
     }
 };
 
-// Ensure the car ID is fetched and stored when arriving on this page
 onMounted(() => {
     const unitType = selectedCar.value?.unitType;
     const hasId = Boolean(selectedCar.value?.id);

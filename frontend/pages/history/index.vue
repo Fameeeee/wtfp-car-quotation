@@ -2,14 +2,14 @@
     <div class="flex flex-col items-center h-full p-4">
         <h2 class="text-4xl font-extrabold text-[#696969] mb-5">ประวัติ</h2>
 
-        <div class="relative w-full">
+        <div class="relative w-full max-w-xl mx-auto">
             <input type="text" v-model="searchQuery" @input="debouncedSearch" placeholder="ค้นหาใบเสนอราคา"
                 class="w-full p-3 mb-4 border rounded-lg shadow-sm text-black" />
         </div>
 
         <NuxtLink v-for="quotation in quotations" :key="quotation.quotationId" :to="`/history/${quotation.quotationId}`"
-            class="w-full flex flex-col items-center gap-3 mt-4 text-black no-underline">
-            <div class="w-11/12 bg-white border border-black/20 shadow-md rounded-lg p-4">
+            class="w-full max-w-xl mx-auto flex flex-col items-center gap-3 mt-4 text-black no-underline">
+            <div class="w-full bg-white border border-black/20 shadow-md rounded-lg p-4">
                 <div class="flex justify-between">
                     <span class="text-lg font-extrabold">ใบเสนอราคา</span>
                     <span class="text-sm font-light">{{ formatDate(quotation.quotationDate) || 'วันที่ไม่ระบุ' }}</span>
@@ -44,8 +44,7 @@
                 {{ page }}
             </button>
 
-            <button v-if="visiblePages[visiblePages.length - 1] < totalPages"
-                @click="goNextGroup"
+            <button v-if="visiblePages[visiblePages.length - 1] < totalPages" @click="goNextGroup"
                 class="px-4 py-2 rounded-md border border-gray-400 bg-white text-black" :disabled="loading">
                 &raquo;
             </button>
@@ -64,8 +63,9 @@ import debounce from 'lodash/debounce';
 const config = useRuntimeConfig()
 const api = useApi();
 
+
 const currentPage = ref(1);
-const itemsPerPage = 4;
+const itemsPerPage = ref(getResponsiveLimit());
 const totalPages = ref(0);
 const total = ref(0);
 const loading = ref(false);
@@ -73,7 +73,19 @@ let abortController = null;
 const searchQuery = ref("");
 const quotations = ref([]);
 
-import { getStaffIdAsync } from '~/composables/useAuth'
+function getResponsiveLimit() {
+    if (typeof window === 'undefined') return 4;
+    const w = window.innerWidth;
+    if (w < 640) return 3;
+    if (w < 1024) return 5;
+    return 8;
+}
+
+function updateResponsiveLimit() {
+    itemsPerPage.value = getResponsiveLimit();
+}
+
+import { getStaffIdAsync } from '~/composables/useAuth.ts'
 
 const fetchQuotations = async () => {
     const staffId = await getStaffIdAsync();
@@ -84,12 +96,11 @@ const fetchQuotations = async () => {
 
     loading.value = true;
     try {
-        // cancel previous in-flight request to avoid race conditions
         if (abortController) {
             abortController.abort();
         }
         abortController = new AbortController();
-    const response = await api.get(`/quotation/staff/${staffId}`, {
+        const response = await api.get(`/quotation/staff/${staffId}`, {
             params: {
                 page: currentPage.value,
                 limit: itemsPerPage,
@@ -115,9 +126,7 @@ const fetchQuotations = async () => {
         total.value = response.data.total || 0;
     } catch (error) {
         if (axios.isCancel?.(error)) {
-            // request was aborted; ignore
         } else if (error?.name === 'CanceledError' || error?.code === 'ERR_CANCELED') {
-            // fetch aborted
         } else {
             console.error("Error fetching quotations:", error);
         }
@@ -152,12 +161,18 @@ const visiblePages = computed(() => {
     return pages;
 });
 
-onMounted(fetchQuotations);
+
+onMounted(() => {
+    updateResponsiveLimit();
+    window.addEventListener('resize', updateResponsiveLimit);
+    fetchQuotations();
+});
 
 onBeforeUnmount(() => {
     if (abortController) {
         abortController.abort();
     }
+    window.removeEventListener('resize', updateResponsiveLimit);
 });
 
 const goToPage = (page) => {

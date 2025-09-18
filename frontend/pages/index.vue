@@ -53,7 +53,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApi } from '~/composables/useApi'
-import { setToken } from '~/composables/useAuth'
+import { setToken } from '~/composables/useAuth.ts'
 
 const config = useRuntimeConfig()
 const api = useApi();
@@ -85,7 +85,6 @@ const handleLogin = async () => {
       errorMessage.value = 'Login failed: No token received.';
     }
   } catch (error) {
-    // error may be axios error
     errorMessage.value = error?.response?.data?.message || 'การเข้าสู่ระบบล้มเหลว กรุณาลองใหม่';
     alert(errorMessage.value);
   } finally {

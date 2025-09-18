@@ -83,7 +83,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApi } from '~/composables/useApi'
-import { setToken } from '~/composables/useAuth'
+import { setToken } from '~/composables/useAuth.ts'
 
 const api = useApi();
 

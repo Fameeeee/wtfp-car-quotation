@@ -44,7 +44,7 @@
                 <div class="text-sm">
                     <span class="text-gray-500 mr-2">แนวโน้ม</span>
                     <span :class="trend >= 0 ? 'text-emerald-600' : 'text-rose-600'" class="font-semibold">{{ trendLabel
-                    }}</span>
+                        }}</span>
                 </div>
             </div>
 
@@ -205,14 +205,6 @@ onMounted(() => {
     fetchChart();
     fetchExtras();
 });
-
-function formatDate(d) {
-    try {
-        return new Date(d).toLocaleString();
-    } catch (e) {
-        return '';
-    }
-}
 
 function barHeight(count) {
     const max = Math.max(1, ...chartData.value.map((c) => c.count))

@@ -110,7 +110,7 @@ import { ref, onMounted, watch } from "vue";
 import { useRouter } from 'vue-router';
 import { useApi } from '~/composables/useApi'
 import _ from 'lodash';
-import { isManager } from '~/composables/useAuth'
+import { isManager } from '~/composables/useAuth.ts'
 const { $axios } = useNuxtApp();
 import Pagination from "~/components/common/Pagination.vue";
 
@@ -195,19 +195,17 @@ const updatePageSize = (n) => {
   fetchData();
 };
 
-// manager flag for UI
 const isManagerUser = isManager();
 
 const onChangeRole = async (event, staff) => {
   const newRole = event.target.value;
   const prev = staff.role;
-  // optimistic update
   staff.role = newRole;
   try {
   await api.patch(`/staff/${staff.id}/role`, { role: newRole });
   } catch (e) {
     console.error('Failed to update role', e);
-    staff.role = prev; // revert
+    staff.role = prev; 
     alert('ไม่สามารถอัปเดตตำแหน่งได้');
   }
 }
@@ -218,7 +216,6 @@ const onChangeStatus = async (event, staff) => {
   staff.status = newStatus;
   try {
   const res = await api.patch(`/staff/${staff.id}/status`, { status: newStatus });
-  // refresh list from server to confirm persisted change
   await fetchData();
   } catch (e) {
     console.error('Failed to update status', e);

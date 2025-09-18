@@ -230,7 +230,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useApi } from '~/composables/useApi'
 import _ from 'lodash';
 import Pagination from "~/components/common/Pagination.vue";
-import { isManager } from '~/composables/useAuth'
+import { isManager } from '~/composables/useAuth.ts'
 const { $axios } = useNuxtApp();
 
 const api = useApi();
@@ -322,7 +322,6 @@ definePageMeta({
     layout: 'admin'
 });
 
-// manager helper and handlers
 const isManagerUser = isManager();
 
 const onChangeRoleSingle = async (event) => {

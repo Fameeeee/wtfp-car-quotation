@@ -1,4 +1,4 @@
-import { isStaffOrManager, getToken } from '../composables/useAuth'
+import { isStaffOrManager, getToken } from '../composables/useAuth.ts'
 
 export default async function ({ to, from }) {
   if (process.client) {
