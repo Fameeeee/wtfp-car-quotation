@@ -44,26 +44,35 @@ import { useQuotationStore } from '~/stores/quotation';
 
 const quotationStore = useQuotationStore();
 const selectedCar = computed(() => quotationStore.selectedCar);
-const specialDiscount = ref(null);
-const specialAddition = ref(null);
+const specialDiscount = ref(0);
+const specialAddition = ref(0);
 
 const totalPrice = computed(() => {
     return (selectedCar.value?.price || 0) - (specialDiscount.value || 0) + (specialAddition.value || 0);
 });
 
+
 onMounted(() => {
-    // Optionally, initialize from store if needed
     if (quotationStore.cashPlan) {
-        specialDiscount.value = quotationStore.cashPlan.specialDiscount || null;
-        specialAddition.value = quotationStore.cashPlan.specialAddition || null;
+        specialDiscount.value =
+            typeof quotationStore.cashPlan.specialDiscount === 'number'
+                ? quotationStore.cashPlan.specialDiscount
+                : 0;
+        specialAddition.value =
+            typeof quotationStore.cashPlan.specialAddition === 'number'
+                ? quotationStore.cashPlan.specialAddition
+                : 0;
     }
 });
 
 watch([specialDiscount, specialAddition, totalPrice], () => {
+    const discount = Number.isFinite(Number(specialDiscount.value)) ? Number(specialDiscount.value) : 0;
+    const addition = Number.isFinite(Number(specialAddition.value)) ? Number(specialAddition.value) : 0;
+    const total = Number.isFinite(Number(totalPrice.value)) ? Number(totalPrice.value) : 0;
     const cashPlan = {
-        specialDiscount: specialDiscount.value,
-        specialAddition: specialAddition.value,
-        totalPrice: totalPrice.value
+        specialDiscount: discount,
+        specialAddition: addition,
+        totalPrice: total
     };
     quotationStore.setCashPlan(cashPlan);
 });

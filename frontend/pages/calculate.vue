@@ -44,13 +44,16 @@ const showModal = ref(false);
 const isInstallmentValid = ref(false);
 const installmentRef = ref(null);
 
+let prevPayment = quotationStore.paymentMethod || 'cash';
 watch(selectedPayment, (val) => {
     quotationStore.setPaymentMethod(val);
     if (val === 'cash') {
         quotationStore.setInstallmentPlans([]);
-    } else {
+    } else if (prevPayment === 'cash' && val === 'installment') {
+        // Only clear cashPlan when switching from cash to installment
         quotationStore.setCashPlan({});
     }
+    prevPayment = val;
 });
 
 const goBack = () => {
@@ -60,11 +63,27 @@ const goNext = () => {
     if (selectedPayment.value === 'installment') {
         const ok = installmentRef.value?.validateOnSubmit?.() ?? false;
         if (!ok) return;
-    }
-    if (selectedPayment.value === 'cash') {
-        quotationStore.setInstallmentPlans([]);
-    } else {
         quotationStore.setCashPlan({});
+    } else {
+        quotationStore.setInstallmentPlans([]);
+        const cashComponent = document.querySelector('input[placeholder="ส่วนลดราคารถ"]');
+        let specialDiscount = 0, specialAddition = 0, totalPrice = 0;
+        try {
+            const cash = document.querySelector('cash-payment')?.__vueParentComponent?.proxy;
+            if (cash) {
+                specialDiscount = Number(cash.specialDiscount) || 0;
+                specialAddition = Number(cash.specialAddition) || 0;
+                totalPrice = Number(cash.totalPrice) || 0;
+            }
+        } catch {}
+        if (!totalPrice && quotationStore.selectedCar?.price) {
+            totalPrice = Number(quotationStore.selectedCar.price) - (Number(quotationStore.cashPlan?.specialDiscount) || 0) + (Number(quotationStore.cashPlan?.specialAddition) || 0);
+        }
+        quotationStore.setCashPlan({
+            specialDiscount,
+            specialAddition,
+            totalPrice
+        });
     }
     quotationStore.setPaymentMethod(selectedPayment.value);
     router.push('/select-accessories');
