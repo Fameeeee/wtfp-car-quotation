@@ -8,8 +8,6 @@ export class AuditService {
   constructor(
     @InjectRepository(AuditLog)
     private repo: Repository<AuditLog>,
-    @Inject(forwardRef(() => require('./audit.gateway').AuditLogGateway))
-    private readonly gateway: any,
   ) {}
 
   async record(
@@ -33,9 +31,6 @@ export class AuditService {
       category,
     });
     const saved = await this.repo.save(log);
-    if (this.gateway && typeof this.gateway.emitLog === 'function') {
-      this.gateway.emitLog(saved);
-    }
     return saved;
   }
 

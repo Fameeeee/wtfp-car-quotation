@@ -17,7 +17,6 @@ async function bootstrap() {
     }),
   );
 
-  // Allow configuring allowed origins via ALLOWED_ORIGINS env var (comma-separated).
   const allowedOriginsEnv = process.env.ALLOWED_ORIGINS;
   const allowedOrigins = allowedOriginsEnv ? allowedOriginsEnv.split(',').map((s) => s.trim()) : null;
 
