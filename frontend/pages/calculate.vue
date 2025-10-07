@@ -1,7 +1,7 @@
 <template>
     <div class="flex flex-col items-center h-full p-4">
         <h2 class="text-4xl font-extrabold text-[#696969] my-4">กรอกข้อมูล</h2>
-        <div class="flex space-x-4 mb-6 w-full max-w-md justify-center">
+        <div class="flex space-x-4 mb-6">
             <button @click="selectedPayment = 'cash'"
                 :class="{ 'bg-black text-white': selectedPayment === 'cash', 'bg-white text-black border': selectedPayment !== 'cash' }"
                 class="px-6 py-2 rounded-lg border transition w-50">

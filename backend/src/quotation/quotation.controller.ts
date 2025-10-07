@@ -1,19 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Put,
-  Query,
-  DefaultValuePipe,
-  ParseIntPipe,
-  Res,
-  UseGuards,
-  Logger,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query, DefaultValuePipe, ParseIntPipe, Res, UseGuards, Logger } from '@nestjs/common';
 import { QuotationService } from './quotation.service';
 import { CreateQuotationDto } from './dto/create-quotation.dto';
 import { Quotation } from './entities/quotation.entity';
@@ -25,43 +10,29 @@ import { Roles } from 'src/auth/roles.decorator';
 @Controller('quotation')
 export class QuotationController {
   private readonly logger = new Logger(QuotationController.name);
-  constructor(
-    private readonly quotationService: QuotationService,
-    private readonly pdfService: PdfService,
-  ) {}
+  constructor(private readonly quotationService: QuotationService, private readonly pdfService: PdfService) { }
 
   @Post('create')
-  async create(
-    @Body() dto: CreateQuotationDto,
-  ): Promise<{ message: string; quotationId?: number } | { error: string }> {
+  async create(@Body() dto: CreateQuotationDto): Promise<{ message: string, quotationId?: number } | { error: string }> {
     this.logger.log('POST /quotation/create');
     const result = await this.quotationService.createQuotation(dto);
     if (result && result.quotationId) {
-      return {
-        message: 'Quotation created successfully',
-        quotationId: result.quotationId,
-      };
+      return { message: 'Quotation created successfully', quotationId: result.quotationId };
     }
     return { message: 'Created Successfully' };
   }
 
   @Post('create-from/:id')
-  async createFrom(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: CreateQuotationDto,
-  ) {
+  async createFrom(@Param('id', ParseIntPipe) id: number, @Body() dto: CreateQuotationDto) {
     const result = await this.quotationService.createFromExisting(id, dto);
-    return {
-      message: 'Created from existing',
-      quotationId: result.quotationId,
-    };
+    return { message: 'Created from existing', quotationId: result.quotationId };
   }
 
   @Get()
   async getAllQuotation(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(12), ParseIntPipe) limit: number,
-    @Query('search') search?: string,
+    @Query('search') search?: string
   ) {
     return this.quotationService.getAllQuotation(page, limit, search);
   }
@@ -72,25 +43,19 @@ export class QuotationController {
   }
 
   @Get('stats/monthly')
-  async monthlyStats(
-    @Query('months', new DefaultValuePipe(6), ParseIntPipe) months: number,
-  ) {
+  async monthlyStats(@Query('months', new DefaultValuePipe(6), ParseIntPipe) months: number) {
     return this.quotationService.getMonthlyStats(months);
   }
 
   @Get('stats/top-models')
-  async topModels(
-    @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
-  ) {
+  async topModels(@Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number) {
     return this.quotationService.getTopModels(limit);
   }
 
   @Get('stats/top-staff')
   @UseGuards(RolesGuard)
   @Roles('manager')
-  async topStaff(
-    @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
-  ) {
+  async topStaff(@Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number) {
     return this.quotationService.getTopStaff(limit);
   }
 
@@ -106,12 +71,10 @@ export class QuotationController {
     @Res() res?: Response,
   ) {
     const csv = await this.quotationService.exportCsv(search, days);
+    // If response object available, send as attachment
     if (res) {
       res.setHeader('Content-Type', 'text/csv');
-      res.setHeader(
-        'Content-Disposition',
-        `attachment; filename=quotations.csv`,
-      );
+      res.setHeader('Content-Disposition', `attachment; filename=quotations.csv`);
       return res.send(csv);
     }
     return csv;
@@ -128,29 +91,11 @@ export class QuotationController {
   }
 
   @Get(':id/pdf')
-  async generatePdfById(
-    @Param('id', ParseIntPipe) id: number,
-    @Query('templateKey') templateKey: string | undefined,
-    @Res() res: Response,
-  ) {
-    const buffer = await this.pdfService.generateById(id, {
-      preview: false,
-      templateKey,
-    });
+  async generatePdfById(@Param('id', ParseIntPipe) id: number, @Res() res: Response) {
+    const buffer = await this.pdfService.generateById(id, { preview: false });
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader(
-      'Content-Disposition',
-      `inline; filename=quotation-${id}.pdf`,
-    );
+    res.setHeader('Content-Disposition', `inline; filename=quotation-${id}.pdf`);
     return res.send(buffer);
-  }
-
-  @Get('templates')
-  async listTemplates() {
-    return [
-      { key: 'default', label: 'พื้นฐาน' },
-      { key: 'template1', label: 'แบบอื่น' },
-    ];
   }
 
   @Get('staff/:id')
@@ -163,15 +108,14 @@ export class QuotationController {
     return this.quotationService.findByStaffId(id, page, limit, search);
   }
 
+
+
   @Put(':id')
-  async updateQuotation(
-    @Param('id') id: number,
-    @Body() updateData: Partial<Quotation>,
-  ) {
-    this.logger.log(`PUT /quotation/${id}`);
-    const updated = await this.quotationService.updateQuotation(id, updateData);
-    this.logger.log(`Updated quotation id=${id}`);
-    return updated;
+  async updateQuotation(@Param('id') id: number, @Body() updateData: Partial<Quotation>) {
+  this.logger.log(`PUT /quotation/${id}`);
+  const updated = await this.quotationService.updateQuotation(id, updateData);
+  this.logger.log(`Updated quotation id=${id}`);
+  return updated;
   }
 
   @Delete(':id')
@@ -181,16 +125,13 @@ export class QuotationController {
 
   @Post('pdf')
   async generatePdfFromData(@Body() body: any, @Res() res: Response) {
-    const wantsFull = !!(body && body.full);
-    const forcePreview = !!(body && body.preview);
-    // Default to preview (single page) unless explicitly requesting full
-    const preview = forcePreview || !wantsFull;
-    const buffer = await this.pdfService.generateFromData(body, { preview });
+  const wantsFull = !!(body && body.full);
+  const forcePreview = !!(body && body.preview);
+  // Default to preview (single page) unless explicitly requesting full
+  const preview = forcePreview || !wantsFull;
+  const buffer = await this.pdfService.generateFromData(body, { preview });
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader(
-      'Content-Disposition',
-      'inline; filename=quotation-preview.pdf',
-    );
+    res.setHeader('Content-Disposition', 'inline; filename=quotation-preview.pdf');
     return res.send(buffer);
   }
 }

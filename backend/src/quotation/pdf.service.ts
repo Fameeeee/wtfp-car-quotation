@@ -9,7 +9,6 @@ import * as path from 'path';
 import * as fs from 'fs';
 import puppeteer from 'puppeteer';
 import * as QRCode from 'qrcode';
-import { TEMPLATES } from './templates';
 import { QuotationService } from './quotation.service';
 import { AuditService } from 'src/audit/audit.service';
 import { BROCHURE_MAPPINGS } from './brochure-map';
@@ -97,23 +96,8 @@ export class PdfService {
       (data as any)?.templateKey ||
       'default'
     ).toString();
-    const template =
-      (TEMPLATES as any)[templateKey] || (TEMPLATES as any)['default'];
-    const helpers = {
-      loadLogoBase64: this.loadLogoBase64.bind(this),
-      thFormatNumber: this.thFormatNumber.bind(this),
-      thBaht: this.thBaht.bind(this),
-      createBrochureUrl: this.createBrochureUrl.bind(this),
-      getQrDataUrl: this.getQrDataUrl.bind(this),
-      buildSharedCss: this.buildSharedCss.bind(this),
-      buildInstallmentTable: this.buildInstallmentTable.bind(this),
-    };
-    try {
-      return await template(data, opts, helpers);
-    } catch (err) {
-      this.logger.error(`Template render failed (${templateKey}): ${err}`);
-      return await (TEMPLATES as any).default(data, opts, helpers);
-    }
+    if (templateKey === 'alt') return this.buildHtmlAlt(data, opts);
+    return this.buildHtmlDefault(data, opts);
   }
 
   private async loadLogoBase64(): Promise<string> {
