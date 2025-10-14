@@ -106,6 +106,10 @@ export class CreateQuotationDto {
     paymentMethod: PaymentMethod;
 
     @IsOptional()
+    @IsString()
+    templateKey?: string;
+
+    @IsOptional()
     @ValidateNested()
     @Type(() => CashPlansDto)
     cashPlans?: CashPlansDto;

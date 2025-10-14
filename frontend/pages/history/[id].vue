@@ -79,9 +79,12 @@ const pdfLoading = ref(false);
 onMounted(async () => {
     try {
         pdfLoading.value = true;
+        // Load quotation metadata including templateKey
         const meta = await api.get(`/quotation/${quotationId}`);
         quotationData.value = meta.data || {};
-    const res = await api.get(`/quotation/${quotationId}/pdf`, { responseType: 'blob' });
+        
+        // Load PDF using stored templateKey from database
+        const res = await api.get(`/quotation/${quotationId}/pdf`, { responseType: 'blob' });
         const blob = new Blob([res.data], { type: 'application/pdf' });
         pdfUrl.value = URL.createObjectURL(blob);
     } catch (e) {
@@ -106,6 +109,7 @@ const pdfFileName = computed(() => {
 
 const saveAsPdf = async () => {
     try {
+        // Download PDF using stored templateKey from database
         const res = await api.get(`/quotation/${quotationId}/pdf`, { responseType: 'blob' });
         const blob = new Blob([res.data], { type: 'application/pdf' });
         const url = URL.createObjectURL(blob);

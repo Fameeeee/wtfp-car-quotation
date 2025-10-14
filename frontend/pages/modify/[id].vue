@@ -52,6 +52,101 @@
                 @update="data => handleUpdate('customer', data)" />
         </div>
 
+        <!-- Template Selector -->
+        <div class="w-full max-w-2xl">
+            <div class="bg-white border rounded-lg p-3 sm:p-4 shadow-sm">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-700 mb-3">เลือกรูปแบบใบเสนอราคา</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                    <!-- Standard Template -->
+                    <button 
+                        @click="selectTemplate('standard')"
+                        :class="[
+                            'relative border-2 rounded-lg p-3 sm:p-4 transition-all hover:shadow-md',
+                            selectedTemplate === 'standard' 
+                                ? 'border-[#980000] bg-red-50' 
+                                : 'border-gray-300 hover:border-gray-400'
+                        ]"
+                    >
+                        <div class="flex items-start gap-2 sm:gap-3">
+                            <div class="flex-shrink-0 mt-1">
+                                <div :class="[
+                                    'w-5 h-5 rounded-full border-2 flex items-center justify-center',
+                                    selectedTemplate === 'standard' 
+                                        ? 'border-[#980000] bg-[#980000]' 
+                                        : 'border-gray-300'
+                                ]">
+                                    <svg v-if="selectedTemplate === 'standard'" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="flex-1 text-left">
+                                <div class="font-semibold text-gray-800 text-sm sm:text-base">Standard</div>
+                            </div>
+                        </div>
+                    </button>
+
+                    <!-- Template 1 -->
+                    <button 
+                        @click="selectTemplate('template1')"
+                        :class="[
+                            'relative border-2 rounded-lg p-3 sm:p-4 transition-all hover:shadow-md',
+                            selectedTemplate === 'template1' 
+                                ? 'border-[#980000] bg-red-50' 
+                                : 'border-gray-300 hover:border-gray-400'
+                        ]"
+                    >
+                        <div class="flex items-start gap-2 sm:gap-3">
+                            <div class="flex-shrink-0 mt-1">
+                                <div :class="[
+                                    'w-5 h-5 rounded-full border-2 flex items-center justify-center',
+                                    selectedTemplate === 'template1' 
+                                        ? 'border-[#980000] bg-[#980000]' 
+                                        : 'border-gray-300'
+                                ]">
+                                    <svg v-if="selectedTemplate === 'template1'" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="flex-1 text-left">
+                                <div class="font-semibold text-gray-800 text-sm sm:text-base">Template 1</div>
+                            </div>
+                        </div>
+                    </button>
+
+                    <!-- Template 2 -->
+                    <button 
+                        @click="selectTemplate('template2')"
+                        :class="[
+                            'relative border-2 rounded-lg p-3 sm:p-4 transition-all hover:shadow-md',
+                            selectedTemplate === 'template2' 
+                                ? 'border-[#980000] bg-red-50' 
+                                : 'border-gray-300 hover:border-gray-400'
+                        ]"
+                    >
+                        <div class="flex items-start gap-2 sm:gap-3">
+                            <div class="flex-shrink-0 mt-1">
+                                <div :class="[
+                                    'w-5 h-5 rounded-full border-2 flex items-center justify-center',
+                                    selectedTemplate === 'template2' 
+                                        ? 'border-[#980000] bg-[#980000]' 
+                                        : 'border-gray-300'
+                                ]">
+                                    <svg v-if="selectedTemplate === 'template2'" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="flex-1 text-left">
+                                <div class="font-semibold text-gray-800 text-sm sm:text-base">Template 2</div>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div class="flex flex-col space-y-4 w-full max-w-2xl my-4">
             <button @click="goBack" class="py-3 px-4 text-[#696969] bg-gray-200 rounded-lg border hover:bg-gray-300">
                 กลับ
@@ -64,8 +159,24 @@
     <modalDiscard v-if="showModal" message="คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการเปลี่ยนแปลงของคุณ?" confirmText="ยืนยัน"
         cancelText="กลับ" @confirm="discardChanges" @cancel="closeModal" />
 
-    <modalSave v-if="showSaveModal" message="Do you want to save this?" :show-save-as-new="false" @confirm="handleSaveConfirm"
-        @cancel="closeSaveModal" />
+    <!-- Custom save confirmation modal -->
+    <div v-if="showSaveModal" class="fixed inset-0 flex justify-center items-center bg-black/50 z-50">
+        <div class="bg-white p-8 rounded-xl shadow-lg max-w-sm w-full text-center">
+            <p class="text-lg text-[#696969] mb-2 font-semibold">ยืนยันการบันทึก</p>
+            <p class="text-sm text-gray-600 mb-6">การบันทึกจะสร้างใบเสนอราคาใหม่<br/>(ไม่แก้ไขใบเสนอราคาเดิม)</p>
+
+            <div class="flex gap-4 justify-center">
+                <button @click="handleSaveConfirm"
+                    class="py-3 px-6 text-lg font-semibold text-white bg-[#980000] rounded-lg hover:bg-red-800 transform transition-transform duration-200 hover:scale-105">
+                    บันทึกเป็นใหม่
+                </button>
+                <button @click="closeSaveModal"
+                    class="py-3 px-6 text-lg font-medium text-gray-600 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transform transition-transform duration-200 hover:scale-105">
+                    กลับ
+                </button>
+            </div>
+        </div>
+    </div>
 
 </template>
 
@@ -77,7 +188,6 @@ import paymentDropdown from '~/components/user/paymentDropdown.vue';
 import accessoriesDropdown from '~/components/user/accessoriesDropdown.vue';
 import additionDropdown from '~/components/user/additionDropdown.vue';
 import customerDropdown from '~/components/user/customerDropdown.vue';
-import modalSave from '~/components/user/modalSave.vue';
 import { getStaffIdAsync } from '~/composables/useAuth.ts'
 import { useQuotationStore } from '~/stores/quotation';
 
@@ -87,6 +197,7 @@ const router = useRouter();
 const quotationData = ref({});
 const showModal = ref(false);
 const showSaveModal = ref(false);
+const selectedTemplate = ref('standard'); // Default to standard template
 
 const config = useRuntimeConfig()
 const api = useApi();
@@ -140,6 +251,10 @@ api
         allData.additionCosts = response.data.additionCosts || allData.additionCosts;
         allData.carDetails = response.data.carDetails || allData.carDetails;
         allData.accessories = response.data.accessories || [];
+        
+        // Load the saved template
+        selectedTemplate.value = response.data.templateKey || 'standard';
+        
     try {
             store.selectedCar = allData.carDetails;
             if (response.data.cashPlans) {
@@ -162,6 +277,10 @@ const goBack = () => {
 
 const goNext = () => {
     showSaveModal.value = true;
+};
+
+const selectTemplate = (template) => {
+    selectedTemplate.value = template;
 };
 
 
@@ -229,12 +348,16 @@ const handleSaveConfirm = async () => {
         }
 
         if (payload.staffId) payload.staffId = Number(payload.staffId);
+        
+        // Include the selected template
+        payload.templateKey = selectedTemplate.value;
 
-        console.info('Updating quotation payload:', JSON.parse(JSON.stringify(payload)));
-        const res = await api.put(`/quotation/${quotationId}`, payload);
+        console.info('Creating new quotation from modified data:', JSON.parse(JSON.stringify(payload)));
+        // Use POST /quotation/create to create a new quotation
+        const res = await api.post(`/quotation/create`, payload);
 
-    alert('บันทึกข้อมูลเรียบร้อยแล้ว');
-    router.push(`/history`);
+        alert('สร้างใบเสนอราคาใหม่เรียบร้อยแล้ว');
+        router.push(`/history`);
     } catch (error) {
         if (error?.response) {
             console.error('Error saving quotation:', error.response.status, error.response.data);

@@ -65,11 +65,13 @@ const pdfLoading = ref(false);
 onMounted(async () => {
     try {
         pdfLoading.value = true;
-    // Load basic data for naming
-    const meta = await api.get(`/quotation/${quotationId}`);
-    quotationData.value = meta.data || {};
-    // Load the actual PDF to display
-    const res = await api.get(`/quotation/${quotationId}/pdf`, { responseType: 'blob' });
+        // Load basic data for naming and templateKey
+        const meta = await api.get(`/quotation/${quotationId}`);
+        quotationData.value = meta.data || {};
+        
+        // Load the actual PDF to display using stored templateKey
+        // The backend will automatically use the templateKey from database
+        const res = await api.get(`/quotation/${quotationId}/pdf`, { responseType: 'blob' });
         const blob = new Blob([res.data], { type: 'application/pdf' });
         pdfUrl.value = URL.createObjectURL(blob);
     } catch (e) {
@@ -98,7 +100,8 @@ const pdfFileName = computed(() => {
 
 const saveAsPdf = async () => {
     try {
-    const res = await api.get(`/quotation/${quotationId}/pdf`, { responseType: 'blob' });
+        // Download PDF using stored templateKey from database
+        const res = await api.get(`/quotation/${quotationId}/pdf`, { responseType: 'blob' });
         const blob = new Blob([res.data], { type: 'application/pdf' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');

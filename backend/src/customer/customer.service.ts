@@ -99,6 +99,7 @@ export class CustomerService {
       carDetails: quotation.carDetails,
       staff: quotation.staff,
       customer: quotation.customer,
+      templateKey: quotation.templateKey,
     }));
 
     return customer;

@@ -79,6 +79,7 @@ export class QuotationService {
     const quotation = this.quotationRepository.create({
       quotationDate: new Date(),
       paymentMethod: dto.paymentMethod,
+      templateKey: dto.templateKey || 'standard',
       cashPlans: dto.cashPlans || null,
       installmentPlans,
       additionCosts: dto.additionCosts,

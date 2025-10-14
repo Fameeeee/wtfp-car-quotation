@@ -3,6 +3,103 @@
         <div>
             <div class="flex flex-col items-center h-full p-2">
                 <h2 class="text-4xl font-extrabold text-[#696969] my-4">ยืนยันรายการ</h2>
+                
+                <!-- Template Selector -->
+                <div class="w-full max-w-3xl mb-4">
+                    <div class="bg-white border rounded-lg p-3 sm:p-4 shadow-sm">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-700 mb-3">เลือกรูปแบบใบเสนอราคา</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                            <!-- Standard Template -->
+                            <button 
+                                @click="selectTemplate('standard')"
+                                :class="[
+                                    'relative border-2 rounded-lg p-3 sm:p-4 transition-all hover:shadow-md',
+                                    selectedTemplate === 'standard' 
+                                        ? 'border-[#980000] bg-red-50' 
+                                        : 'border-gray-300 hover:border-gray-400'
+                                ]"
+                            >
+                                <div class="flex items-start gap-2 sm:gap-3">
+                                    <div class="flex-shrink-0 mt-1">
+                                        <div :class="[
+                                            'w-5 h-5 rounded-full border-2 flex items-center justify-center',
+                                            selectedTemplate === 'standard' 
+                                                ? 'border-[#980000] bg-[#980000]' 
+                                                : 'border-gray-300'
+                                        ]">
+                                            <svg v-if="selectedTemplate === 'standard'" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1 text-left">
+                                        <div class="font-semibold text-gray-800 text-sm sm:text-base">Standard</div>
+                                    </div>
+                                </div>
+                            </button>
+
+                            <!-- Template 1 -->
+                            <button 
+                                @click="selectTemplate('template1')"
+                                :class="[
+                                    'relative border-2 rounded-lg p-3 sm:p-4 transition-all hover:shadow-md',
+                                    selectedTemplate === 'template1' 
+                                        ? 'border-[#980000] bg-red-50' 
+                                        : 'border-gray-300 hover:border-gray-400'
+                                ]"
+                            >
+                                <div class="flex items-start gap-2 sm:gap-3">
+                                    <div class="flex-shrink-0 mt-1">
+                                        <div :class="[
+                                            'w-5 h-5 rounded-full border-2 flex items-center justify-center',
+                                            selectedTemplate === 'template1' 
+                                                ? 'border-[#980000] bg-[#980000]' 
+                                                : 'border-gray-300'
+                                        ]">
+                                            <svg v-if="selectedTemplate === 'template1'" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1 text-left">
+                                        <div class="font-semibold text-gray-800 text-sm sm:text-base">Template 1</div>
+
+                                    </div>
+                                </div>
+                            </button>
+
+                            <!-- Template 2 -->
+                            <button 
+                                @click="selectTemplate('template2')"
+                                :class="[
+                                    'relative border-2 rounded-lg p-3 sm:p-4 transition-all hover:shadow-md',
+                                    selectedTemplate === 'template2' 
+                                        ? 'border-[#980000] bg-red-50' 
+                                        : 'border-gray-300 hover:border-gray-400'
+                                ]"
+                            >
+                                <div class="flex items-start gap-2 sm:gap-3">
+                                    <div class="flex-shrink-0 mt-1">
+                                        <div :class="[
+                                            'w-5 h-5 rounded-full border-2 flex items-center justify-center',
+                                            selectedTemplate === 'template2' 
+                                                ? 'border-[#980000] bg-[#980000]' 
+                                                : 'border-gray-300'
+                                        ]">
+                                            <svg v-if="selectedTemplate === 'template2'" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1 text-left">
+                                        <div class="font-semibold text-gray-800 text-sm sm:text-base">Template 2</div>
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="w-full max-w-3xl mt-2">
                     <div v-if="pdfLoading" class="flex items-center justify-center h-[60vh] border rounded">
                         <div class="flex items-center gap-2 text-gray-600">
@@ -19,7 +116,7 @@
                         <!-- Added a small toggle to show full multi-page PDF when needed -->
                         <div class="flex justify-end mb-2">
                             <button @click="toggleFullPreview"
-                                class="text-sm px-3 py-1 border rounded hover:bg-gray-100">
+                                class="text-sm px-3 py-1 border rounded hover:bg-gray-100 text-black">
                                 {{ showFull ? 'แสดงแบบหน้าเดียว' : 'แสดงข้อมูลทั้งหมด' }}
                             </button>
                         </div>
@@ -64,6 +161,7 @@ import modalConfirm from '~/components/user/modalConfirm.vue';
 import { useRouter } from 'vue-router';
 import { useQuotationStore } from '~/stores/quotation';
 import { getMe, getStaffIdAsync } from '~/composables/useAuth.ts'
+import { data } from 'autoprefixer';
 
 const api = useApi();
 
@@ -75,6 +173,7 @@ const pdfUrl = ref('');
 const pdfLoading = ref(false);
 const showFull = ref(false); 
 const staffInfo = ref({ firstName: '', lastName: '', phoneNumber: '' });
+const selectedTemplate = ref('standard'); 
 
 const goBack = () => {
     router.push('/customer-details');
@@ -85,6 +184,11 @@ const goNext = () => {
 };
 
 onMounted(async () => {
+    // Load saved template from store
+    if (quotationStore.selectedTemplate) {
+        selectedTemplate.value = quotationStore.selectedTemplate;
+    }
+    
     const me = await getMe();
     if (me) {
         staffId.value = me.id || me.staffId || null;
@@ -122,6 +226,7 @@ const confirm = async () => {
     const dataToSend = {
         customer: customerDetails,
         paymentMethod: chosenMethod,
+        templateKey: selectedTemplate.value, // Include selected template
         additionCosts: {
             cmi: additionCost.cmiCheck ? true : false,
             insurance: additionCost.insuranceCheck ? true : false,
@@ -221,6 +326,7 @@ const buildPreviewPayload = () => {
         quotationDate: new Date().toISOString(),
         customer: customerDetails,
         paymentMethod: chosenMethod,
+        templateKey: selectedTemplate.value, // Add template selection
         additionCosts: {
             cmi: additionCost.cmiCheck ? true : false,
             insurance: additionCost.insuranceCheck ? true : false,
@@ -291,6 +397,12 @@ function toggleFullPreview() {
     generatePdfPreview();
 }
 
+const selectTemplate = (templateKey) => {
+    selectedTemplate.value = templateKey;
+
+    quotationStore.selectedTemplate = templateKey;
+    generatePdfPreview();
+};
 
 
 definePageMeta({

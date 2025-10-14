@@ -94,10 +94,14 @@ export class PdfService {
     const templateKey = (
       opts?.templateKey ||
       (data as any)?.templateKey ||
-      'default'
+      'standard'
     ).toString();
-    if (templateKey === 'alt') return this.buildHtmlAlt(data, opts);
-    return this.buildHtmlDefault(data, opts);
+    // Template mapping for backward compatibility
+    if (templateKey === 'default' || templateKey === 'standard')
+      return this.buildHtmlStandard(data, opts);
+    if (templateKey === 'template1') return this.buildHtmlTemplate1(data, opts);
+    if (templateKey === 'template2') return this.buildHtmlTemplate2(data, opts);
+    return this.buildHtmlStandard(data, opts);
   }
 
   private async loadLogoBase64(): Promise<string> {
@@ -161,7 +165,7 @@ export class PdfService {
     }
   }
 
-  private async buildHtmlDefault(
+  private async buildHtmlStandard(
     data: QuotationData,
     opts?: { preview?: boolean },
   ): Promise<string> {
@@ -242,7 +246,7 @@ export class PdfService {
       .join(
         '',
       )}${overflow > 0 ? `<tr><td colspan="4" style="text-align:center" class="muted">เพิ่มเติมอีก ${overflow} รายการ…</td></tr>` : ''}</tbody></table></div>`;
-    return `<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"/><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet"><style>${this.buildSharedCss()}</style></head><body><div class="content"><div class="header"><div class="brand">${logo ? `<img class="logo" src="${logo}"/>` : ''}<div class="company-text"><div class="company-name">บริษัท อีซูซุเชียงราย จำกัด</div><div class="company-addr">145/1 ม.17 ถ.ซุปเปอร์ไฮเวย์ ต.รอบเวียง อ.เมือง จ.เชียงราย 57000</div><div class="company-tel">โทร. 053-711605</div></div></div><div class="right-meta"><div class="date-line">วันที่ ${date}</div><div class="doc-no">${docNo}</div></div></div><h1>ใบเสนอราคา</h1><div style="font-size:13px; margin-bottom:6px">เรียน ${customer?.firstName ?? ''} ${customer?.lastName ?? ''}</div><div class="car-section"><div class="car-photo">${car?.imageUrl ? `<img src="${car.imageUrl}"/>` : 'รูปภาพรถ'}</div><div class="car-info"><div><strong>รุ่นปีรถ:</strong> ${car?.modelClass ?? ''}</div><div><strong>รุ่นรถ:</strong> ${car?.modelGName ?? ''}</div><div><strong>สีตัวถัง:</strong> ${car?.color ?? ''}</div><div><strong>แรงม้า:</strong> ${car?.horsepower ?? '190'} แรงม้า</div><div><strong>แรงบิด:</strong> ${car?.torque ?? '450'} นิวตัน-เมตร</div></div><div class="qr-block"><div class="qr-box">${brochureQr ? `<img class="qr-img" src="${brochureQr}"/>` : brochureUrl ? '<span class="muted" style="font-size:11px">QR error</span>' : '<span class="muted" style="font-size:11px">No QR</span>'}</div><div class="qr-label">รายละเอียด<br/>เพิ่มเติม</div></div></div><div class="section"><span style="text-decoration:underline">เงื่อนไขการชำระ : ${paymentMethod === 'cash' ? 'เงินสด' : paymentMethod === 'installment' ? 'ผ่อนชำระ' : ''}</span></div>${cashHtml}${installmentHtml}${accessoriesHtml}<div class="section"><div class="section-title">หมายเหตุ</div><div class="note-box"><ul class="note-list">${noteItems}</ul></div><div class="thanks">บริษัท อีซูซุเชียงราย จำกัด ขอขอบคุณท่านเป็นอย่างยิ่งที่ได้ให้ความสนใจในผลิตภัณฑ์ของทางบริษัทและหวังเป็นอย่างยิ่งว่าเราจะได้รับการตอบรับที่ดีจากท่าน</div></div></div><div class="staff-footer">ผู้เสนอราคา<br/>${[staff?.firstName, staff?.lastName].filter(Boolean).join(' ')}<br/>(ที่ปรึกษาการขาย)<br/>โทร. ${staff?.phoneNumber ?? ''}</div></body></html>`;
+    return `<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"/><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet"><style>${this.buildSharedCss()}</style></head><body><div class="content"><div class="header"><div class="brand">${logo ? `<img class="logo" src="${logo}"/>` : ''}<div class="company-text"><div class="company-name">บริษัท อีซูซุเชียงราย จำกัด</div><div class="company-addr">145/1 ม.17 ถ.ซุปเปอร์ไฮเวย์ ต.รอบเวียง อ.เมือง จ.เชียงราย 57000</div><div class="company-tel">โทร. 053-711605</div></div></div><div class="right-meta"><div class="date-line">วันที่ ${date}</div><div class="doc-no">${docNo}</div></div></div><h1>ใบเสนอราคา</h1><div style="font-size:13px; margin-bottom:6px">เรียน ${customer?.firstName ?? ''} ${customer?.lastName ?? ''}</div><div class="car-section"><div class="car-photo">${car?.imageUrl ? `<img src="${car.imageUrl}"/>` : 'รูปภาพรถ'}</div><div class="car-info"><div><strong>รุ่นปีรถ:</strong> ${car?.modelClass ?? ''}</div><div><strong>รุ่นรถ:</strong> ${car?.modelGName ?? ''}</div><div><strong>สีตัวถัง:</strong> ${car?.color ?? ''}</div><div><strong>แรงม้า:</strong> ${car?.horsepower ?? '190'} แรงม้า</div><div><strong>แรงบิด:</strong> ${car?.torque ?? '450'} นิวตัน-เมตร</div></div><div class="qr-block"><div class="qr-box">${brochureQr ? `<img class="qr-img" src="${brochureQr}"/>` : brochureUrl ? '<span class="muted" style="font-size:11px">QR error</span>' : '<span class="muted" style="font-size:11px">No QR</span>'}</div><div class="qr-label">รายละเอียด<br/>เพิ่มเติม</div></div></div><div class="section"><span style="text-decoration:underline">เงื่อนไขการชำระ : ${paymentMethod === 'cash' ? 'เงินสด' : paymentMethod === 'installment' ? 'ผ่อนชำระ' : ''}</span></div>${cashHtml}${installmentHtml}${accessoriesHtml}<div class="section"><div class="section-title">หมายเหตุ</div><div class="note-box"><ul class="note-list">${noteItems}</ul></div><div class="thanks">บริษัท อีซูซุเชียงราย จำกัด ขอขอบคุณท่านเป็นอย่างยิ่งที่ได้ให้ความสนใจในผลิตภัณฑ์ของทางบริษัทและหวังเป็นอย่างยิ่งว่าเราจะได้รับการตอบรับที่ดีจากท่าน</div></div></div><div class="staff-footer">ผู้เสนอราคา<br/>${[staff?.firstName, staff?.lastName].filter(Boolean).join(' ')}<br/>(ที่ปรึกษาการขาย)<br/>โทร. ${staff?.phoneNumber ?? ''}</div></div></body></html>`;
   }
 
   private buildInstallmentTable(instAll: any[], car: any): string {
@@ -285,227 +289,1064 @@ export class PdfService {
   }
 
   private buildSharedCss(): string {
-    return `@page{size:A4;margin:15mm;}body{font-family:'Sarabun',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:12px;color:#111;}h1{font-size:22px;text-align:center;margin:8px 0 10px;}table{width:100%;border-collapse:collapse;font-size:11px;}th,td{border:1px solid #d1d5db;padding:4px 5px;text-align:center;}th{background:#f3f4f6;font-weight:600;}.header{display:flex;justify-content:space-between;align-items:flex-start;}.brand{display:flex;gap:10px;align-items:flex-start;}.logo{height:50px;}.company-text{line-height:1.25;}.company-name{font-weight:700;font-size:16px;}.company-addr,.company-tel{font-size:11px;color:#444;}.right-meta{text-align:right;font-size:12px;}.date-line{font-weight:600;margin-bottom:4px;}.car-section{display:flex;gap:16px;align-items:flex-start;margin-bottom:8px;}.car-photo{width:120px;height:120px;border:1px solid #e5e7eb;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;background:#fafafa;}.car-photo img{width:100%;height:100%;object-fit:contain;}.car-info{flex:1;font-size:13px;line-height:1.4;display:grid;gap:4px;}.qr-block{width:120px;text-align:center;display:flex;flex-direction:column;gap:6px;}.qr-box{width:120px;height:120px;border:1px solid #e5e7eb;border-radius:4px;display:flex;align-items:center;justify-content:center;background:#fff;}.qr-img{width:100%;height:100%;object-fit:contain;}.qr-label{font-size:11px;font-weight:600;line-height:1.2;}.section{margin-top:10px;}.section-title{font-weight:600;margin:0 0 6px;font-size:13px;}.note-box{border:1px solid #e5e7eb;background:#fafafa;border-radius:4px;padding:8px 10px;}.note-list{margin:0;padding-left:18px;line-height:1.5;}.muted{color:#666;}.thanks{margin-top:14px;font-size:11px;line-height:1.55;text-indent:2em;text-align:justify;}.staff-footer{position:fixed;bottom:0;right:0;text-align:right;font-size:12px;line-height:1.3;}.content{position:relative;padding-bottom:70px;}`;
+    return `@page{size:A4;margin:15mm;}body{font-family:'Sarabun',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:12px;color:#111;}h1{font-size:22px;text-align:center;margin:8px 0 10px;}table{width:100%;border-collapse:collapse;font-size:11px;}th,td{border:1px solid #d1d5db;padding:4px 5px;text-align:center;}th{background:#f3f4f6;font-weight:600;}.header{display:flex;justify-content:space-between;align-items:flex-start;}.brand{display:flex;gap:10px;align-items:flex-start;}.logo{height:50px;}.company-text{line-height:1.25;}.company-name{font-weight:700;font-size:16px;}.company-addr,.company-tel{font-size:11px;color:#444;}.right-meta{text-align:right;font-size:12px;}.date-line{font-weight:600;margin-bottom:4px;}.car-section{display:flex;gap:16px;align-items:flex-start;margin-bottom:8px;}.car-photo{width:120px;height:120px;border:1px solid #e5e7eb;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;background:#fafafa;}.car-photo img{width:100%;height:100%;object-fit:contain;}.car-info{flex:1;font-size:13px;line-height:1.4;display:grid;gap:4px;}.qr-block{width:120px;text-align:center;display:flex;flex-direction:column;gap:6px;}.qr-box{width:120px;height:120px;border:1px solid #e5e7eb;border-radius:4px;display:flex;align-items:center;justify-center;background:#fff;}.qr-img{width:100%;height:100%;object-fit:contain;}.qr-label{font-size:11px;font-weight:600;line-height:1.2;}.section{margin-top:10px;}.section-title{font-weight:600;margin:0 0 6px;font-size:13px;}.note-box{border:1px solid #e5e7eb;background:#fafafa;border-radius:4px;padding:8px 10px;}.note-list{margin:0;padding-left:18px;line-height:1.5;}.muted{color:#666;}.thanks{margin-top:14px;font-size:11px;line-height:1.55;text-indent:2em;text-align:justify;}.staff-footer{position:fixed;bottom:0;right:0;text-align:right;font-size:12px;line-height:1.3;}.content{position:relative;padding-bottom:70px;}`;
   }
 
-  private async buildHtmlAlt(
+  /**
+   * Template 1 - Modern Professional Layout with Card Design
+   */
+  private async buildHtmlTemplate1(
     data: QuotationData,
-    _opts?: { preview?: boolean; templateKey?: string },
+    opts?: { preview?: boolean },
   ): Promise<string> {
+    const isPreview = !!opts?.preview;
     const logo = await this.loadLogoBase64();
-    const rawDate = (data as any)?.quotationDate
-      ? (data as any).quotationDate
-      : Date.now();
-    const date = new Date(rawDate).toLocaleDateString('th-TH', {
+    const date = new Date(
+      data?.quotationDate ? data.quotationDate : Date.now(),
+    ).toLocaleDateString('th-TH', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
     });
-    const docNo = (data as any)?.id
-      ? `NO.${String((data as any).id).padStart(8, '0')}`
+    const docNo = data?.id
+      ? `NO.${String(data.id).padStart(8, '0')}`
       : 'NO.XXXXXXXX';
-    const customer = data?.customer || {};
+
     const car = data?.carDetails || {};
+    const customer = data?.customer || {};
     const staff = data?.staff || {};
-    const additions = data?.additionCosts || {};
+    const add = data?.additionCosts || {};
+    const paymentMethod = data?.paymentMethod || '';
+    const isCash = paymentMethod === 'cash' && data?.cashPlans;
+    const isInstallment = paymentMethod === 'installment';
+    const cash = data?.cashPlans || {};
+    const cashAddition = cash?.additionPrice ?? cash?.specialAddition ?? null;
+    const instAll = (data?.installmentPlans || []) as any[];
+
+    const brochureUrl = this.createBrochureUrl(car?.modelGName);
+    let brochureQr = '';
+    if (brochureUrl) {
+      brochureQr = await this.getQrDataUrl(brochureUrl, 100);
+      if (!brochureQr)
+        this.logger.warn(`Failed to generate QR for URL: ${brochureUrl}`);
+    }
+
+    const extras: string[] = [];
+    if (add?.cmi) extras.push('พรบ.');
+    if (add?.insurance) extras.push('ประกันภัย');
+    if (add?.fuelValue) extras.push(`ค่าน้ำมัน ${this.thBaht(add.fuelValue)}`);
+
+    const accessories: string[] = (data?.accessories || [])
+      .map((a: any) => a.assName)
+      .filter((n: any) => !!n);
+
+    const fullList = [...extras, ...accessories];
+    const PREVIEW_MAX_ITEMS = 24;
+    const list = isPreview ? fullList.slice(0, PREVIEW_MAX_ITEMS) : fullList;
+    const overflow = isPreview ? Math.max(fullList.length - list.length, 0) : 0;
+
+    const rows = Math.ceil(list.length / 3);
+    const col1 = list.slice(0, rows);
+    const col2 = list.slice(rows, rows * 2);
+    const col3 = list.slice(rows * 2);
+
+    const noteSource = add?.note ?? add?.noteText ?? '';
+    const noteLines = (noteSource || '')
+      .toString()
+      .split(/\r?\n/)
+      .map((l: string) => l.trim())
+      .filter((l: string) => l.length > 0);
+
+    const noteItems = noteLines.length
+      ? noteLines
+          .map(
+            (l) => `<li>${l.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</li>`,
+          )
+          .join('')
+      : '<li class="muted">ไม่มีหมายเหตุเพิ่มเติม</li>';
+
+    const installmentHtml = isInstallment
+      ? this.buildTemplate1InstallmentTable(instAll, car)
+      : '';
+
+    const cashHtml = isCash
+      ? `<div class="t1-card"><div class="t1-card-header"><div class="t1-card-icon">💰</div><div class="t1-card-title">รายละเอียดการชำระเงินสด</div></div><table class="t1-payment-table"><tr><th>ส่วนลด</th><td>${this.thBaht(cash?.specialDiscount)}</td></tr><tr><th>ส่วนเพิ่ม</th><td>${this.thBaht(cashAddition)}</td></tr><tr class="highlight-row"><th>ราคาสุทธิ</th><td>${this.thBaht(cash?.totalPrice)}</td></tr></table></div>`
+      : '';
+
+    const accessoriesHtml = `<div class="t1-card"><div class="t1-card-header"><div class="t1-card-icon">🎁</div><div class="t1-card-title">อุปกรณ์ตกแต่งเสริม</div></div><table class="t1-acc-table"><colgroup><col style="width:5%"/><col style="width:28%"/><col style="width:5%"/><col style="width:28%"/><col style="width:5%"/><col style="width:28%"/></colgroup><thead><tr><th>ลำดับ</th><th>รายการ</th><th>ลำดับ</th><th>รายการ</th><th>ลำดับ</th><th>รายการ</th></tr></thead><tbody>${Array.from(
+      { length: rows },
+    )
+      .map((_, i) => {
+        const c1 = col1[i] ?? '';
+        const c2 = col2[i] ?? '';
+        const c3 = col3[i] ?? '';
+        const n1 = c1 ? i + 1 : '';
+        const n2 = c2 ? i + rows + 1 : '';
+        const n3 = c3 ? i + rows * 2 + 1 : '';
+        return `<tr><td>${n1}</td><td style="text-align:left;padding-left:8px">${c1}</td><td>${n2}</td><td style="text-align:left;padding-left:8px">${c2}</td><td>${n3}</td><td style="text-align:left;padding-left:8px">${c3}</td></tr>`;
+      })
+      .join(
+        '',
+      )}${overflow > 0 ? `<tr><td colspan="6" style="text-align:center;padding:8px" class="muted">และอีก ${overflow} รายการ…</td></tr>` : ''}</tbody></table></div>`;
+
+    return `<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"/><title>Quotation - Template 1</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet"><style>${this.buildTemplate1Css()}</style></head><body><div class="t1-page"><div class="t1-header-band"></div><div class="t1-container"><div class="t1-header"><div class="t1-company-block"><div class="t1-logo-wrap">${logo ? `<img src="${logo}" class="t1-logo"/>` : '<div class="t1-logo-placeholder">LOGO</div>'}</div><div class="t1-company-info"><div class="t1-company-name">บริษัท อีซูซุเชียงราย จำกัด</div><div class="t1-company-details">145/1 ม.17 ถ.ซุปเปอร์ไฮเวย์ ต.รอบเวียง อ.เมือง จ.เชียงราย 57000<br/>โทร. 053-711605</div></div></div><div class="t1-doc-block"><div class="t1-doc-no">${docNo}</div><div class="t1-doc-date">วันที่: ${date}</div></div></div><div class="t1-title-section"><h1>ใบเสนอราคา</h1><div class="t1-subtitle">QUOTATION</div></div><div class="t1-customer-card"><div class="t1-customer-label">เรียน</div><div class="t1-customer-name">${[customer?.firstName, customer?.lastName].filter(Boolean).join(' ') || '-'}</div><div class="t1-customer-detail">โทรศัพท์: ${customer?.phoneNumber || '-'}</div></div><div class="t1-car-card"><div class="t1-car-badge">${paymentMethod === 'cash' ? '💵 เงินสด' : paymentMethod === 'installment' ? '📊 ผ่อนชำระ' : '💳 การชำระเงิน'}</div><div class="t1-car-content"><div class="t1-car-image">${car?.imageUrl ? `<img src="${car.imageUrl}" alt="Car"/>` : '<div class="t1-car-placeholder">รูปภาพรถยนต์</div>'}</div><div class="t1-car-specs"><div class="t1-spec-row"><span class="t1-spec-label">รุ่นปี:</span><span class="t1-spec-value">${car?.modelClass || '-'}</span></div><div class="t1-spec-row"><span class="t1-spec-label">รุ่นรถ:</span><span class="t1-spec-value">${car?.modelGName || '-'}</span></div><div class="t1-spec-row"><span class="t1-spec-label">สีตัวถัง:</span><span class="t1-spec-value">${car?.color || '-'}</span></div><div class="t1-spec-row"><span class="t1-spec-label">แรงม้า:</span><span class="t1-spec-value">${car?.horsepower ?? '190'} แรงม้า</span></div><div class="t1-spec-row"><span class="t1-spec-label">แรงบิด:</span><span class="t1-spec-value">${car?.torque ?? '450'} นิวตัน-เมตร</span></div><div class="t1-price-row"><span class="t1-spec-label">ราคา:</span><span class="t1-price">${this.thBaht(car?.price)}</span></div></div>${brochureQr ? `<div class="t1-qr-block"><img src="${brochureQr}" class="t1-qr"/><div class="t1-qr-text">สแกนดู<br/>รายละเอียด</div></div>` : ''}</div></div>${cashHtml}${installmentHtml}${accessoriesHtml}<div class="t1-card"><div class="t1-card-header"><div class="t1-card-icon">📝</div><div class="t1-card-title">หมายเหตุ</div></div><ul class="t1-note-list">${noteItems}</ul><div class="t1-disclaimer">บริษัท อีซูซุเชียงราย จำกัด ขอขอบคุณท่านเป็นอย่างยิ่งที่ได้ให้ความสนใจในผลิตภัณฑ์ของบริษัท และหวังเป็นอย่างยิ่งว่าจะได้รับการตอบรับที่ดีจากท่าน ราคาและเงื่อนไขอาจมีการเปลี่ยนแปลงโดยไม่ต้องแจ้งล่วงหน้า</div></div></div><div class="t1-footer"><div class="t1-footer-content"><div class="t1-staff-card"><div class="t1-staff-label">ผู้เสนอราคา</div><div class="t1-staff-name">${[staff?.firstName, staff?.lastName].filter(Boolean).join(' ') || '-'}</div><div class="t1-staff-title">( ที่ปรึกษาการขาย )</div><div class="t1-staff-contact">โทร. ${staff?.phoneNumber || '-'}</div></div></div></div></div></body></html>`;
+  }
+
+  private buildTemplate1InstallmentTable(instAll: any[], car: any): string {
+    if (!instAll?.length) return '';
+    const rows = instAll
+      .map((order: any) => {
+        const net =
+          (car?.price ?? 0) -
+          (order?.specialDiscount ?? 0) +
+          (order?.additionPrice ?? 0);
+        const down = Math.round(((order?.downPaymentPercent ?? 0) / 100) * net);
+        const loan = net - down;
+        const plans: any[] = (order?.planDetails || []).filter(
+          (p: any) =>
+            p &&
+            p.interestRate !== null &&
+            p.interestRate !== undefined &&
+            `${p.interestRate}` !== '',
+        );
+        if (!plans.length) return '';
+        return plans
+          .map((p: any, i: number) => {
+            const period = p.period;
+            const rate = p.interestRate;
+            let monthly: number | null = null;
+            if (period && rate != null) {
+              if (Number(rate) === 0) monthly = Math.round(loan / period);
+              else {
+                const mr = Number(rate) / 100 / 12;
+                const f = Math.pow(1 + mr, period);
+                monthly = Math.round(loan * ((mr * f) / (f - 1)));
+              }
+            }
+            return `<tr>${i === 0 ? `<td rowspan="${plans.length}">${order?.orderNumber ?? ''}</td>` : ''}${i === 0 ? `<td rowspan="${plans.length}">${this.thBaht(car?.price)}</td>` : ''}${i === 0 ? `<td rowspan="${plans.length}">${this.thBaht(order?.specialDiscount)}</td>` : ''}${i === 0 ? `<td rowspan="${plans.length}">${this.thBaht(order?.additionPrice)}</td>` : ''}${i === 0 ? `<td rowspan="${plans.length}" class="highlight-cell">${this.thBaht(net)}</td>` : ''}${i === 0 ? `<td rowspan="${plans.length}">${this.thBaht(down)}</td>` : ''}${i === 0 ? `<td rowspan="${plans.length}">${this.thBaht(loan)}</td>` : ''}<td>${period ?? '-'}</td><td>${rate == null ? '-' : rate + '%'}</td><td class="highlight-cell">${monthly == null ? '-' : this.thBaht(monthly)}</td></tr>`;
+          })
+          .join('');
+      })
+      .join('');
+    return `<div class="t1-card"><div class="t1-card-header"><div class="t1-card-icon">💳</div><div class="t1-card-title">แผนผ่อนชำระ</div></div><table class="t1-install-table"><thead><tr><th>ลำดับ</th><th>ราคารถ</th><th>ส่วนลด</th><th>ส่วนเพิ่ม</th><th>ราคาสุทธิ</th><th>เงินดาวน์</th><th>ยอดจัด</th><th>จำนวนเดือน</th><th>ดอกเบี้ย</th><th>ค่างวด/เดือน</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+
+  private buildTemplate1Css(): string {
+    return `
+      @page { size: A4; margin: 6mm 8mm 20mm 8mm; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        font-family: 'Sarabun', sans-serif;
+        font-size: 9.5px;
+        color: #2c3e50;
+        line-height: 1.3;
+        background: #f8f9fa;
+      }
+      .t1-page {
+        position: relative;
+        background: #fff;
+      }
+      .t1-header-band {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5mm;
+        background: linear-gradient(135deg, #980000 0%, #c41e3a 100%);
+      }
+      .t1-container {
+        padding: 10mm 6mm 18mm 6mm;
+        position: relative;
+      }
+      .t1-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 6px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid #e0e0e0;
+      }
+      .t1-company-block {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .t1-logo-wrap {
+        width: 45px;
+        height: 45px;
+      }
+      .t1-logo {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .t1-logo-placeholder {
+        width: 100%;
+        height: 100%;
+        border: 1px dashed #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 8px;
+        color: #999;
+        background: #f5f5f5;
+        border-radius: 4px;
+      }
+      .t1-company-info {
+        line-height: 1.2;
+      }
+      .t1-company-name {
+        font-size: 13px;
+        font-weight: 700;
+        color: #980000;
+        margin-bottom: 2px;
+      }
+      .t1-company-details {
+        font-size: 8.5px;
+        color: #666;
+      }
+      .t1-doc-block {
+        text-align: right;
+      }
+      .t1-doc-no {
+        font-size: 12px;
+        font-weight: 700;
+        color: #980000;
+        background: #fff3cd;
+        padding: 3px 10px;
+        border-radius: 4px;
+        display: inline-block;
+        margin-bottom: 3px;
+        border: 1px solid #ffd54f;
+      }
+      .t1-doc-date {
+        font-size: 9px;
+        color: #666;
+      }
+      .t1-title-section {
+        text-align: center;
+        margin: 8px 0 6px;
+      }
+      .t1-title-section h1 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #980000;
+        margin-bottom: 2px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .t1-subtitle {
+        font-size: 10px;
+        color: #999;
+        font-weight: 500;
+        letter-spacing: 2px;
+      }
+      .t1-customer-card {
+        background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+        border-left: 4px solid #980000;
+        padding: 6px 10px;
+        margin-bottom: 6px;
+        border-radius: 0 6px 6px 0;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      }
+      .t1-customer-label {
+        font-size: 8.5px;
+        color: #666;
+        font-weight: 500;
+        margin-bottom: 2px;
+      }
+      .t1-customer-name {
+        font-size: 13px;
+        font-weight: 700;
+        color: #980000;
+        margin-bottom: 2px;
+      }
+      .t1-customer-detail {
+        font-size: 8.5px;
+        color: #666;
+      }
+      .t1-car-card {
+        position: relative;
+        background: #fff;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 6px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      }
+      .t1-car-badge {
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #980000 0%, #c41e3a 100%);
+        color: #fff;
+        padding: 3px 16px;
+        border-radius: 20px;
+        font-size: 9.5px;
+        font-weight: 600;
+        box-shadow: 0 2px 4px rgba(152,0,0,0.3);
+      }
+      .t1-car-content {
+        display: flex;
+        gap: 10px;
+        margin-top: 6px;
+      }
+      .t1-car-image {
+        width: 110px;
+        height: 90px;
+        flex-shrink: 0;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        background: #fafafa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      .t1-car-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .t1-car-placeholder {
+        font-size: 8px;
+        color: #999;
+      }
+      .t1-car-specs {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .t1-spec-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 3px 6px;
+        background: #f8f9fa;
+        border-radius: 3px;
+      }
+      .t1-spec-label {
+        font-weight: 600;
+        color: #666;
+        font-size: 9px;
+      }
+      .t1-spec-value {
+        color: #2c3e50;
+        font-size: 9px;
+      }
+      .t1-price-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 4px 8px;
+        background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+        border-radius: 4px;
+        margin-top: 2px;
+        border: 1px solid #ffd54f;
+      }
+      .t1-price {
+        font-size: 12px;
+        font-weight: 700;
+        color: #980000;
+      }
+      .t1-qr-block {
+        width: 75px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+      .t1-qr {
+        width: 70px;
+        height: 70px;
+        border: 2px solid #980000;
+        border-radius: 6px;
+        padding: 2px;
+        background: #fff;
+      }
+      .t1-qr-text {
+        font-size: 7.5px;
+        color: #666;
+        margin-top: 3px;
+        line-height: 1.2;
+        font-weight: 600;
+      }
+      .t1-card {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        margin-bottom: 6px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      }
+      .t1-card-header {
+        background: linear-gradient(135deg, #980000 0%, #c41e3a 100%);
+        color: #fff;
+        padding: 4px 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .t1-card-icon {
+        font-size: 14px;
+      }
+      .t1-card-title {
+        font-size: 10.5px;
+        font-weight: 600;
+        flex: 1;
+      }
+      .t1-payment-table,
+      .t1-install-table,
+      .t1-acc-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 8.5px;
+      }
+      .t1-payment-table tr {
+        border-bottom: 1px solid #e0e0e0;
+      }
+      .t1-payment-table tr:last-child {
+        border-bottom: none;
+      }
+      .t1-payment-table th {
+        text-align: left;
+        padding: 6px 10px;
+        font-weight: 600;
+        color: #666;
+        background: #f8f9fa;
+        width: 40%;
+      }
+      .t1-payment-table td {
+        padding: 6px 10px;
+        text-align: right;
+        color: #2c3e50;
+        font-weight: 500;
+      }
+      .highlight-row th,
+      .highlight-row td {
+        background: #fff3cd !important;
+        font-weight: 700 !important;
+        color: #980000 !important;
+        font-size: 10px !important;
+      }
+      .t1-install-table {
+        margin: 0;
+      }
+      .t1-install-table th,
+      .t1-install-table td {
+        border: 1px solid #e0e0e0;
+        padding: 3px 4px;
+        text-align: center;
+      }
+      .t1-install-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #666;
+        font-size: 8px;
+      }
+      .t1-install-table td {
+        background: #fff;
+        font-size: 8.5px;
+      }
+      .t1-install-table .highlight-cell {
+        background: #fff3cd !important;
+        font-weight: 700;
+        color: #980000;
+      }
+      .t1-acc-table {
+        margin: 0;
+      }
+      .t1-acc-table th,
+      .t1-acc-table td {
+        border: 1px solid #e0e0e0;
+        padding: 3px 4px;
+        text-align: center;
+      }
+      .t1-acc-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #666;
+        font-size: 8px;
+      }
+      .t1-acc-table td {
+        background: #fff;
+        font-size: 8.5px;
+      }
+      .t1-note-list {
+        margin: 0;
+        padding: 8px 10px 8px 24px;
+        list-style: disc;
+        color: #2c3e50;
+        font-size: 8.5px;
+        line-height: 1.5;
+      }
+      .t1-note-list li {
+        margin-bottom: 2px;
+      }
+      .t1-disclaimer {
+        padding: 6px 10px;
+        background: #f8f9fa;
+        border-top: 1px solid #e0e0e0;
+        font-size: 7.5px;
+        line-height: 1.4;
+        color: #666;
+        text-align: justify;
+      }
+      .muted {
+        color: #999;
+        font-style: italic;
+      }
+      .t1-footer {
+        position: fixed;
+        bottom: 6mm;
+        left: 8mm;
+        right: 8mm;
+        background: #fff;
+        border-top: 2px solid #980000;
+        padding-top: 6px;
+      }
+      .t1-footer-content {
+        display: flex;
+        justify-content: flex-end;
+      }
+      .t1-staff-card {
+        text-align: center;
+        min-width: 180px;
+      }
+      .t1-staff-label {
+        font-size: 9px;
+        color: #666;
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+      .t1-staff-name {
+        font-size: 11px;
+        font-weight: 700;
+        color: #980000;
+        margin-bottom: 3px;
+      }
+      .t1-staff-title {
+        font-size: 9px;
+        color: #666;
+        padding-top: 24px;
+        margin-top: 4px;
+        border-top: 1px solid #980000;
+        margin-left: 25px;
+        margin-right: 25px;
+      }
+      .t1-staff-contact {
+        font-size: 8.5px;
+        color: #666;
+        margin-top: 4px;
+      }
+    `;
+  }
+
+  /**
+   * Template 2 - Isuzu Chiang Rai formal layout with logo header
+   */
+  private async buildHtmlTemplate2(
+    data: QuotationData,
+    opts?: { preview?: boolean },
+  ): Promise<string> {
+    const isPreview = !!opts?.preview;
+    const logo = await this.loadLogoBase64();
+    const date = new Date(
+      data?.quotationDate ? data.quotationDate : Date.now(),
+    ).toLocaleDateString('th-TH', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+    const docNo = data?.id
+      ? `NO.${String(data.id).padStart(8, '0')}`
+      : 'NO.XXXXXXXX';
+
+    const car = data?.carDetails || {};
+    const customer = data?.customer || {};
+    const staff = data?.staff || {};
+    const add = data?.additionCosts || {};
+    const paymentMethod = data?.paymentMethod || '';
+    const isCash = paymentMethod === 'cash' && data?.cashPlans;
+    const isInstallment = paymentMethod === 'installment';
+    const cash = data?.cashPlans || {};
+    const cashAddition = cash?.additionPrice ?? cash?.specialAddition ?? null;
+    const instAll = (data?.installmentPlans || []) as any[];
+
+    const brochureUrl = this.createBrochureUrl(car?.modelGName);
+    let brochureQr = '';
+    if (brochureUrl) {
+      brochureQr = await this.getQrDataUrl(brochureUrl, 100);
+      if (!brochureQr)
+        this.logger.warn(`Failed to generate QR for URL: ${brochureUrl}`);
+    }
+
+    const extras: string[] = [];
+    if (add?.cmi) extras.push('กรมธรรม์ภาคบังคับ');
+    if (add?.insurance) extras.push('สติกเกอร์รันบัลลือ');
+    if (add?.fuelValue) extras.push(`ค่าน้ำมัน`);
+
     const accessories: any[] = (data?.accessories || []).filter(
       (a: any) => a && a.assName,
     );
-    const paymentMethod = data?.paymentMethod || '';
-    const installmentPlans: any[] = (data?.installmentPlans || [])
-      .flatMap((o: any) =>
-        (o?.planDetails || []).map((p: any) => ({ order: o, plan: p })),
-      )
-      .filter((p) => p.plan && p.plan.period);
-    // Compute a best (lowest monthly) plan if possible
-    let bestMonthly: {
-      monthly: number;
-      period: number;
-      rate: number;
-      down: number;
-      loan: number;
-    } | null = null;
-    for (const { order, plan } of installmentPlans) {
-      const carPrice = car?.price ?? 0;
-      const net =
-        carPrice - (order?.specialDiscount || 0) + (order?.additionPrice || 0);
-      const down = Math.round(((order?.downPaymentPercent || 0) / 100) * net);
-      const loan = net - down;
-      const period = Number(plan.period) || 0;
-      const rate = Number(plan.interestRate) || 0;
-      if (period > 0) {
-        let monthly: number;
-        if (rate === 0) monthly = Math.round(loan / period);
-        else {
-          const mr = rate / 100 / 12;
-          const f = Math.pow(1 + mr, period);
-          monthly = Math.round(loan * ((mr * f) / (f - 1)));
-        }
-        if (!bestMonthly || monthly < bestMonthly.monthly) {
-          bestMonthly = { monthly, period, rate, down, loan };
-        }
-      }
+
+    const noteSource = add?.note ?? add?.noteText ?? '';
+    const noteLines = (noteSource || '')
+      .toString()
+      .split(/\r?\n/)
+      .map((l: string) => l.trim())
+      .filter((l: string) => l.length > 0);
+
+    const noteItems = noteLines.length
+      ? noteLines
+          .map(
+            (l) =>
+              `<li style="margin-bottom:3px">${l.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</li>`,
+          )
+          .join('')
+      : '<li style="color:#999">ไม่มีหมายเหตุ</li>';
+
+    // Build installment table rows
+    let installmentRows = '';
+    if (isInstallment && instAll.length) {
+      instAll.forEach((order: any) => {
+        const net =
+          (car?.price ?? 0) -
+          (order?.specialDiscount ?? 0) +
+          (order?.additionPrice ?? 0);
+        const downPercent = order?.downPaymentPercent ?? 0;
+        const down = Math.round((downPercent / 100) * net);
+        const loan = net - down;
+        const plans: any[] = (order?.planDetails || []).filter(
+          (p: any) =>
+            p &&
+            p.interestRate !== null &&
+            p.interestRate !== undefined &&
+            `${p.interestRate}` !== '',
+        );
+        if (!plans.length) return;
+
+        plans.forEach((p: any, i: number) => {
+          const period = p.period;
+          const rate = p.interestRate;
+          let monthly: number | null = null;
+          if (period && rate != null) {
+            if (Number(rate) === 0) monthly = Math.round(loan / period);
+            else {
+              const mr = Number(rate) / 100 / 12;
+              const f = Math.pow(1 + mr, period);
+              monthly = Math.round(loan * ((mr * f) / (f - 1)));
+            }
+          }
+
+          const downPaymentText = `${downPercent}% หรือ บท ${this.thFormatNumber(down)} บาท`;
+
+          installmentRows += `<tr>${i === 0 ? `<td rowspan="${plans.length}" style="border-right:1px solid #ddd">${order?.orderNumber ?? ''}</td>` : ''}<td style="border-right:1px solid #ddd">${downPaymentText}</td><td style="border-right:1px solid #ddd">${this.thFormatNumber(loan)}</td><td style="border-right:1px solid #ddd;text-align:center">${period ?? '-'}</td><td style="border-right:1px solid #ddd;text-align:center">${rate == null ? '-' : rate + '%'}</td><td style="text-align:right;font-weight:600">${monthly == null ? '-' : this.thFormatNumber(monthly)}</td></tr>`;
+        });
+      });
     }
-    const topAccessories = accessories
-      .slice(0, 6)
-      .map(
-        (a, i) =>
-          `<div class="acc-pill"><span>${i + 1}.</span> ${a.assName}</div>`,
-      )
+
+    // Build accessories table (2-column layout like standard)
+    const rows = Math.ceil(accessories.length / 2);
+    const left = accessories.slice(0, rows).map((a) => a.assName);
+    const right = accessories.slice(rows).map((a) => a.assName);
+    const overflow = accessories.length > 20 ? accessories.length - 20 : 0;
+
+    const accRows = Array.from({ length: Math.min(rows, 10) })
+      .map((_, i) => {
+        const l = left[i] ?? '';
+        const r = right[i] ?? '';
+        const lNo = l ? i + 1 : '';
+        const rNo = r ? i + rows + 1 : '';
+        return `<tr><td>${lNo}</td><td style="text-align:left">${l}</td><td>${rNo}</td><td style="text-align:left">${r}</td></tr>`;
+      })
       .join('');
-    const moreAcc =
-      accessories.length > 6
-        ? `<div class="acc-more">+${accessories.length - 6} รายการเพิ่มเติม</div>`
+
+    const accOverflow =
+      overflow > 0
+        ? `<tr><td colspan="4" style="text-align:center;color:#666">เพิ่มเติมอีก ${overflow} รายการ…</td></tr>`
         : '';
-    const additionFlags: string[] = [];
-    if (additions?.cmi) additionFlags.push('พรบ.');
-    if (additions?.insurance) additionFlags.push('ประกันภัย');
-    if (additions?.fuelValue)
-      additionFlags.push(`น้ำมัน ${this.thBaht(additions.fuelValue)}`);
-    const logoTag = logo
-      ? `<img class="logo" src="${logo}"/>`
-      : `<div class="logo-ph">LOGO</div>`;
-    const custName =
-      [customer.firstName, customer.lastName].filter(Boolean).join(' ') || '-';
-    const priceLine = car?.price ? this.thBaht(car.price) : '-';
-    const bestBlock = bestMonthly
-      ? `<div class="best-box"><div class="best-title">แผนผ่อนที่น่าสนใจ</div><div class="best-line"><span>งวด:</span> ${bestMonthly.period} เดือน</div><div class="best-line"><span>ดอกเบี้ย:</span> ${bestMonthly.rate}%</div><div class="best-line"><span>ค่างวด:</span> ${this.thBaht(bestMonthly.monthly)}</div><div class="best-line"><span>เงินดาวน์:</span> ${this.thBaht(bestMonthly.down)}</div><div class="best-line"><span>ยอดจัด:</span> ${this.thBaht(bestMonthly.loan)}</div></div>`
-      : `<div class="best-box empty">(ยังไม่มีข้อมูลผ่อน)</div>`;
-    const paymentBadge = paymentMethod
-      ? `<span class="badge badge-${paymentMethod}">${paymentMethod === 'cash' ? 'เงินสด' : 'ผ่อนชำระ'}</span>`
-      : '';
-    return `<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"/><title>Quotation ALT</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet"><style>
-      ${this.buildSharedCss()}
-      body{background:#f8f9fb;}
-      h1.alt{font-size:24px;margin:6px 0 14px;letter-spacing:0.5px;}
-      .page{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:14px 18px;position:relative;min-height:1000px;}
-      .top-bar{display:flex;justify-content:space-between;align-items:flex-start;}
-      .logo-ph{width:110px;height:48px;border:1px dashed #bbb;display:flex;align-items:center;justify-content:center;font-size:11px;color:#666;border-radius:4px;background:#fff;}
-      .meta{font-size:11px;text-align:right;line-height:1.35;}
-      .meta .doc{font-weight:600;font-size:12px;margin-top:2px;}
-      .split{display:grid;grid-template-columns:1.1fr 0.9fr;gap:18px;margin-top:6px;}
-      .panel{border:1px solid #e2e8f0;border-radius:6px;padding:10px 12px;background:#fcfcfd;}
-      .panel-title{font-size:13px;font-weight:600;margin:0 0 6px;display:flex;align-items:center;gap:6px;}
-      .kv{display:grid;grid-template-columns:110px 1fr;font-size:11.5px;row-gap:3px;}
-      .kv span:first-child{color:#555;}
-      .badge{display:inline-block;border:1px solid #2563eb;color:#2563eb;font-size:10px;padding:2px 6px;border-radius:999px;text-transform:uppercase;letter-spacing:.5px;}
-      .badge-installment{border-color:#6366f1;color:#6366f1;}
-      .badge-cash{border-color:#059669;color:#059669;}
-      .acc-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
-      .acc-pill{background:#eef2ff;border:1px solid #c7d2fe;padding:4px 8px;border-radius:14px;font-size:10.5px;line-height:1;display:flex;gap:4px;align-items:center;}
-      .acc-more{margin-top:6px;font-size:10px;color:#555;}
-      .best-box{background:linear-gradient(135deg,#2563eb 0%,#1d4ed8 70%);color:#fff;border-radius:8px;padding:10px 12px;font-size:11.5px;display:grid;row-gap:4px;}
-      .best-box.empty{background:#f1f5f9;color:#64748b;border:1px dashed #cbd5e1;}
-      .best-title{font-weight:600;font-size:12.5px;margin-bottom:2px;}
-      .best-line span{opacity:.85;display:inline-block;min-width:56px;}
-      .price-box{display:flex;flex-direction:column;gap:6px;font-size:12px;}
-      .price-tag{font-size:20px;font-weight:700;color:#111;}
-      .flags{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
-      .flag{background:#fff8e1;border:1px solid #fcd34d;color:#92400e;font-size:10px;padding:3px 8px;border-radius:12px;}
-      .notes-mini{margin-top:12px;font-size:10px;line-height:1.4;color:#555;}
-      .watermark{position:absolute;top:45%;left:50%;transform:translate(-50%,-50%) rotate(-18deg);font-size:72px;font-weight:700;color:rgba(0,0,0,0.04);pointer-events:none;letter-spacing:4px;}
-      .footer-sign{margin-top:26px;font-size:11.5px;text-align:right;}
-      .section-row{display:grid;grid-template-columns:1fr 0.9fr 1fr;gap:14px;margin-top:14px;}
-      .mini-table{width:100%;border-collapse:collapse;font-size:10.5px;}
-      .mini-table th,.mini-table td{border:1px solid #e2e8f0;padding:4px 6px;text-align:center;}
-      .mini-table th{background:#f1f5f9;font-weight:600;}
-    </style></head><body>
-    <div class="page">
-      <div class="watermark">ISUZU</div>
-      <div class="top-bar">
-        <div style="display:flex;gap:12px;align-items:flex-start;">
-          ${logoTag}
-          <div style="line-height:1.3;">
-            <div style="font-weight:700;font-size:15px;">บริษัท อีซูซุเชียงราย จำกัด</div>
-            <div style="font-size:10.5px;color:#555;">145/1 ม.17 ถ.ซุปเปอร์ไฮเวย์ ต.รอบเวียง อ.เมือง จ.เชียงราย 57000</div>
-            <div style="font-size:10.5px;color:#555;">โทร. 053-711605</div>
-          </div>
-        </div>
-        <div class="meta"><div>${date}</div><div class="doc">${docNo}</div></div>
+
+    // Build cash payment table
+    let cashTableHtml = '';
+    if (isCash) {
+      cashTableHtml = `
+      <table class="t2-table">
+        <thead>
+          <tr>
+            <th>รายละเอียด</th>
+            <th>ราคา</th>
+            <th>ส่วนลด</th>
+            <th>ส่วนเพิ่ม</th>
+            <th>ราคาสุทธิ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>NEW ISUZU D-MAX 2024</td>
+            <td style="text-align:right">${this.thFormatNumber(car?.price)} ฿</td>
+            <td style="text-align:right">${this.thFormatNumber(cash?.specialDiscount)} ฿</td>
+            <td style="text-align:right">${this.thFormatNumber(cashAddition)} ฿</td>
+            <td style="text-align:right;font-weight:700">${this.thFormatNumber(cash?.totalPrice)} บาท</td>
+          </tr>
+        </tbody>
+      </table>`;
+    }
+
+    return `<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Quotation Template 2</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    ${this.buildTemplate2Css()}
+  </style>
+</head>
+<body>
+  <div class="t2-container">
+    <!-- Header -->
+    <div class="t2-header">
+      <div class="t2-logo-wrapper">
+        ${logo ? `<img src="${logo}" class="t2-logo" alt="Isuzu Logo"/>` : '<div class="t2-logo-placeholder">LOGO</div>'}
       </div>
-      <h1 class="alt">ใบเสนอราคา ${paymentBadge}</h1>
-      <div class="split">
-        <div class="panel">
-          <div class="panel-title">ลูกค้า</div>
-          <div class="kv">
-            <span>ชื่อ:</span><span>${custName}</span>
-            <span>โทร:</span><span>${customer?.phoneNumber || '-'}</span>
-            <span>อีเมล:</span><span>${customer?.email || '-'}</span>
-          </div>
-        </div>
-        <div class="panel">
-          <div class="panel-title">ที่ปรึกษาการขาย</div>
-          <div class="kv">
-            <span>ชื่อ:</span><span>${[staff?.firstName, staff?.lastName].filter(Boolean).join(' ') || '-'}</span>
-            <span>โทร:</span><span>${staff?.phoneNumber || '-'}</span>
-            <span>รหัส:</span><span>${staff?.staffCode || '-'}</span>
-          </div>
-        </div>
-        <div class="panel">
-          <div class="panel-title">ราคา</div>
-          <div class="price-box">
-            <div class="price-tag">${priceLine}</div>
-            <div style="font-size:10.5px;color:#555;">(รวม/ไม่รวม ส่วนลด & ส่วนเพิ่ม แล้วแต่เงื่อนไขจริง)</div>
-          </div>
-        </div>
+      <div class="t2-doc-info">
+        <div class="t2-doc-no">${docNo}</div>
+        <div class="t2-doc-date">วันที่ ${date}</div>
       </div>
-      <div class="split" style="margin-top:14px;">
-        <div class="panel">
-          <div class="panel-title">ข้อมูลรถ</div>
-          <div class="kv">
-            <span>รุ่นปี:</span><span>${car?.modelClass || '-'}</span>
-            <span>รุ่น:</span><span>${car?.modelGName || '-'}</span>
-            <span>สี:</span><span>${car?.color || '-'}</span>
-            <span>แรงม้า:</span><span>${car?.horsepower ?? '190'}</span>
-            <span>แรงบิด:</span><span>${car?.torque ?? '450'}</span>
-          </div>
-          <div class="flags">${additionFlags.map((f) => `<div class='flag'>${f}</div>`).join('')}</div>
-        </div>
-        <div class="panel">
-          <div class="panel-title">อุปกรณ์เด่น</div>
-          <div class="acc-grid">${topAccessories || '<div class="muted" style="font-size:10px;">-</div>'}</div>
-          ${moreAcc}
-        </div>
-        <div class="panel">
-          ${bestBlock}
-        </div>
-      </div>
-      <div class="section-row">
-        <div class="panel">
-          <div class="panel-title">หมายเหตุ</div>
-          <div style="font-size:10.5px;line-height:1.45;">${
-            (additions?.note || additions?.noteText || '-')
-              .toString()
-              .split(/\r?\n/)
-              .map((l: string) =>
-                l ? l.replace(/&/g, '&amp;').replace(/</g, '&lt;') : '',
-              )
-              .filter(Boolean)
-              .slice(0, 6)
-              .map((l) => `<div>• ${l}</div>`)
-              .join('') || '-'
-          }</div>
-        </div>
-        <div class="panel">
-          <div class="panel-title">สรุปวิธีชำระ</div>
-          <table class="mini-table">
-            <thead><tr><th>ประเภท</th><th>ตัวเลขหลัก</th></tr></thead>
-            <tbody>
-              <tr><td>วิธี</td><td>${paymentMethod ? (paymentMethod === 'cash' ? 'เงินสด' : 'ผ่อนชำระ') : '-'}</td></tr>
-              ${bestMonthly ? `<tr><td>ค่างวด</td><td>${this.thBaht(bestMonthly.monthly)}</td></tr><tr><td>ดาวน์</td><td>${this.thBaht(bestMonthly.down)}</td></tr>` : ''}
-              <tr><td>ส่วนลด</td><td>${this.thBaht(data?.cashPlans?.specialDiscount || 0)}</td></tr>
-              <tr><td>ส่วนเพิ่ม</td><td>${this.thBaht(data?.cashPlans?.additionPrice || 0)}</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="panel">
-          <div class="panel-title">สถานะ</div>
-          <div style="font-size:11px;line-height:1.5;">เอกสารฉบับนี้จัดทำเพื่อประกอบการพิจารณา อาจมีการเปลี่ยนแปลงโดยไม่ต้องแจ้งให้ทราบล่วงหน้า</div>
-          <div class="notes-mini">จัดทำ: ${date}<br/>Reference: ${docNo}</div>
-        </div>
-      </div>
-      <div class="footer-sign">ผู้เสนอราคา: ${[staff?.firstName, staff?.lastName].filter(Boolean).join(' ') || '-'}</div>
     </div>
-    </body></html>`;
+
+    <!-- Company Info -->
+    <div class="t2-company">
+      <div class="t2-company-name">บริษัท อีซูซุเชียงราย จำกัด</div>
+      <div class="t2-company-addr">145/1 ม.17 ถ.ซุปเปอร์ไฮเวย์ ต.รอบเวียง อ.เมือง จ.เชียงราย 57000</div>
+      <div class="t2-company-tel">โทร. 053-711605</div>
+    </div>
+
+    <!-- Customer Section -->
+    <div class="t2-customer">
+      <div class="t2-customer-label">ใบเสนอราคา</div>
+      <div class="t2-customer-to">เรียน <strong>${[customer?.firstName, customer?.lastName].filter(Boolean).join(' ') || 'จีรัจ รักฏ์ นันทางษ์'}</strong></div>
+    </div>
+
+    <!-- Car Details with Image -->
+    <div class="t2-car-section">
+      <div class="t2-car-details">
+        <div class="t2-car-row"><span class="t2-car-label">รุ่นปี:</span> <span>${car?.modelClass || 'NEW ISUZU D-MAX 2024'}</span></div>
+        <div class="t2-car-row"><span class="t2-car-label">รุ่นรถ:</span> <span>${car?.modelGName || 'V-Cross 4x4'}</span></div>
+        <div class="t2-car-row"><span class="t2-car-label">สีตัวถัง:</span> <span>${car?.color || 'Elbrus Gray Opaque'}</span></div>
+        <div class="t2-car-row"><span class="t2-car-label">แรงม้า:</span> <span>${car?.horsepower ?? '190'} แรงม้า</span></div>
+        <div class="t2-car-row"><span class="t2-car-label">แรงบิด:</span> <span>${car?.torque ?? '450'} นิวตัน-เมตร</span></div>
+      </div>
+      <div class="t2-car-image">
+        ${car?.imageUrl ? `<img src="${car.imageUrl}" alt="Car" style="width:100%;height:100%;object-fit:contain"/>` : '<div style="color:#999;font-size:12px">รูปภาพรถยนต์</div>'}
+      </div>
+    </div>
+
+    <!-- Payment Method Title -->
+    <div class="t2-section-title">เงื่อนไขการชำระ: ${paymentMethod === 'cash' ? 'เงินสด' : paymentMethod === 'installment' ? 'ผ่อนชำระ' : '-'}</div>
+
+    ${cashTableHtml}
+
+    ${
+      isInstallment && installmentRows
+        ? `
+    <table class="t2-table">
+      <thead>
+        <tr>
+          <th>รายละเอียด</th>
+          <th>ราคา</th>
+          <th>ส่วนลด</th>
+          <th>ส่วนเพิ่ม</th>
+          <th>ราคาสุทธิ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>NEW ISUZU D-MAX 2024</td>
+          <td style="text-align:right">${this.thFormatNumber(car?.price)} ฿</td>
+          <td style="text-align:right">5,000 ฿</td>
+          <td style="text-align:right">3,000 ฿</td>
+          <td style="text-align:right;font-weight:700">${this.thFormatNumber(car?.price)} ฿</td>
+        </tr>
+      </tbody>
+    </table>
+    <table class="t2-table" style="margin-top:0">
+      <thead>
+        <tr>
+          <th rowspan="2">ครั้งที่</th>
+          <th rowspan="2">อ้างอิงเงินดาวน์</th>
+          <th rowspan="2">ยอดจัดไฟแนนซ์</th>
+          <th colspan="2">จำนวนเดือนชำระ (อิงเงินดาวน์%)</th>
+          <th rowspan="2">จำนวนเงิน</th>
+        </tr>
+        <tr>
+          <th style="font-size:9px">36 (0.5%)</th>
+          <th style="font-size:9px">48 (1%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${installmentRows}
+      </tbody>
+    </table>`
+        : ''
+    }
+
+    <!-- Accessories Table -->
+    ${
+      accessories.length > 0
+        ? `
+    <div class="t2-section-title">อุปกรณ์ตกแต่ง</div>
+    <table class="t2-table">
+      <colgroup>
+        <col style="width:8%"/>
+        <col style="width:42%"/>
+        <col style="width:8%"/>
+        <col style="width:42%"/>
+      </colgroup>
+      <thead>
+        <tr>
+          <th>ลำดับ</th>
+          <th>รายการ</th>
+          <th>ลำดับ</th>
+          <th>รายการ</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${accRows}
+        ${accOverflow}
+      </tbody>
+    </table>`
+        : ''
+    }
+
+    <!-- Notes Section -->
+    <div class="t2-section-title">หมายเหตุ</div>
+    <div class="t2-notes">
+      <ul style="margin:0;padding-left:20px;line-height:1.6">
+        ${noteItems}
+      </ul>
+    </div>
+
+    <!-- Footer -->
+    <div class="t2-footer">
+      <div class="t2-footer-left">
+        ${brochureQr ? `<div class="t2-qr-container"><div class="t2-qr-label">ดูข้อมูลโบรชัวร์</div><img src="${brochureQr}" class="t2-qr-image" alt="QR Code"/></div>` : ''}
+        <div class="t2-disclaimer">บริษัท อีซูซุเชียงราย จำกัด ขอขอบคุณท่านเป็นอย่างยิ่งที่ได้ให้ความสนใจในผลิตภัณฑ์ของทางบริษัท ราคาและเงื่อนไขอาจมีการเปลี่ยนแปลงโดยไม่ต้องแจ้งให้ทราบล่วงหน้า</div>
+      </div>
+      <div class="t2-footer-right">
+        ผู้เสนอราคา<br/>${[staff?.firstName, staff?.lastName].filter(Boolean).join(' ') || '-'}<br/>(ที่ปรึกษาการขาย)<br/>โทร.${staff?.phoneNumber || '-'}
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+  }
+
+  private buildTemplate2Css(): string {
+    return `
+      @page { size: A4; margin: 6mm 8mm 18mm 8mm; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        font-family: 'Sarabun', sans-serif;
+        font-size: 9.5px;
+        color: #000;
+        line-height: 1.3;
+        background: #fff;
+      }
+      .t2-container {
+        max-width: 194mm;
+        margin: 0 auto;
+        padding-bottom: 140px;
+      }
+      .t2-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 5px;
+        padding-bottom: 4px;
+      }
+      .t2-logo-wrapper {
+        width: 130px;
+        display: flex;
+        align-items: center;
+      }
+      .t2-logo {
+        width: 130px;
+        height: auto;
+        max-height: 50px;
+        object-fit: contain;
+      }
+      .t2-logo-placeholder {
+        width: 130px;
+        height: 45px;
+        border: 2px solid #4CAF50;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #333;
+        font-weight: 600;
+        font-size: 10px;
+        background: #fff;
+      }
+      .t2-doc-info {
+        text-align: right;
+      }
+      .t2-doc-no {
+        font-size: 14px;
+        font-weight: 700;
+        color: #000;
+        margin-bottom: 2px;
+      }
+      .t2-doc-date {
+        font-size: 9.5px;
+        color: #333;
+      }
+      .t2-company {
+        text-align: center;
+        margin-bottom: 5px;
+      }
+      .t2-company-name {
+        font-size: 13px;
+        font-weight: 700;
+        color: #000;
+        margin-bottom: 2px;
+      }
+      .t2-company-addr,
+      .t2-company-tel {
+        font-size: 8.5px;
+        color: #333;
+        line-height: 1.2;
+      }
+      .t2-customer {
+        margin-bottom: 6px;
+      }
+      .t2-customer-label {
+        font-size: 11px;
+        font-weight: 600;
+        margin-bottom: 2px;
+      }
+      .t2-customer-to {
+        font-size: 10.5px;
+      }
+      .t2-car-section {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 6px;
+        align-items: flex-start;
+      }
+      .t2-car-details {
+        flex: 1;
+      }
+      .t2-car-row {
+        margin-bottom: 2px;
+        font-size: 9.5px;
+      }
+      .t2-car-label {
+        display: inline-block;
+        min-width: 60px;
+        font-weight: 600;
+      }
+      .t2-car-image {
+        width: 160px;
+        height: 110px;
+        border: 1px solid #ddd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        background: #fff;
+      }
+      .t2-section-title {
+        font-size: 11px;
+        font-weight: 600;
+        margin: 6px 0 4px 0;
+        color: #000;
+      }
+      .t2-notes {
+        background: #fff;
+        border: 1px solid #ddd;
+        padding: 6px 10px;
+        margin-bottom: 6px;
+        font-size: 9.5px;
+      }
+      .t2-footer {
+        position: fixed;
+        bottom: 6mm;
+        left: 8mm;
+        right: 8mm;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        font-size: 9.5px;
+        padding-top: 10px;
+        border-top: 2px solid #000;
+      }
+      .t2-footer-left {
+        flex: 1;
+        max-width: 50%;
+      }
+      .t2-footer-right {
+        flex-shrink: 0;
+        width: auto;
+        text-align: right;
+        font-size: 10.5px;
+        line-height: 1.2;
+      }
+      .t2-qr-container {
+        text-align: left;
+        margin-bottom: 6px;
+      }
+      .t2-qr-label {
+        font-weight: 700;
+        font-size: 10px;
+        margin-bottom: 4px;
+        color: #000;
+      }
+      .t2-qr-image {
+        width: 100px;
+        height: 100px;
+        border: 1px solid #000;
+        padding: 3px;
+        background: #fff;
+        margin-bottom: 6px;
+      }
+      .t2-disclaimer {
+        font-size: 8.5px;
+        line-height: 1.4;
+        color: #333;
+        text-align: justify;
+      }
+      .t2-container {
+        padding-bottom: 140px;
+      }
+      .t2-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 8.5px;
+        border: 1px solid #000;
+        margin-bottom: 6px;
+      }
+      .t2-table thead tr {
+        background: #f0f0f0;
+      }
+      .t2-table th {
+        padding: 3px 4px;
+        text-align: center;
+        font-weight: 600;
+        border: 1px solid #000;
+        font-size: 8px;
+      }
+      .t2-table tbody tr {
+        background: #fff;
+      }
+      .t2-table td {
+        padding: 3px 4px;
+        border: 1px solid #000;
+      }
+      .t2-total-row {
+        background: #f0f0f0 !important;
+        font-weight: 700;
+      }
+    `;
   }
 }

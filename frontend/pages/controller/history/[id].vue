@@ -75,8 +75,10 @@ let objectUrl = ''
 
 const fetchHistoryData = async () => {
   try {
-  const response = await api.get(`/quotation/${quotationId}`)
+    // Fetch quotation data including templateKey
+    const response = await api.get(`/quotation/${quotationId}`)
     historyData.value = response.data
+    // Fetch PDF using stored templateKey from database
     await fetchPdf()
   } catch (error) {
     console.error('Error fetching history data:', error)
@@ -119,7 +121,9 @@ const paymentLabel = computed(() => {
 
 async function fetchPdf () {
   try {
-  const res = await api.get(`/quotation/${quotationId}/pdf`, { responseType: 'blob' })
+    // Fetch PDF using stored templateKey from database
+    // Backend automatically uses the templateKey stored in quotation record
+    const res = await api.get(`/quotation/${quotationId}/pdf`, { responseType: 'blob' })
     const blob = new Blob([res.data], { type: 'application/pdf' })
     if (objectUrl) URL.revokeObjectURL(objectUrl)
     objectUrl = URL.createObjectURL(blob)

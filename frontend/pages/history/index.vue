@@ -7,26 +7,32 @@
                 class="w-full p-3 mb-4 border rounded-lg shadow-sm text-black" />
         </div>
 
-        <NuxtLink v-for="quotation in quotations" :key="quotation.quotationId" :to="`/history/${quotation.quotationId}`"
-            class="w-full max-w-xl mx-auto flex flex-col items-center gap-3 mt-4 text-black no-underline">
-            <div class="w-full bg-white border border-black/20 shadow-md rounded-lg p-4">
-                <div class="flex justify-between">
-                    <span class="text-lg font-extrabold">ใบเสนอราคา</span>
-                    <span class="text-sm font-light">{{ formatDate(quotation.quotationDate) || 'วันที่ไม่ระบุ' }}</span>
-                </div>
-                <hr class="my-2" />
-                <div class="flex flex-col gap-1 ml-2">
-                    <span class="text-base font-semibold">{{ quotation.carDetails.modelClass || 'โมเดลไม่ระบุ' }}</span>
-                    <span class="text-sm font-medium">{{ quotation.carDetails.modelGName || 'รายละเอียดไม่ระบุ'
-                    }}</span>
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm font-semibold">{{ quotation.customer?.firstName || 'ลูกค้าไม่ระบุ'
+        <template v-if="clientReady">
+            <NuxtLink v-for="quotation in quotations" :key="quotation.quotationId"
+                :to="`/history/${quotation.quotationId}`"
+                class="w-full max-w-xl mx-auto flex flex-col items-center gap-3 mt-4 text-black no-underline">
+                <div class="w-full bg-white border border-black/20 shadow-md rounded-lg p-4">
+                    <div class="flex justify-between">
+                        <span class="text-lg font-extrabold">ใบเสนอราคา</span>
+                        <span class="text-sm font-light">{{ formatDate(quotation.quotationDate) || 'วันที่ไม่ระบุ'
                         }}</span>
-                        <span class="text-sm font-semibold">{{ quotation.customer?.lastName || 'ลูกค้าไม่ระบุ' }}</span>
+                    </div>
+                    <hr class="my-2" />
+                    <div class="flex flex-col gap-1 ml-2">
+                        <span class="text-base font-semibold">{{ quotation.carDetails.modelClass || 'โมเดลไม่ระบุ'
+                        }}</span>
+                        <span class="text-sm font-medium">{{ quotation.carDetails.modelGName || 'รายละเอียดไม่ระบุ'
+                        }}</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-semibold">{{ quotation.customer?.firstName || 'ลูกค้าไม่ระบุ'
+                            }}</span>
+                            <span class="text-sm font-semibold">{{ quotation.customer?.lastName || 'ลูกค้าไม่ระบุ'
+                            }}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </NuxtLink>
+            </NuxtLink>
+        </template>
 
         <div v-if="!loading && quotations.length === 0" class="w-full max-w-2xl text-center text-gray-500 mt-6">
             ไม่พบรายการ
@@ -59,33 +65,29 @@
 import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 import { useApi } from '~/composables/useApi';
 import debounce from 'lodash/debounce';
+import { getStaffIdAsync } from '~/composables/useAuth.ts'
+
 
 const config = useRuntimeConfig()
 const api = useApi();
 
 
 const currentPage = ref(1);
-const itemsPerPage = ref(getResponsiveLimit());
+const itemsPerPage = ref(5);
 const totalPages = ref(0);
 const total = ref(0);
 const loading = ref(false);
 let abortController = null;
 const searchQuery = ref("");
 const quotations = ref([]);
+const clientReady = ref(false);
 
-function getResponsiveLimit() {
-    if (typeof window === 'undefined') return 4;
-    const w = window.innerWidth;
-    if (w < 640) return 3;
-    if (w < 1024) return 5;
-    return 8;
+const adjustItemsPerPage = () => {
+    if (typeof window === 'undefined') return;
+    const viewportHeight = window.innerHeight;
+    itemsPerPage.value = Math.max(3, Math.floor((viewportHeight - 320) / 100));
 }
 
-function updateResponsiveLimit() {
-    itemsPerPage.value = getResponsiveLimit();
-}
-
-import { getStaffIdAsync } from '~/composables/useAuth.ts'
 
 const fetchQuotations = async () => {
     const staffId = await getStaffIdAsync();
@@ -103,7 +105,7 @@ const fetchQuotations = async () => {
         const response = await api.get(`/quotation/staff/${staffId}`, {
             params: {
                 page: currentPage.value,
-                limit: itemsPerPage,
+                limit: itemsPerPage.value,
                 search: searchQuery.value,
             },
             signal: abortController.signal,
@@ -163,16 +165,17 @@ const visiblePages = computed(() => {
 
 
 onMounted(() => {
-    updateResponsiveLimit();
-    window.addEventListener('resize', updateResponsiveLimit);
+    adjustItemsPerPage();
+    window.addEventListener('resize', adjustItemsPerPage);
     fetchQuotations();
+    clientReady.value = true;
 });
 
 onBeforeUnmount(() => {
     if (abortController) {
         abortController.abort();
     }
-    window.removeEventListener('resize', updateResponsiveLimit);
+    window.removeEventListener('resize', adjustItemsPerPage);
 });
 
 const goToPage = (page) => {

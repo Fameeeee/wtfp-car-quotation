@@ -91,6 +91,10 @@
                     </svg>
                 </i>
             </NuxtLink>
+
+        </nav>
+
+        <div class="mt-auto mb-5 flex flex-col items-center w-full">
             <NuxtLink to="/home"
                 class="bg-gray-200 text-black rounded-md cursor-pointer flex items-center justify-center mx-auto mt-auto mb-2 px-5 py-3 w-[90%] gap-2 transition-all duration-200 hover:bg-gray-300">
                 <span v-if="isOpen" class="transition-opacity duration-200">Back to User Site</span>
@@ -100,22 +104,20 @@
                     </svg>
                 </i>
             </NuxtLink>
-        </nav>
+            <button
+                class="logout bg-[#980000] text-white rounded-md cursor-pointer flex items-center justify-center mx-auto mt-auto mb-3 px-5 py-3 w-[90%] gap-2 transition-all duration-200"
+                @click="Logout">
+                <span v-if="isOpen" class="transition-opacity duration-200">Log Out</span>
+                <i v-else class="icon-logout">
+                    <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M5 21C4.45 21 3.97933 20.8043 3.588 20.413C3.19667 20.0217 3.00067 19.5507 3 19V5C3 4.45 3.196 3.97933 3.588 3.588C3.98 3.19667 4.45067 3.00067 5 3H12V5H5V19H12V21H5ZM16 17L14.625 15.55L17.175 13H9V11H17.175L14.625 8.45L16 7L21 12L16 17Z"
+                            fill="white" />
+                    </svg>
+                </i>
+            </button>
+        </div>
 
-
-
-        <button
-            class="logout bg-[#980000] text-white rounded-md cursor-pointer flex items-center justify-center mx-auto mt-auto mb-3 px-5 py-3 w-[90%] gap-2 transition-all duration-200"
-            @click="Logout">
-            <span v-if="isOpen" class="transition-opacity duration-200">Log Out</span>
-            <i v-else class="icon-logout">
-                <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                        d="M5 21C4.45 21 3.97933 20.8043 3.588 20.413C3.19667 20.0217 3.00067 19.5507 3 19V5C3 4.45 3.196 3.97933 3.588 3.588C3.98 3.19667 4.45067 3.00067 5 3H12V5H5V19H12V21H5ZM16 17L14.625 15.55L17.175 13H9V11H17.175L14.625 8.45L16 7L21 12L16 17Z"
-                        fill="white" />
-                </svg>
-            </i>
-        </button>
     </aside>
 </template>
 
@@ -148,6 +150,7 @@ const Logout = async () => {
         router.push('/controller/login')
     }
 }
+
 </script>
 
 <style scoped>

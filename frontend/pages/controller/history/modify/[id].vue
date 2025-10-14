@@ -52,6 +52,102 @@
                 <!-- Customer Info -->
                 <customerDropdown label="ข้อมูลลูกค้า" :quotation-id="quotationId"
                     @update="data => handleUpdate('customer', data)" class="mb-4 bg-white" />
+
+                <!-- Template Selector -->
+                <div class="bg-white rounded-lg border shadow-sm p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">เลือกรูปแบบใบเสนอราคา</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <!-- Standard Template -->
+                        <button 
+                            @click="selectTemplate('standard')"
+                            :class="[
+                                'relative border-2 rounded-lg p-4 transition-all hover:shadow-md text-left',
+                                selectedTemplate === 'standard' 
+                                    ? 'border-blue-600 bg-blue-50' 
+                                    : 'border-gray-300 hover:border-gray-400'
+                            ]"
+                        >
+                            <div class="flex items-start gap-3">
+                                <div class="flex-shrink-0 mt-1">
+                                    <div :class="[
+                                        'w-5 h-5 rounded-full border-2 flex items-center justify-center',
+                                        selectedTemplate === 'standard' 
+                                            ? 'border-blue-600 bg-blue-600' 
+                                            : 'border-gray-300'
+                                    ]">
+                                        <svg v-if="selectedTemplate === 'standard'" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-semibold text-gray-800">Standard</div>
+                                    <div class="text-xs text-gray-500 mt-1">แบบมาตรฐาน</div>
+                                </div>
+                            </div>
+                        </button>
+
+                        <!-- Template 1 -->
+                        <button 
+                            @click="selectTemplate('template1')"
+                            :class="[
+                                'relative border-2 rounded-lg p-4 transition-all hover:shadow-md text-left',
+                                selectedTemplate === 'template1' 
+                                    ? 'border-blue-600 bg-blue-50' 
+                                    : 'border-gray-300 hover:border-gray-400'
+                            ]"
+                        >
+                            <div class="flex items-start gap-3">
+                                <div class="flex-shrink-0 mt-1">
+                                    <div :class="[
+                                        'w-5 h-5 rounded-full border-2 flex items-center justify-center',
+                                        selectedTemplate === 'template1' 
+                                            ? 'border-blue-600 bg-blue-600' 
+                                            : 'border-gray-300'
+                                    ]">
+                                        <svg v-if="selectedTemplate === 'template1'" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-semibold text-gray-800">Template 1</div>
+                                    <div class="text-xs text-gray-500 mt-1">แบบโมเดิร์น</div>
+                                </div>
+                            </div>
+                        </button>
+
+                        <!-- Template 2 -->
+                        <button 
+                            @click="selectTemplate('template2')"
+                            :class="[
+                                'relative border-2 rounded-lg p-4 transition-all hover:shadow-md text-left',
+                                selectedTemplate === 'template2' 
+                                    ? 'border-blue-600 bg-blue-50' 
+                                    : 'border-gray-300 hover:border-gray-400'
+                            ]"
+                        >
+                            <div class="flex items-start gap-3">
+                                <div class="flex-shrink-0 mt-1">
+                                    <div :class="[
+                                        'w-5 h-5 rounded-full border-2 flex items-center justify-center',
+                                        selectedTemplate === 'template2' 
+                                            ? 'border-blue-600 bg-blue-600' 
+                                            : 'border-gray-300'
+                                    ]">
+                                        <svg v-if="selectedTemplate === 'template2'" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-semibold text-gray-800">Template 2</div>
+                                    <div class="text-xs text-gray-500 mt-1">แบบอีซูซุ เชียงราย</div>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <!-- Action buttons -->
@@ -119,6 +215,7 @@ const quotationId = route.params.id
 const showSaveModal = ref(false);
 const showModal = ref(false);
 const quotationData = ref({});
+const selectedTemplate = ref('standard'); // Default template
 
 const allData = reactive({
     customer: {
@@ -159,6 +256,10 @@ api
     .then((response) => {
         const data = response.data || {};
         quotationData.value = data;
+        
+        // Load the saved template
+        selectedTemplate.value = data.templateKey || 'standard';
+        
         if (data.customer) {
             allData.customer = {
                 firstName: data.customer.firstName || allData.customer.firstName,
@@ -199,12 +300,17 @@ const goNext = () => {
     showSaveModal.value = true;
 };
 
+const selectTemplate = (template) => {
+    selectedTemplate.value = template;
+};
+
 const handleSaveConfirm = async (saveAsNew) => {
     showSaveModal.value = false;
 
     const payload = {
         customer: allData.customer || null,
         paymentMethod: allData.paymentMethod || null,
+        templateKey: selectedTemplate.value, // Include selected template
 
         installmentPlans: Array.isArray(allData.installmentPlans) && allData.installmentPlans.length ? allData.installmentPlans : null,
         cashPlans: allData.cashPlans && Object.keys(allData.cashPlans).length ? allData.cashPlans : null,

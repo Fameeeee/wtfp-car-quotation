@@ -91,11 +91,19 @@ export class QuotationController {
   }
 
   @Get(':id/pdf')
-  async generatePdfById(@Param('id', ParseIntPipe) id: number, @Res() res: Response) {
-    const buffer = await this.pdfService.generateById(id, { preview: false });
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `inline; filename=quotation-${id}.pdf`);
-    return res.send(buffer);
+  async generatePdfById(
+    @Param('id', ParseIntPipe) id: number, 
+    @Query('template') template?: string,
+    @Res() res?: Response
+  ) {
+    const templateKey = template || undefined; // Let service use default if not specified
+    const buffer = await this.pdfService.generateById(id, { preview: false, templateKey });
+    if (res) {
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename=quotation-${id}-${templateKey || 'default'}.pdf`);
+      return res.send(buffer);
+    }
+    return buffer;
   }
 
   @Get('staff/:id')
@@ -125,13 +133,14 @@ export class QuotationController {
 
   @Post('pdf')
   async generatePdfFromData(@Body() body: any, @Res() res: Response) {
-  const wantsFull = !!(body && body.full);
-  const forcePreview = !!(body && body.preview);
-  // Default to preview (single page) unless explicitly requesting full
-  const preview = forcePreview || !wantsFull;
-  const buffer = await this.pdfService.generateFromData(body, { preview });
+    const wantsFull = !!(body && body.full);
+    const forcePreview = !!(body && body.preview);
+    const templateKey = body?.templateKey || body?.template || undefined;
+    // Default to preview (single page) unless explicitly requesting full
+    const preview = forcePreview || !wantsFull;
+    const buffer = await this.pdfService.generateFromData(body, { preview, templateKey });
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'inline; filename=quotation-preview.pdf');
+    res.setHeader('Content-Disposition', `inline; filename=quotation-preview-${templateKey || 'default'}.pdf`);
     return res.send(buffer);
   }
 }

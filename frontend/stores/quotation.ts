@@ -8,7 +8,8 @@ export const useQuotationStore = defineStore('quotation', {
     customerDetails: {} as any,
     cashPlan: {} as any,
     installmentPlans: [] as any[],
-  paymentMethod: '' as 'cash' | 'installment' | ''
+    paymentMethod: '' as 'cash' | 'installment' | '',
+    selectedTemplate: 'standard' as string // Default template
   }),
   actions: {
     setSelectedCar(car: any) {
@@ -32,6 +33,9 @@ export const useQuotationStore = defineStore('quotation', {
     setPaymentMethod(method: 'cash' | 'installment') {
       this.paymentMethod = method;
     },
+    setSelectedTemplate(template: string) {
+      this.selectedTemplate = template;
+    },
     clearAll() {
       this.selectedCar = {};
       this.selectedAccessories = [];
@@ -40,6 +44,7 @@ export const useQuotationStore = defineStore('quotation', {
       this.cashPlan = {};
       this.installmentPlans = [];
       this.paymentMethod = '';
+      this.selectedTemplate = 'standard';
     }
   },
   persist: true

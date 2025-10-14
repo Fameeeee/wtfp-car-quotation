@@ -18,6 +18,9 @@ export class Quotation {
     @Column({ type: 'enum', enum: PaymentMethod, default: PaymentMethod.CASH })
     paymentMethod: PaymentMethod
 
+    @Column({ type: 'varchar', length: 50, default: 'standard' })
+    templateKey: string;
+
     @Column({ type: 'json', nullable: true })
     cashPlans?: {
         totalPrice?: number;
