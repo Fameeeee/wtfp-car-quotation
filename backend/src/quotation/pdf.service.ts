@@ -110,23 +110,12 @@ export class PdfService {
       : null;
     const candidates = [
       envPath,
-      path.resolve(
-        __dirname,
-        '../../../frontend/public/assets/isuzu-quotation-logo.png',
-      ),
-      path.resolve(
-        __dirname,
-        '../../frontend/public/assets/isuzu-quotation-logo.png',
-      ),
       path.resolve(process.cwd(), 'public/assets/isuzu-quotation-logo.png'),
       path.resolve(
         process.cwd(),
         'backend/public/assets/isuzu-quotation-logo.png',
       ),
-      path.resolve(
-        process.cwd(),
-        'frontend/public/assets/isuzu-quotation-logo.png',
-      ),
+      path.resolve(__dirname, '../../public/assets/isuzu-quotation-logo.png'),
       path.resolve(__dirname, '../../assets/isuzu-quotation-logo.png'),
     ].filter(Boolean) as string[];
     for (const p of candidates) {
