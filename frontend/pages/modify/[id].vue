@@ -355,9 +355,15 @@ const handleSaveConfirm = async () => {
         console.info('Creating new quotation from modified data:', JSON.parse(JSON.stringify(payload)));
         // Use POST /quotation/create to create a new quotation
         const res = await api.post(`/quotation/create`, payload);
+        const d = res?.data || {};
+        const newId = d.quotationId || d.id || (d.data && d.data.quotationId) || (d.quotation && d.quotation.id) || null;
 
         alert('สร้างใบเสนอราคาใหม่เรียบร้อยแล้ว');
-        router.push(`/history`);
+        if (newId) {
+            await router.push(`/history/${newId}`);
+        } else {
+            await router.push(`/history`);
+        }
     } catch (error) {
         if (error?.response) {
             console.error('Error saving quotation:', error.response.status, error.response.data);
