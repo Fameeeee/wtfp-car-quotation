@@ -240,8 +240,10 @@ export class PdfService {
 
   private buildInstallmentTable(instAll: any[], car: any): string {
     if (!instAll?.length) return '';
+    let orderIndex = 0;
     const rows = instAll
       .map((order: any) => {
+        orderIndex++;
         const net =
           (car?.price ?? 0) -
           (order?.specialDiscount ?? 0) +
@@ -269,7 +271,7 @@ export class PdfService {
                 monthly = Math.round(loan * ((mr * f) / (f - 1)));
               }
             }
-            return `<tr>${i === 0 ? `<td rowspan=\"${plans.length}\">${order?.orderNumber ?? ''}</td>` : ''}${i === 0 ? `<td rowspan=\"${plans.length}\">${this.thBaht(car?.price)}</td>` : ''}${i === 0 ? `<td rowspan=\"${plans.length}\">${this.thBaht(order?.specialDiscount)}</td>` : ''}${i === 0 ? `<td rowspan=\"${plans.length}\">${this.thBaht(order?.additionPrice)}</td>` : ''}${i === 0 ? `<td rowspan=\"${plans.length}\">${this.thBaht(net)}</td>` : ''}${i === 0 ? `<td rowspan=\"${plans.length}\">${this.thBaht(down)}</td>` : ''}${i === 0 ? `<td rowspan=\"${plans.length}\">${this.thBaht(loan)}</td>` : ''}<td>${period ?? '-'}</td><td>${rate == null ? '-' : rate + '%'}</td><td>${monthly == null ? '-' : this.thBaht(monthly)}</td></tr>`;
+            return `<tr>${i === 0 ? `<td rowspan=\"${plans.length}\">${orderIndex}</td>` : ''}${i === 0 ? `<td rowspan=\"${plans.length}\">${this.thBaht(car?.price)}</td>` : ''}${i === 0 ? `<td rowspan=\"${plans.length}\">${this.thBaht(order?.specialDiscount)}</td>` : ''}${i === 0 ? `<td rowspan=\"${plans.length}\">${this.thBaht(order?.additionPrice)}</td>` : ''}${i === 0 ? `<td rowspan=\"${plans.length}\">${this.thBaht(net)}</td>` : ''}${i === 0 ? `<td rowspan=\"${plans.length}\">${this.thBaht(down)}</td>` : ''}${i === 0 ? `<td rowspan=\"${plans.length}\">${this.thBaht(loan)}</td>` : ''}<td>${period ?? '-'}</td><td>${rate == null ? '-' : rate + '%'}</td><td>${monthly == null ? '-' : this.thBaht(monthly)}</td></tr>`;
           })
           .join('');
       })
@@ -369,22 +371,25 @@ export class PdfService {
         const c1 = col1[i] ?? '';
         const c2 = col2[i] ?? '';
         const c3 = col3[i] ?? '';
-        const n1 = c1 ? i + 1 : '';
-        const n2 = c2 ? i + rows + 1 : '';
-        const n3 = c3 ? i + rows * 2 + 1 : '';
+        // Calculate actual item numbers sequentially
+        const n1 = c1 ? (i + 1) : '';
+        const n2 = c2 ? (col1.length + i + 1) : '';
+        const n3 = c3 ? (col1.length + col2.length + i + 1) : '';
         return `<tr><td>${n1}</td><td style="text-align:left;padding-left:8px">${c1}</td><td>${n2}</td><td style="text-align:left;padding-left:8px">${c2}</td><td>${n3}</td><td style="text-align:left;padding-left:8px">${c3}</td></tr>`;
       })
       .join(
         '',
       )}${overflow > 0 ? `<tr><td colspan="6" style="text-align:center;padding:8px" class="muted">และอีก ${overflow} รายการ…</td></tr>` : ''}</tbody></table></div>`;
 
-    return `<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"/><title>Quotation - Template 1</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet"><style>${this.buildTemplate1Css()}</style></head><body><div class="t1-page"><div class="t1-header-band"></div><div class="t1-container"><div class="t1-header"><div class="t1-company-block"><div class="t1-logo-wrap">${logo ? `<img src="${logo}" class="t1-logo"/>` : '<div class="t1-logo-placeholder">LOGO</div>'}</div><div class="t1-company-info"><div class="t1-company-name">บริษัท อีซูซุเชียงราย จำกัด</div><div class="t1-company-details">145/1 ม.17 ถ.ซุปเปอร์ไฮเวย์ ต.รอบเวียง อ.เมือง จ.เชียงราย 57000<br/>โทร. 053-711605</div></div></div><div class="t1-doc-block"><div class="t1-doc-no">${docNo}</div><div class="t1-doc-date">วันที่: ${date}</div></div></div><div class="t1-title-section"><h1>ใบเสนอราคา</h1><div class="t1-subtitle">QUOTATION</div></div><div class="t1-customer-card"><div class="t1-customer-label">เรียน</div><div class="t1-customer-name">${[customer?.firstName, customer?.lastName].filter(Boolean).join(' ') || '-'}</div><div class="t1-customer-detail">โทรศัพท์: ${customer?.phoneNumber || '-'}</div></div><div class="t1-car-card"><div class="t1-car-badge">${paymentMethod === 'cash' ? '💵 เงินสด' : paymentMethod === 'installment' ? '📊 ผ่อนชำระ' : '💳 การชำระเงิน'}</div><div class="t1-car-content"><div class="t1-car-image">${car?.imageUrl ? `<img src="${car.imageUrl}" alt="Car"/>` : '<div class="t1-car-placeholder">รูปภาพรถยนต์</div>'}</div><div class="t1-car-specs"><div class="t1-spec-row"><span class="t1-spec-label">รุ่นปี:</span><span class="t1-spec-value">${car?.modelClass || '-'}</span></div><div class="t1-spec-row"><span class="t1-spec-label">รุ่นรถ:</span><span class="t1-spec-value">${car?.modelGName || '-'}</span></div><div class="t1-spec-row"><span class="t1-spec-label">สีตัวถัง:</span><span class="t1-spec-value">${car?.color || '-'}</span></div><div class="t1-spec-row"><span class="t1-spec-label">แรงม้า:</span><span class="t1-spec-value">${car?.horsepower ?? '190'} แรงม้า</span></div><div class="t1-spec-row"><span class="t1-spec-label">แรงบิด:</span><span class="t1-spec-value">${car?.torque ?? '450'} นิวตัน-เมตร</span></div><div class="t1-price-row"><span class="t1-spec-label">ราคา:</span><span class="t1-price">${this.thBaht(car?.price)}</span></div></div>${brochureQr ? `<div class="t1-qr-block"><img src="${brochureQr}" class="t1-qr"/><div class="t1-qr-text">สแกนดู<br/>รายละเอียด</div></div>` : ''}</div></div>${cashHtml}${installmentHtml}${accessoriesHtml}<div class="t1-card"><div class="t1-card-header"><div class="t1-card-icon">📝</div><div class="t1-card-title">หมายเหตุ</div></div><ul class="t1-note-list">${noteItems}</ul><div class="t1-disclaimer">บริษัท อีซูซุเชียงราย จำกัด ขอขอบคุณท่านเป็นอย่างยิ่งที่ได้ให้ความสนใจในผลิตภัณฑ์ของบริษัท และหวังเป็นอย่างยิ่งว่าจะได้รับการตอบรับที่ดีจากท่าน ราคาและเงื่อนไขอาจมีการเปลี่ยนแปลงโดยไม่ต้องแจ้งล่วงหน้า</div></div></div><div class="t1-footer"><div class="t1-footer-content"><div class="t1-staff-card"><div class="t1-staff-label">ผู้เสนอราคา</div><div class="t1-staff-name">${[staff?.firstName, staff?.lastName].filter(Boolean).join(' ') || '-'}</div><div class="t1-staff-title">( ที่ปรึกษาการขาย )</div><div class="t1-staff-contact">โทร. ${staff?.phoneNumber || '-'}</div></div></div></div></div></body></html>`;
+    return `<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"/><title>Quotation - Template 1</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet"><style>${this.buildTemplate1Css()}</style></head><body><div class="t1-page"><div class="t1-header-band"></div><div class="t1-container"><div class="t1-header"><div class="t1-company-block"><div class="t1-logo-wrap">${logo ? `<img src="${logo}" class="t1-logo"/>` : '<div class="t1-logo-placeholder">LOGO</div>'}</div><div class="t1-company-info"><div class="t1-company-name">บริษัท อีซูซุเชียงราย จำกัด</div><div class="t1-company-details">145/1 ม.17 ถ.ซุปเปอร์ไฮเวย์ ต.รอบเวียง อ.เมือง จ.เชียงราย 57000<br/>โทร. 053-711605</div></div></div><div class="t1-doc-block"><div class="t1-doc-no">${docNo}</div><div class="t1-doc-date">วันที่: ${date}</div></div></div><div class="t1-title-section"><h1>ใบเสนอราคา</h1></div><div class="t1-customer-card"><div class="t1-customer-label">เรียน</div><div class="t1-customer-name">${[customer?.firstName, customer?.lastName].filter(Boolean).join(' ') || '-'}</div><div class="t1-customer-detail">โทรศัพท์: ${customer?.phoneNumber || '-'}</div></div><div class="t1-car-card"><div class="t1-car-badge">${paymentMethod === 'cash' ? '💵 เงินสด' : paymentMethod === 'installment' ? '📊 ผ่อนชำระ' : '💳 การชำระเงิน'}</div><div class="t1-car-content"><div class="t1-car-image">${car?.imageUrl ? `<img src="${car.imageUrl}" alt="Car"/>` : '<div class="t1-car-placeholder">รูปภาพรถยนต์</div>'}</div><div class="t1-car-specs"><div class="t1-spec-row"><span class="t1-spec-label">รุ่นปี:</span><span class="t1-spec-value">${car?.modelClass || '-'}</span></div><div class="t1-spec-row"><span class="t1-spec-label">รุ่นรถ:</span><span class="t1-spec-value">${car?.modelGName || '-'}</span></div><div class="t1-spec-row"><span class="t1-spec-label">สีตัวถัง:</span><span class="t1-spec-value">${car?.color || '-'}</span></div><div class="t1-spec-row"><span class="t1-spec-label">แรงม้า:</span><span class="t1-spec-value">${car?.horsepower ?? '190'} แรงม้า</span></div><div class="t1-spec-row"><span class="t1-spec-label">แรงบิด:</span><span class="t1-spec-value">${car?.torque ?? '450'} นิวตัน-เมตร</span></div><div class="t1-price-row"><span class="t1-spec-label">ราคา:</span><span class="t1-price">${this.thBaht(car?.price)}</span></div></div>${brochureQr ? `<div class="t1-qr-block"><img src="${brochureQr}" class="t1-qr"/><div class="t1-qr-text">สแกนดู<br/>รายละเอียด</div></div>` : ''}</div></div>${cashHtml}${installmentHtml}${accessoriesHtml}<div class="t1-card"><div class="t1-card-header"><div class="t1-card-icon">📝</div><div class="t1-card-title">หมายเหตุ</div></div><ul class="t1-note-list">${noteItems}</ul><div class="t1-disclaimer">บริษัท อีซูซุเชียงราย จำกัด ขอขอบคุณท่านเป็นอย่างยิ่งที่ได้ให้ความสนใจในผลิตภัณฑ์ของบริษัท และหวังเป็นอย่างยิ่งว่าจะได้รับการตอบรับที่ดีจากท่าน ราคาและเงื่อนไขอาจมีการเปลี่ยนแปลงโดยไม่ต้องแจ้งล่วงหน้า</div></div></div><div class="t1-footer"><div class="t1-footer-content"><div class="t1-staff-card"><div class="t1-staff-label">ผู้เสนอราคา</div><div class="t1-staff-name">${[staff?.firstName, staff?.lastName].filter(Boolean).join(' ') || '-'}</div><div class="t1-staff-title">( ที่ปรึกษาการขาย )</div><div class="t1-staff-contact">โทร. ${staff?.phoneNumber || '-'}</div></div></div></div></div></body></html>`;
   }
 
   private buildTemplate1InstallmentTable(instAll: any[], car: any): string {
     if (!instAll?.length) return '';
+    let orderIndex = 0;
     const rows = instAll
       .map((order: any) => {
+        orderIndex++;
         const net =
           (car?.price ?? 0) -
           (order?.specialDiscount ?? 0) +
@@ -412,7 +417,7 @@ export class PdfService {
                 monthly = Math.round(loan * ((mr * f) / (f - 1)));
               }
             }
-            return `<tr>${i === 0 ? `<td rowspan="${plans.length}">${order?.orderNumber ?? ''}</td>` : ''}${i === 0 ? `<td rowspan="${plans.length}">${this.thBaht(car?.price)}</td>` : ''}${i === 0 ? `<td rowspan="${plans.length}">${this.thBaht(order?.specialDiscount)}</td>` : ''}${i === 0 ? `<td rowspan="${plans.length}">${this.thBaht(order?.additionPrice)}</td>` : ''}${i === 0 ? `<td rowspan="${plans.length}" class="highlight-cell">${this.thBaht(net)}</td>` : ''}${i === 0 ? `<td rowspan="${plans.length}">${this.thBaht(down)}</td>` : ''}${i === 0 ? `<td rowspan="${plans.length}">${this.thBaht(loan)}</td>` : ''}<td>${period ?? '-'}</td><td>${rate == null ? '-' : rate + '%'}</td><td class="highlight-cell">${monthly == null ? '-' : this.thBaht(monthly)}</td></tr>`;
+            return `<tr>${i === 0 ? `<td rowspan="${plans.length}">${orderIndex}</td>` : ''}${i === 0 ? `<td rowspan="${plans.length}">${this.thBaht(car?.price)}</td>` : ''}${i === 0 ? `<td rowspan="${plans.length}">${this.thBaht(order?.specialDiscount)}</td>` : ''}${i === 0 ? `<td rowspan="${plans.length}">${this.thBaht(order?.additionPrice)}</td>` : ''}${i === 0 ? `<td rowspan="${plans.length}" class="highlight-cell">${this.thBaht(net)}</td>` : ''}${i === 0 ? `<td rowspan="${plans.length}">${this.thBaht(down)}</td>` : ''}${i === 0 ? `<td rowspan="${plans.length}">${this.thBaht(loan)}</td>` : ''}<td>${period ?? '-'}</td><td>${rate == null ? '-' : rate + '%'}</td><td class="highlight-cell">${monthly == null ? '-' : this.thBaht(monthly)}</td></tr>`;
           })
           .join('');
       })
@@ -461,8 +466,8 @@ export class PdfService {
         align-items: center;
       }
       .t1-logo-wrap {
-        width: 45px;
-        height: 45px;
+        width: 65px;
+        height: 65px;
       }
       .t1-logo {
         width: 100%;
@@ -896,7 +901,9 @@ export class PdfService {
     // Build installment table rows
     let installmentRows = '';
     if (isInstallment && instAll.length) {
+      let orderIndex = 0;
       instAll.forEach((order: any) => {
+        orderIndex++;
         const net =
           (car?.price ?? 0) -
           (order?.specialDiscount ?? 0) +
@@ -928,7 +935,7 @@ export class PdfService {
 
           const downPaymentText = `${downPercent}% หรือ บท ${this.thFormatNumber(down)} บาท`;
 
-          installmentRows += `<tr>${i === 0 ? `<td rowspan="${plans.length}" style="border-right:1px solid #ddd">${order?.orderNumber ?? ''}</td>` : ''}<td style="border-right:1px solid #ddd">${downPaymentText}</td><td style="border-right:1px solid #ddd">${this.thFormatNumber(loan)}</td><td style="border-right:1px solid #ddd;text-align:center">${period ?? '-'}</td><td style="border-right:1px solid #ddd;text-align:center">${rate == null ? '-' : rate + '%'}</td><td style="text-align:right;font-weight:600">${monthly == null ? '-' : this.thFormatNumber(monthly)}</td></tr>`;
+          installmentRows += `<tr>${i === 0 ? `<td rowspan="${plans.length}" style="border-right:1px solid #ddd">${orderIndex}</td>` : ''}<td style="border-right:1px solid #ddd">${downPaymentText}</td><td style="border-right:1px solid #ddd">${this.thFormatNumber(loan)}</td><td style="border-right:1px solid #ddd;text-align:center">${period ?? '-'}</td><td style="border-right:1px solid #ddd;text-align:center">${rate == null ? '-' : rate + '%'}</td><td style="text-align:right;font-weight:600">${monthly == null ? '-' : this.thFormatNumber(monthly)}</td></tr>`;
         });
       });
     }
@@ -1058,11 +1065,11 @@ export class PdfService {
         </tr>
       </tbody>
     </table>
-    <table class="t2-table" style="margin-top:0">
+    <table class="t2-table" style="margin-top:8px">
       <thead>
         <tr>
-          <th rowspan="2">ครั้งที่</th>
-          <th rowspan="2">อ้างอิงเงินดาวน์</th>
+          <th rowspan="2">ลำดับ</th>
+          <th rowspan="2">เงินดาวน์</th>
           <th rowspan="2">ยอดจัดไฟแนนซ์</th>
           <th colspan="2">จำนวนเดือนชำระ (อิงเงินดาวน์%)</th>
           <th rowspan="2">จำนวนเงิน</th>
@@ -1152,11 +1159,16 @@ export class PdfService {
         align-items: flex-start;
         margin-bottom: 5px;
         padding-bottom: 4px;
+        position: relative;
       }
       .t2-logo-wrapper {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
         width: 130px;
         display: flex;
         align-items: center;
+        justify-content: center;
       }
       .t2-logo {
         width: 130px;
@@ -1179,6 +1191,7 @@ export class PdfService {
       }
       .t2-doc-info {
         text-align: right;
+        margin-left: auto;
       }
       .t2-doc-no {
         font-size: 14px;
@@ -1208,11 +1221,16 @@ export class PdfService {
       }
       .t2-customer {
         margin-bottom: 6px;
+        background: #fafafa;
+        padding: 6px 10px;
+        border-left: 2px solid #666;
+        border-radius: 0;
       }
       .t2-customer-label {
         font-size: 11px;
-        font-weight: 600;
+        font-weight: 700;
         margin-bottom: 2px;
+        color: #333;
       }
       .t2-customer-to {
         font-size: 10.5px;
@@ -1237,19 +1255,24 @@ export class PdfService {
       }
       .t2-car-image {
         width: 160px;
-        height: 110px;
-        border: 1px solid #ddd;
+        height: 130px;
+        border: 1px solid #e0e0e0;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        background: #fff;
+        background: #fafafa;
       }
       .t2-section-title {
         font-size: 11px;
-        font-weight: 600;
+        font-weight: 700;
         margin: 6px 0 4px 0;
         color: #000;
+        padding: 4px 0;
+        background: transparent;
+        border-left: none;
+        border-bottom: 1px solid #ddd;
+        border-radius: 0;
       }
       .t2-notes {
         background: #fff;
@@ -1294,7 +1317,7 @@ export class PdfService {
       .t2-qr-image {
         width: 100px;
         height: 100px;
-        border: 1px solid #000;
+        border: 1px solid #ddd;
         padding: 3px;
         background: #fff;
         margin-bottom: 6px;
@@ -1312,28 +1335,32 @@ export class PdfService {
         width: 100%;
         border-collapse: collapse;
         font-size: 8.5px;
-        border: 1px solid #000;
+        border: 1px solid #ddd;
         margin-bottom: 6px;
       }
       .t2-table thead tr {
-        background: #f0f0f0;
+        background: #f5f5f5;
       }
       .t2-table th {
         padding: 3px 4px;
         text-align: center;
         font-weight: 600;
-        border: 1px solid #000;
+        border: 0.5px solid #ddd;
         font-size: 8px;
+        color: #333;
       }
       .t2-table tbody tr {
         background: #fff;
       }
+      .t2-table tbody tr:nth-child(even) {
+        background: #fafafa;
+      }
       .t2-table td {
         padding: 3px 4px;
-        border: 1px solid #000;
+        border: 0.5px solid #ddd;
       }
       .t2-total-row {
-        background: #f0f0f0 !important;
+        background: #f5f5f5 !important;
         font-weight: 700;
       }
     `;

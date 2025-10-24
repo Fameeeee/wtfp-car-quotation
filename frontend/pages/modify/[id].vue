@@ -327,10 +327,10 @@ const handleSaveConfirm = async () => {
             payload.installmentPlans = JSON.parse(JSON.stringify(store.installmentPlans));
             payload.installmentPlans = payload.installmentPlans.map((plan) => ({
                 ...plan,
-                orderNumber: plan.orderNumber ? Number(plan.orderNumber) : plan.orderNumber,
-                specialDiscount: plan.specialDiscount ? Number(plan.specialDiscount) : plan.specialDiscount,
-                additionPrice: plan.additionPrice ? Number(plan.additionPrice) : plan.additionPrice,
-                downPaymentPercent: plan.downPaymentPercent ? Number(plan.downPaymentPercent) : plan.downPaymentPercent,
+                orderNumber: plan.orderNumber ? Number(plan.orderNumber) : Number(plan.orderNumber ?? 0),
+                specialDiscount: plan.specialDiscount ? Number(plan.specialDiscount) : 0,
+                additionPrice: plan.additionPrice ? Number(plan.additionPrice) : 0,
+                downPaymentPercent: plan.downPaymentPercent ? Number(plan.downPaymentPercent) : 0,
                 planDetails: (plan.planDetails || []).map((d) => ({
                     period: Number(d.period),
                     interestRate: d.interestRate === '' || d.interestRate === null || d.interestRate === undefined ? null : Number(d.interestRate)
