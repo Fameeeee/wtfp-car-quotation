@@ -65,25 +65,8 @@ const goNext = () => {
         if (!ok) return;
         quotationStore.setCashPlan({});
     } else {
+        // Cash payment - data is already saved to store by cashPayment.vue watcher
         quotationStore.setInstallmentPlans([]);
-        const cashComponent = document.querySelector('input[placeholder="ส่วนลดราคารถ"]');
-        let specialDiscount = 0, specialAddition = 0, totalPrice = 0;
-        try {
-            const cash = document.querySelector('cash-payment')?.__vueParentComponent?.proxy;
-            if (cash) {
-                specialDiscount = Number(cash.specialDiscount) || 0;
-                specialAddition = Number(cash.specialAddition) || 0;
-                totalPrice = Number(cash.totalPrice) || 0;
-            }
-        } catch {}
-        if (!totalPrice && quotationStore.selectedCar?.price) {
-            totalPrice = Number(quotationStore.selectedCar.price) - (Number(quotationStore.cashPlan?.specialDiscount) || 0) + (Number(quotationStore.cashPlan?.specialAddition) || 0);
-        }
-        quotationStore.setCashPlan({
-            specialDiscount,
-            specialAddition,
-            totalPrice
-        });
     }
     quotationStore.setPaymentMethod(selectedPayment.value);
     router.push('/select-accessories');

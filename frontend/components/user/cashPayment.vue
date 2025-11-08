@@ -19,7 +19,7 @@
 
             <div class="flex items-center gap-4">
                 <span class="font-semibold w-1/3 text-black">ส่วนเพิ่ม</span>
-                <input type="number" v-model.number="specialAddition" placeholder="ส่วนเพิ่มราคารถ" 
+                <input type="number" v-model.number="additionPrice" placeholder="ส่วนเพิ่มราคารถ" 
                     class="w-2/3 p-2 border rounded-lg text-gray-700" />
             </div>
 
@@ -45,35 +45,30 @@ import { useQuotationStore } from '~/stores/quotation';
 const quotationStore = useQuotationStore();
 const selectedCar = computed(() => quotationStore.selectedCar);
 const specialDiscount = ref(0);
-const specialAddition = ref(0);
+const additionPrice = ref(0);
 
 const totalPrice = computed(() => {
-    return (selectedCar.value?.price || 0) - (specialDiscount.value || 0) + (specialAddition.value || 0);
+    const carPrice = selectedCar.value?.price || 0;
+    const discount = specialDiscount.value || 0;
+    const addition = additionPrice.value || 0;
+    return carPrice - discount + addition;
 });
 
-
+// Load saved values when component mounts
 onMounted(() => {
-    if (quotationStore.cashPlan) {
-        specialDiscount.value =
-            typeof quotationStore.cashPlan.specialDiscount === 'number'
-                ? quotationStore.cashPlan.specialDiscount
-                : 0;
-        specialAddition.value =
-            typeof quotationStore.cashPlan.specialAddition === 'number'
-                ? quotationStore.cashPlan.specialAddition
-                : 0;
+    if (quotationStore.cashPlan && Object.keys(quotationStore.cashPlan).length > 0) {
+        specialDiscount.value = Number(quotationStore.cashPlan.specialDiscount) || 0;
+        additionPrice.value = Number(quotationStore.cashPlan.additionPrice) || 0;
     }
 });
 
-watch([specialDiscount, specialAddition, totalPrice], () => {
-    const discount = Number.isFinite(Number(specialDiscount.value)) ? Number(specialDiscount.value) : 0;
-    const addition = Number.isFinite(Number(specialAddition.value)) ? Number(specialAddition.value) : 0;
-    const total = Number.isFinite(Number(totalPrice.value)) ? Number(totalPrice.value) : 0;
+// Save to store whenever values change
+watch([specialDiscount, additionPrice], () => {
     const cashPlan = {
-        specialDiscount: discount,
-        specialAddition: addition,
-        totalPrice: total
+        specialDiscount: Number(specialDiscount.value) || 0,
+        additionPrice: Number(additionPrice.value) || 0,
+        totalPrice: totalPrice.value
     };
     quotationStore.setCashPlan(cashPlan);
-});
+}, { deep: true });
 </script>

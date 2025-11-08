@@ -1,46 +1,56 @@
-import { Injectable, CanActivate, ExecutionContext, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  Logger,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from './roles.decorator';
-import { AuthService } from './auth.service';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
   private readonly logger = new Logger(RolesGuard.name);
-  constructor(private reflector: Reflector, private authService: AuthService) {}
+  
+  constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
     const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
-    if (!requiredRoles || requiredRoles.length === 0) return true;
 
-    const req = context.switchToHttp().getRequest();
-    let user = req.user || (req as any).staff || null;
-
-    // If no user attached, try to read Authorization header and verify token
-    if (!user) {
-      try {
-        const authHeader = (req.get && req.get('authorization')) || req.headers['authorization'] || '';
-        let token: string | null = null;
-        if (typeof authHeader === 'string' && authHeader.toLowerCase().startsWith('bearer ')) {
-          token = authHeader.slice(7).trim();
-        }
-        if (token) {
-          const payload = this.authService.verifyToken(token);
-          if (payload) {
-            user = payload as any;
-            req.user = user;
-          }
-        }
-      } catch (e) {
-        this.logger.warn('Error verifying token in RolesGuard', e?.message || e);
-        return false;
-      }
+    // If no roles are required, allow access
+    if (!requiredRoles || requiredRoles.length === 0) {
+      return true;
     }
 
-    if (!user) return false;
-    const role = (user as any).role;
-    return requiredRoles.includes(role);
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
+
+    // User should be attached by JwtAuthGuard
+    if (!user) {
+      this.logger.warn('No user found in request. Ensure JwtAuthGuard is applied before RolesGuard.');
+      throw new ForbiddenException('Access denied');
+    }
+
+    const userRole = user.role;
+
+    if (!userRole) {
+      this.logger.warn(`User ${user.id} has no role assigned`);
+      throw new ForbiddenException('Access denied - no role assigned');
+    }
+
+    // Check if user's role is in the required roles
+    const hasRole = requiredRoles.includes(userRole);
+
+    if (!hasRole) {
+      this.logger.warn(
+        `User ${user.id} with role '${userRole}' attempted to access resource requiring roles: ${requiredRoles.join(', ')}`
+      );
+      throw new ForbiddenException(`Access denied - requires one of: ${requiredRoles.join(', ')}`);
+    }
+
+    return true;
   }
 }

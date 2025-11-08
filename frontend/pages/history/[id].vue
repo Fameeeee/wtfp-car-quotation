@@ -81,7 +81,8 @@ onMounted(async () => {
         pdfLoading.value = true;
         // Load quotation metadata including templateKey
         const meta = await api.get(`/quotation/${quotationId}`);
-        quotationData.value = meta.data || {};
+        // New response structure: { statusCode, message, data: {...} }
+        quotationData.value = meta.data.data || {};
         
         // Load PDF using stored templateKey from database
         const res = await api.get(`/quotation/${quotationId}/pdf`, { responseType: 'blob' });

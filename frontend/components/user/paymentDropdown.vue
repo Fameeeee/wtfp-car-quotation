@@ -200,7 +200,7 @@ const fetchQuotationData = async () => {
     loading.value = true;
     try {
         const response = await api.get(`/quotation/${props.quotationId}`);
-        const data = response.data;
+        const data = response.data.data;
 
         selectedMethod.value = data.paymentMethod;
         // keep store in sync
@@ -225,11 +225,11 @@ const fetchQuotationData = async () => {
             if (initialCashFromApi.value) {
                 Object.assign(cashPlans.value, initialCashFromApi.value);
                 cashDiscount.value = initialCashFromApi.value.specialDiscount ?? null;
-                cashAddition.value = initialCashFromApi.value.specialAddition ?? null;
+                cashAddition.value = initialCashFromApi.value.additionPrice ?? null;
             }
             store.setCashPlan({
                 specialDiscount: cashDiscount.value,
-                specialAddition: cashAddition.value,
+                additionPrice: cashAddition.value,
                 totalPrice: cashTotal.value
             });
         } else if (data.paymentMethod === "installment") {
@@ -268,7 +268,7 @@ const selectMethod = (method) => {
         // restore API defaults for cash if available
         if (initialCashFromApi.value) {
             cashDiscount.value = initialCashFromApi.value.specialDiscount ?? null;
-            cashAddition.value = initialCashFromApi.value.specialAddition ?? null;
+            cashAddition.value = initialCashFromApi.value.additionPrice ?? null;
         }
     } else {
         // clear cash
@@ -297,7 +297,7 @@ const selectMethod = (method) => {
     if (selectedMethod.value === 'cash') {
         emit('update', {
             paymentMethod: selectedMethod.value,
-            cashPlans: { specialDiscount: cashDiscount.value, specialAddition: cashAddition.value, totalPrice: cashTotal.value },
+            cashPlans: { specialDiscount: cashDiscount.value, additionPrice: cashAddition.value, totalPrice: cashTotal.value },
             installmentPlans: null,
         });
     } else {
@@ -395,7 +395,7 @@ watch([cashDiscount, cashAddition, cashTotal], () => {
     if (selectedMethod.value !== 'cash') return;
     const plan = {
         specialDiscount: cashDiscount.value,
-        specialAddition: cashAddition.value,
+        additionPrice: cashAddition.value,
         totalPrice: cashTotal.value,
     };
     store.setCashPlan(plan);

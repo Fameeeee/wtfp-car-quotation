@@ -17,7 +17,7 @@ import { AuthModule } from 'src/auth/auth.module';
     CustomerModule,
     StaffModule,
     AuditModule,
-  AuthModule,
+    AuthModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({

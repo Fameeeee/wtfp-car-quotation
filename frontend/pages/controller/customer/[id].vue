@@ -202,7 +202,8 @@ const fetchCustomerData = async () => {
   loading.value = true;
   try {
   const response = await api.get(`/customer/${customerId}`);
-    customerData.value = response.data;
+    // New response structure: { statusCode, message, data: {...} }
+    customerData.value = response.data.data;
   } catch (error) {
     console.error("Error fetching customer data:", error);
   } finally {

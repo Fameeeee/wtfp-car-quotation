@@ -67,7 +67,8 @@ onMounted(async () => {
         pdfLoading.value = true;
         // Load basic data for naming and templateKey
         const meta = await api.get(`/quotation/${quotationId}`);
-        quotationData.value = meta.data || {};
+        // New response structure: { statusCode, message, data: {...} }
+        quotationData.value = meta.data.data || {};
         
         // Load the actual PDF to display using stored templateKey
         // The backend will automatically use the templateKey from database

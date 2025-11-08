@@ -8,6 +8,8 @@ import { CustomerModule } from './customer/customer.module';
 import { QuotationModule } from './quotation/quotation.module';
 import { AuthModule } from './auth/auth.module';
 import { AuditModule } from './audit/audit.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import dbConfig from './config/db.config';
 
 @Module({
@@ -27,6 +29,12 @@ import dbConfig from './config/db.config';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor,
+    },
+  ],
 })
 export class AppModule {}

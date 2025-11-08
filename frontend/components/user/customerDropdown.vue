@@ -85,10 +85,10 @@ const handlePhoneInput = (e) => {
 onMounted(async () => {
     if (props.quotationId) {
         try {
-                const res = await api.get(`/quotation/${props.quotationId}`);
-            if (res.data.customer) {
-                customer.value = { ...res.data.customer };
-                                initialCustomer.value = { ...customer.value };
+            const res = await api.get(`/quotation/${props.quotationId}`);
+            if (res.data.data.customer) {
+                customer.value = { ...res.data.data.customer };
+                initialCustomer.value = { ...customer.value };
             }
         } catch (err) {
             console.error("Error fetching customer data:", err);
@@ -97,7 +97,7 @@ onMounted(async () => {
 });
 
 watch(customer, (newVal) => {
-  emit("update", newVal);
+    emit("update", newVal);
 }, { deep: true });
 
 // Debounced duplicate check when phone/name changes
@@ -183,5 +183,4 @@ async function lookupCustomersByPhone(phone) {
     opacity: 1;
     overflow: hidden;
 }
-
 </style>

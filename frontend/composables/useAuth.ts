@@ -28,16 +28,15 @@ export function getStaffId(): string | number | null {
 export async function getMe(): Promise<any | null> {
   if (!process.client) return null;
   try {
-  const cfg = useRuntimeConfig().public || {};
-  const backend = cfg.backendUrl || 'http://localhost:3001';
-  const externalApi = cfg.apiUrl || null;
-  const token = getToken();
-  if (!token) return null;
-  // backend endpoints are served under /api
-  const res = await fetch(`${backend.replace(/\/$/, '')}/api/auth/me`, { headers: { Authorization: `Bearer ${token}` } });
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.user || null;
+    const token = getToken();
+    if (!token) return null;
+    
+    // Use the axios instance configured in plugins/axios.js
+    const api = useApi();
+    const response = await api.get('/auth/me');
+    
+    // New response structure: { statusCode, message, data: { authenticated, user } }
+    return response.data?.data?.user || null;
   } catch (e) {
     return null;
   }

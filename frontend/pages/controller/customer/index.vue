@@ -113,11 +113,12 @@ const fetchData = async () => {
       }
     });
 
-    customerList.value = response.data.data;
-    totalPages.value = response.data.totalPages;
-    total.value = response.data.total;
+    // New response structure: { statusCode, message, data: [...], pagination: {...} }
+    customerList.value = response.data.data || [];
+    totalPages.value = response.data.pagination?.totalPages || 1;
+    total.value = response.data.pagination?.total || 0;
   } catch (error) {
-    console.error("Error fetching staff data:", error);
+    console.error("Error fetching customer data:", error);
   } finally {
     loading.value = false;
   }

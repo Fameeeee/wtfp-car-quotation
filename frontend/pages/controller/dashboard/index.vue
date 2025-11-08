@@ -163,9 +163,10 @@ const fetchExtras = async () => {
             api.get(`/quotation/stats/top-staff`),
             api.get(`/quotation/stats/payment-distribution`),
         ])
-        topModels.value = mRes.data
-        topStaff.value = sRes.data
-        payments.value = pRes.data
+        // New response structure: { statusCode, message, data: [...] }
+        topModels.value = mRes.data.data || []
+        topStaff.value = sRes.data.data || []
+        payments.value = pRes.data.data || []
     } catch (e) {
         console.error('Failed to load extras', e)
     }
@@ -175,7 +176,8 @@ const fetchSummary = async () => {
     loading.value = true;
     try {
         const resp = await api.get(`/quotation/summary`);
-        summary.value = resp.data;
+        // New response structure: { statusCode, message, data: {...} }
+        summary.value = resp.data.data || {};
     } catch (e) {
         console.error('Failed to load summary', e);
     } finally {
@@ -187,7 +189,8 @@ const fetchChart = async () => {
     chartLoading.value = true
     try {
         const res = await api.get(`/quotation/stats/monthly`, { params: { months: months.value } })
-        chartData.value = res.data
+        // New response structure: { statusCode, message, data: [...] }
+        chartData.value = res.data.data || []
     } catch (e) {
         console.error('Failed to load chart', e)
         chartData.value = []

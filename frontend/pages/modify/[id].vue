@@ -244,26 +244,27 @@ const store = useQuotationStore();
 api
     .get(`/quotation/${quotationId}`)
     .then((response) => {
-        quotationData.value = response.data;
-        allData.customer = response.data.customer || allData.customer;
-        allData.paymentMethod = response.data.paymentMethod || '';
-        allData.installmentPlans = response.data.installmentPlans || [];
-        allData.additionCosts = response.data.additionCosts || allData.additionCosts;
-        allData.carDetails = response.data.carDetails || allData.carDetails;
-        allData.accessories = response.data.accessories || [];
-        
+        // New response structure: { statusCode, message, data: {...} }
+        const data = response.data.data || {};
+        quotationData.value = data;
+        allData.customer = data.customer || allData.customer;
+        allData.paymentMethod = data.paymentMethod || '';
+        allData.installmentPlans = data.installmentPlans || [];
+        allData.additionCosts = data.additionCosts || allData.additionCosts;
+        allData.carDetails = data.carDetails || allData.carDetails;
+        allData.accessories = data.accessories || [];
         // Load the saved template
-        selectedTemplate.value = response.data.templateKey || 'standard';
+        selectedTemplate.value = data.templateKey || 'standard';
         
     try {
             store.selectedCar = allData.carDetails;
-            if (response.data.cashPlans) {
-                if (typeof store.setCashPlan === 'function') store.setCashPlan(response.data.cashPlans);
-                else store.cashPlan = response.data.cashPlans;
+            if (data.cashPlans) {
+                if (typeof store.setCashPlan === 'function') store.setCashPlan(data.cashPlans);
+                else store.cashPlan = data.cashPlans;
             }
-            if (response.data.installmentPlans) {
-                if (typeof store.setInstallmentPlans === 'function') store.setInstallmentPlans(response.data.installmentPlans);
-                else store.installmentPlans = response.data.installmentPlans;
+            if (data.installmentPlans) {
+                if (typeof store.setInstallmentPlans === 'function') store.setInstallmentPlans(data.installmentPlans);
+                else store.installmentPlans = data.installmentPlans;
             }
         } catch {}
     })
@@ -321,7 +322,7 @@ const handleSaveConfirm = async () => {
             payload.cashPlans = JSON.parse(JSON.stringify(store.cashPlan));
             if (payload.cashPlans.totalPrice) payload.cashPlans.totalPrice = Number(payload.cashPlans.totalPrice);
             if (payload.cashPlans.specialDiscount) payload.cashPlans.specialDiscount = Number(payload.cashPlans.specialDiscount);
-            if (payload.cashPlans.specialAddition) payload.cashPlans.specialAddition = Number(payload.cashPlans.specialAddition);
+            if (payload.cashPlans.additionPrice) payload.cashPlans.additionPrice = Number(payload.cashPlans.additionPrice);
             payload.installmentPlans = [];
         } else if (store.installmentPlans && store.installmentPlans.length > 0) {
             payload.installmentPlans = JSON.parse(JSON.stringify(store.installmentPlans));
@@ -352,11 +353,12 @@ const handleSaveConfirm = async () => {
         // Include the selected template
         payload.templateKey = selectedTemplate.value;
 
-        console.info('Creating new quotation from modified data:', JSON.parse(JSON.stringify(payload)));
+
         // Use POST /quotation/create to create a new quotation
         const res = await api.post(`/quotation/create`, payload);
-        const d = res?.data || {};
-        const newId = d.quotationId || d.id || (d.data && d.data.quotationId) || (d.quotation && d.quotation.id) || null;
+        // New response structure: { statusCode, message, data: { quotationId, ... } }
+        const d = res?.data?.data || {};
+        const newId = d.quotationId || d.id || null;
 
         alert('สร้างใบเสนอราคาใหม่เรียบร้อยแล้ว');
         if (newId) {

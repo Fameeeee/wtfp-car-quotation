@@ -15,19 +15,19 @@
                     <div class="flex justify-between">
                         <span class="text-lg font-extrabold">ใบเสนอราคา</span>
                         <span class="text-sm font-light">{{ formatDate(quotation.quotationDate) || 'วันที่ไม่ระบุ'
-                        }}</span>
+                            }}</span>
                     </div>
                     <hr class="my-2" />
                     <div class="flex flex-col gap-1 ml-2">
                         <span class="text-base font-semibold">{{ quotation.carDetails.modelClass || 'โมเดลไม่ระบุ'
-                        }}</span>
+                            }}</span>
                         <span class="text-sm font-medium">{{ quotation.carDetails.modelGName || 'รายละเอียดไม่ระบุ'
-                        }}</span>
+                            }}</span>
                         <div class="flex items-center gap-2">
                             <span class="text-sm font-semibold">{{ quotation.customer?.firstName || 'ลูกค้าไม่ระบุ'
-                            }}</span>
+                                }}</span>
                             <span class="text-sm font-semibold">{{ quotation.customer?.lastName || 'ลูกค้าไม่ระบุ'
-                            }}</span>
+                                }}</span>
                         </div>
                     </div>
                 </div>
@@ -63,6 +63,7 @@
 
 <script setup>
 import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
+import axios from 'axios';
 import { useApi } from '~/composables/useApi';
 import debounce from 'lodash/debounce';
 import { getStaffIdAsync } from '~/composables/useAuth.ts'
@@ -110,7 +111,10 @@ const fetchQuotations = async () => {
             },
             signal: abortController.signal,
         });
-        quotations.value = response.data.data.map(q => ({
+        const responseData = response.data.data.data;
+        const quotationsList = Array.isArray(responseData) ? responseData : (responseData?.quotations || []);
+
+        quotations.value = quotationsList.map(q => ({
             quotationId: q.quotationId,
             quotationDate: q.quotationDate,
             carDetails: {
@@ -124,8 +128,8 @@ const fetchQuotations = async () => {
                 ? { staffId: q.staff.staffId, firstName: q.staff.firstName, lastName: q.staff.lastName }
                 : null,
         }));
-        totalPages.value = response.data.totalPages || 0;
-        total.value = response.data.total || 0;
+        totalPages.value = response.data.pagination?.totalPages || 0;
+        total.value = response.data.pagination?.total || 0;
     } catch (error) {
         if (axios.isCancel?.(error)) {
         } else if (error?.name === 'CanceledError' || error?.code === 'ERR_CANCELED') {

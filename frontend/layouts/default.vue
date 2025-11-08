@@ -7,7 +7,7 @@
             </NuxtLink>
 
             <!-- Dropdown Menu -->
-            <div class="relative" ref="menuRef" v-if="isLoggedIn()">
+            <div class="relative" ref="menuRef" v-if="isLoggedIn">
                 <button
                     class="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-2 shadow-sm hover:shadow transition focus:outline-none focus:ring-2 focus:ring-rose-300"
                     @click="toggleDropdown" aria-haspopup="menu" :aria-expanded="isDropdownOpen ? 'true' : 'false'"
@@ -99,17 +99,28 @@ import { clearToken, isManager as isManagerFn, getToken } from '~/composables/us
 const router = useRouter();
 const isDropdownOpen = ref(false);
 const isLoggingOut = ref(false)
-const isManager = isManagerFn();
+const isManager = ref(false);
 const menuRef = ref(null)
-const isLoggedIn = () => {
-    try { return !!getToken() } catch (e) { return false }
-}
+const isLoggedIn = ref(false);
+
+// Initialize auth state only on client to avoid hydration mismatch
+onMounted(() => {
+    try {
+        isLoggedIn.value = !!getToken();
+        isManager.value = isManagerFn();
+    } catch (e) {
+        isLoggedIn.value = false;
+        isManager.value = false;
+    }
+})
 
 const handleLogout = async () => {
     if (isLoggingOut.value) return
     isLoggingOut.value = true
     try {
         await clearToken()
+        isLoggedIn.value = false;
+        isManager.value = false;
         isDropdownOpen.value = false;
         router.push('/');
     } finally {

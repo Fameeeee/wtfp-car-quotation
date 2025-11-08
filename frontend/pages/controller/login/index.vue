@@ -119,8 +119,9 @@ const handleLogin = async () => {
       password: password.value,
     });
 
-    if (response.status >= 200 && response.status < 300 && response.data?.access_token) {
-      setToken(response.data.access_token);
+    // New response structure: { statusCode, message, data: { access_token } }
+    if (response.status >= 200 && response.status < 300 && response.data?.data?.access_token) {
+      setToken(response.data.data.access_token);
       router.push('/controller/staff');
       return;
     }

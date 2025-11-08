@@ -104,7 +104,6 @@
 <script setup>
 import { ref, onMounted, watch, computed } from "vue";
 import { useRouter } from 'vue-router';
-import axios from "axios";
 import _ from "lodash";
 import dayjs from "dayjs";
 import Pagination from "~/components/common/Pagination.vue";
@@ -165,9 +164,10 @@ const fetchData = async () => {
         days: selectedFilter.value > 0 ? selectedFilter.value : undefined,
       }
     });
-    pagedHistoryList.value = response.data.data; 
-    totalPages.value = response.data.totalPages;
-    total.value = response.data.total;
+    // New response structure: { statusCode, message, data: [...], pagination: {...} }
+    pagedHistoryList.value = response.data.data || []; 
+    totalPages.value = response.data.pagination?.totalPages || 1;
+    total.value = response.data.pagination?.total || 0;
   } catch (error) {
     console.error("Error fetching history data:", error);
   } finally {

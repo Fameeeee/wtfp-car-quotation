@@ -254,7 +254,8 @@ onMounted(async () => {
 api
     .get(`/quotation/${quotationId}`)
     .then((response) => {
-        const data = response.data || {};
+        // New response structure: { statusCode, message, data: {...} }
+        const data = response.data.data || {};
         quotationData.value = data;
         
         // Load the saved template
@@ -476,8 +477,9 @@ const handleSaveConfirm = async (saveAsNew) => {
             }
 
             const res = await api.post('/quotation/create', cleaned);
-            const d = res?.data || {};
-            const newId = d.quotationId || d.id || (d.data && d.data.quotationId) || (d.quotation && d.quotation.id) || null;
+            // New response structure: { statusCode, message, data: { quotationId, ... } }
+            const d = res?.data?.data || {};
+            const newId = d.quotationId || d.id || null;
             console.log('create response data:', d, 'resolved newId=', newId);
             alert("บันทึกข้อมูลเรียบร้อยแล้ว");
             if (newId) {

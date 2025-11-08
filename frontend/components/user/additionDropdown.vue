@@ -165,7 +165,7 @@ onMounted(async () => {
   if (props.quotationId) {
     try {
       const res = await api.get(`/quotation/${props.quotationId}`);
-      const ac = res.data.additionCosts || {};
+      const ac = res.data.data.additionCosts || {};
       // map incoming to local fields
       cmiCheck.value = typeof ac.cmi === 'boolean' ? (ac.cmi ? 'do' : 'not_do') : (ac.cmiCheck || '');
       insuranceCheck.value = typeof ac.insurance === 'boolean' ? (ac.insurance ? 'do' : 'not_do') : (ac.insuranceCheck || '');

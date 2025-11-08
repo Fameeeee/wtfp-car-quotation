@@ -35,19 +35,23 @@ import buttonGroup from '~/components/user/buttonGroup.vue';
 import modalDiscard from '~/components/user/modalDiscard.vue';
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
+import { useExternalApi } from '~/composables/useExternalApi';
 import { useQuotationStore } from '~/stores/quotation';
 
 const router = useRouter();
 const quotationStore = useQuotationStore();
 const selectedCar = computed(() => quotationStore.selectedCar);
 const showModal = ref(false);
-const config = useRuntimeConfig();
-const apiUrl = config.public.apiUrl;
+const externalApi = useExternalApi();
 
 const fetchUnitId = async (unitType) => {
     try {
-        const response = await axios.get(`${apiUrl}/standard-base?filter=unitType||$eq||${unitType}&filter=status||$eq||1`);
+        if (!externalApi) {
+            console.error('External API not configured');
+            return;
+        }
+        
+        const response = await externalApi.get(`/standard-base?filter=unitType||$eq||${unitType}&filter=status||$eq||1`);
         if (response.data && response.data.length > 0) {
             quotationStore.setSelectedCar({ ...selectedCar.value, id: response.data[0].id });
         }

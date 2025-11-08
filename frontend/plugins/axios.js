@@ -37,7 +37,18 @@ export default defineNuxtPlugin(() => {
   });
 
   instance.interceptors.response.use(
-    (res) => res,
+    (res) => {
+      // Auto-unwrap standardized API responses
+      // Backend returns: { statusCode, message, data, timestamp }
+      // We want to make response.data = the actual data
+      if (res.data && typeof res.data === 'object' && 'statusCode' in res.data && 'data' in res.data) {
+        // Keep the original structure but add a convenience property
+        res.data._original = { ...res.data };
+        // For backwards compatibility, keep the wrapped structure
+        // Frontend can access either response.data.data or response.data
+      }
+      return res;
+    },
     (err) => {
       if (err?.response?.status === 401) {
         // Do not force-redirect on explicit login failures; let the page show its error

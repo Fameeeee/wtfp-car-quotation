@@ -253,7 +253,8 @@ const fetchStaffData = async () => {
     loading.value = true;
     try {
         const response = await api.get(`/staff/${staffId}`);
-        staffData.value = response.data;
+        // New response structure: { statusCode, message, data: {...} }
+        staffData.value = response.data.data;
     } catch (error) {
         console.error("Error fetching staff data:", error);
     } finally {

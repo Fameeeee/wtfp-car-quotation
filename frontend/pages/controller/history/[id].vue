@@ -60,7 +60,6 @@
 <script setup>
 import { useRouter, useRoute } from 'vue-router'
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
-import axios from 'axios'
 
 const config = useRuntimeConfig()
 const api = useApi();
@@ -77,7 +76,8 @@ const fetchHistoryData = async () => {
   try {
     // Fetch quotation data including templateKey
     const response = await api.get(`/quotation/${quotationId}`)
-    historyData.value = response.data
+    // New response structure: { statusCode, message, data: {...} }
+    historyData.value = response.data.data
     // Fetch PDF using stored templateKey from database
     await fetchPdf()
   } catch (error) {

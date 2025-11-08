@@ -75,7 +75,7 @@ onMounted(async () => {
     if (props.quotationId) {
         try {
             const { data } = await api.get(`/quotation/${props.quotationId}`);
-            accessories.value = data.accessories || [];
+            accessories.value = data.data.accessories || [];
             const unitType = data.carDetails?.unitType;
                 if (unitType) {
                 // Prefer external API for catalog lookups; fallback to backend if missing

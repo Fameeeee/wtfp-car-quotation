@@ -201,13 +201,17 @@ onMounted(async () => {
         staffId.value = await getStaffIdAsync();
     }
 
-    try {
-        if (staffId.value) await fetchStaffInfo();
-    } catch (e) {
-        console.warn('Failed to fetch staff info, continue');
-    } finally {
-        generatePdfPreview();
+    // Wait for staff info to be fetched before generating PDF
+    if (staffId.value) {
+        try {
+            await fetchStaffInfo();
+        } catch (e) {
+            console.warn('Failed to fetch staff info, using data from token');
+        }
     }
+    
+    // Generate PDF after staff info is loaded
+    generatePdfPreview();
 });
 
 const confirm = async () => {
@@ -247,10 +251,9 @@ const confirm = async () => {
 
     if (dataToSend.paymentMethod === 'cash' && hasCash) {
         dataToSend.cashPlans = {
-            totalPrice: storeCashPlan.totalPrice ? Number(storeCashPlan.totalPrice) : storeCashPlan.totalPrice,
-            specialDiscount: storeCashPlan.specialDiscount ? Number(storeCashPlan.specialDiscount) : storeCashPlan.specialDiscount,
-            additionPrice: storeCashPlan.additionPrice ? Number(storeCashPlan.additionPrice) : storeCashPlan.additionPrice,
-            ...storeCashPlan
+            totalPrice: Number(storeCashPlan.totalPrice) || 0,
+            specialDiscount: Number(storeCashPlan.specialDiscount) || 0,
+            additionPrice: Number(storeCashPlan.additionPrice) || 0,
         };
     } else if (dataToSend.paymentMethod === 'installment' && hasInstallment) {
         dataToSend.installmentPlans = storeInstallmentPlans.map((plan) => ({
@@ -272,11 +275,11 @@ const confirm = async () => {
         return;
     }
 
-    console.info('Creating quotation payload:', JSON.parse(JSON.stringify(dataToSend)));
 
     try {
         const response = await api.post('/quotation/create', dataToSend);
-        const quotationId = response.data.quotationId;
+        // New response structure: { statusCode, message, data: { quotationId, ... } }
+        const quotationId = response.data.data?.quotationId;
         showModal.value = false;
         router.push(`/quotation-success/${quotationId}`);
     } catch (error) {
@@ -297,9 +300,9 @@ const closeModal = () => {
 const fetchStaffInfo = async () => {
     try {
         if (!staffId.value) return;
-    const api = useApi();
-    const res = await api.get(`/staff/${staffId.value}`);
-        const s = res.data || {};
+        const res = await api.get(`/staff/${staffId.value}`);
+        // Response structure after backend fix: { statusCode, message, data: {...staff...} }
+        const s = res.data.data || {};
         staffInfo.value = {
             firstName: s.firstName || staffInfo.value.firstName || '',
             lastName: s.lastName || staffInfo.value.lastName || '',
@@ -349,10 +352,9 @@ const buildPreviewPayload = () => {
 
     if (base.paymentMethod === 'cash' && hasCash) {
         base.cashPlans = {
-            ...storeCashPlan,
-            totalPrice: storeCashPlan.totalPrice ? Number(storeCashPlan.totalPrice) : storeCashPlan.totalPrice,
-            specialDiscount: storeCashPlan.specialDiscount ? Number(storeCashPlan.specialDiscount) : storeCashPlan.specialDiscount,
-            additionPrice: storeCashPlan.additionPrice ? Number(storeCashPlan.additionPrice) : storeCashPlan.additionPrice,
+            totalPrice: Number(storeCashPlan.totalPrice) || 0,
+            specialDiscount: Number(storeCashPlan.specialDiscount) || 0,
+            additionPrice: Number(storeCashPlan.additionPrice) || 0,
         };
     }
     if (base.paymentMethod === 'installment' && hasInstallment) {
@@ -376,9 +378,8 @@ const generatePdfPreview = async () => {
         pdfLoading.value = true;
         pdfUrl.value = '';
         const payload = buildPreviewPayload();
-    const api = useApi();
-    const response = await api.post('/quotation/pdf', payload, { responseType: 'blob' });
-    const blob = new Blob([response.data], { type: 'application/pdf' });
+        const response = await api.post('/quotation/pdf', payload, { responseType: 'blob' });
+        const blob = new Blob([response.data], { type: 'application/pdf' });
         pdfUrl.value = URL.createObjectURL(blob);
     } catch (e) {
         console.error('Failed to generate PDF preview', e);
