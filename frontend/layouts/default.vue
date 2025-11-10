@@ -95,8 +95,10 @@
 import { useRouter } from 'vue-router';
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { clearToken, isManager as isManagerFn, getToken } from '~/composables/useAuth.ts'
+import { useNotification } from '~/composables/useNotification'
 
 const router = useRouter();
+const toast = useNotification();
 const isDropdownOpen = ref(false);
 const isLoggingOut = ref(false)
 const isManager = ref(false);
@@ -122,7 +124,13 @@ const handleLogout = async () => {
         isLoggedIn.value = false;
         isManager.value = false;
         isDropdownOpen.value = false;
-        router.push('/');
+        toast.success('ออกจากระบบสำเร็จ');
+        setTimeout(() => {
+            router.push('/');
+        }, 800);
+    } catch (error) {
+        toast.error('เกิดข้อผิดพลาดในการออกจากระบบ');
+        console.error('Logout error:', error);
     } finally {
         isLoggingOut.value = false
     }

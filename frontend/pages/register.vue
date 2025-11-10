@@ -69,9 +69,11 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApi } from '~/composables/useApi'
+import { useNotification } from '~/composables/useNotification'
 import { isValidPhone } from '~/utils/validators';
 
 const api = useApi();
+const toast = useNotification();
 
 const form = ref({
   email: '',
@@ -101,27 +103,32 @@ const registerUser = async () => {
     !form.value.phoneNumber
   ) {
     errorMessage.value = 'กรุณากรอกข้อมูลให้ครบทุกช่อง';
+    toast.warning('กรุณากรอกข้อมูลให้ครบทุกช่อง');
     return;
   }
 
   if (form.value.password !== form.value.confirmPassword) {
     errorMessage.value = 'รหัสผ่านไม่ตรงกัน';
+    toast.error('รหัสผ่านไม่ตรงกัน');
     return;
   }
 
   if (!isValidPhone(form.value.phoneNumber)) {
     errorMessage.value = 'เบอร์โทรศัพท์ต้องมีตัวเลข 10 หลัก';
+    toast.error('เบอร์โทรศัพท์ต้องมีตัวเลข 10 หลัก');
     return;
   }
 
   try {
-  await api.post('/auth/register', form.value);
-  successMessage.value = 'สมัครสมาชิกสำเร็จ!';
-    alert('สมัครสมาชิกสำเร็จ!');
-    router.push('/');
+    await api.post('/auth/register', form.value);
+    successMessage.value = 'สมัครสมาชิกสำเร็จ!';
+    toast.success('สมัครสมาชิกสำเร็จ! กำลังพาคุณไปหน้าเข้าสู่ระบบ...');
+    setTimeout(() => {
+      router.push('/');
+    }, 1500);
   } catch (error) {
     errorMessage.value = error.response ? error.response.data.message : 'เกิดข้อผิดพลาด';
-    alert(errorMessage.value);
+    toast.apiError(error, 'เกิดข้อผิดพลาดในการสมัครสมาชิก');
   }
 };
 </script>

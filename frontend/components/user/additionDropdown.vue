@@ -97,6 +97,7 @@
 <script setup>
 import { ref, onMounted, watch } from "vue";
 import { useApi } from '~/composables/useApi'
+import { useNotification } from '~/composables/useNotification';
 
 const props = defineProps({
   label: String,
@@ -116,6 +117,7 @@ const warrantyYears = ref(3);
 const warrantyKm = ref(100000);
 
 const api = useApi();
+const toast = useNotification();
 
 const emit = defineEmits(["update"]);
 
@@ -186,6 +188,7 @@ onMounted(async () => {
       emitChange();
     } catch (err) {
       console.error("Error fetching addition costs:", err);
+      toast.error('ไม่สามารถโหลดข้อมูลค่าใช้จ่ายเพิ่มเติมได้');
     }
   }
 });

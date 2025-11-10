@@ -101,9 +101,11 @@ import modalDiscard from '~/components/user/modalDiscard.vue';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuotationStore } from '~/stores/quotation';
+import { useNotification } from '~/composables/useNotification';
 
 const router = useRouter();
 const quotationStore = useQuotationStore();
+const toast = useNotification();
 const showModal = ref(false)
 const cmiCheck = ref('');
 const insuranceCheck = ref('');
@@ -163,7 +165,10 @@ const goBack = async () => {
 };
 
 const goNext = () => {
-    if (!cmiCheck.value || !insuranceCheck.value) return;
+    if (!cmiCheck.value || !insuranceCheck.value) {
+        toast.warning('กรุณาเลือกสถานะของ "พรบ." และ "ประกันภัย"');
+        return;
+    }
     const finalNote = buildFullNote();
     const current = quotationStore?.additionCost || {};
     quotationStore.setAdditionCost({
@@ -173,6 +178,7 @@ const goNext = () => {
         fuelValue: fuelValue.value,
     noteText: normalizeNote(finalNote)
     });
+    toast.success('บันทึกค่าใช้จ่ายเพิ่มเติมสำเร็จ');
     router.push('/customer-details');
 };
 

@@ -190,10 +190,12 @@ import additionDropdown from '~/components/user/additionDropdown.vue';
 import customerDropdown from '~/components/user/customerDropdown.vue';
 import { getStaffIdAsync } from '~/composables/useAuth.ts'
 import { useQuotationStore } from '~/stores/quotation';
+import { useNotification } from '~/composables/useNotification';
 
 const route = useRoute();
 const quotationId = route.params.id;
 const router = useRouter();
+const toast = useNotification();
 const quotationData = ref({});
 const showModal = ref(false);
 const showSaveModal = ref(false);
@@ -270,6 +272,7 @@ api
     })
     .catch((error) => {
         console.error('Error fetching quotation data:', error);
+        toast.error('ไม่สามารถโหลดข้อมูลใบเสนอราคาได้');
     });
 
 const goBack = () => {
@@ -282,6 +285,7 @@ const goNext = () => {
 
 const selectTemplate = (template) => {
     selectedTemplate.value = template;
+    toast.info('เปลี่ยนรูปแบบใบเสนอราคา');
 };
 
 
@@ -291,6 +295,7 @@ const handleSaveConfirm = async () => {
     try {
         const conflict = await checkCustomerDuplicate(allData.customer);
         if (conflict) {
+            toast.warning('พบเบอร์โทรซ้ำ แต่ชื่อ-สกุลไม่ตรงกับข้อมูลเดิม');
             const proceed = window.confirm('พบเบอร์โทรซ้ำ แต่ชื่อ-สกุลไม่ตรงกับข้อมูลเดิมในระบบ ต้องการบันทึกต่อหรือไม่?');
             if (!proceed) return;
         }
@@ -353,14 +358,14 @@ const handleSaveConfirm = async () => {
         // Include the selected template
         payload.templateKey = selectedTemplate.value;
 
-
+        toast.info('กำลังสร้างใบเสนอราคาใหม่...');
         // Use POST /quotation/create to create a new quotation
         const res = await api.post(`/quotation/create`, payload);
         // New response structure: { statusCode, message, data: { quotationId, ... } }
         const d = res?.data?.data || {};
         const newId = d.quotationId || d.id || null;
 
-        alert('สร้างใบเสนอราคาใหม่เรียบร้อยแล้ว');
+        toast.success('สร้างใบเสนอราคาใหม่สำเร็จ!');
         if (newId) {
             await router.push(`/history/${newId}`);
         } else {
@@ -369,9 +374,10 @@ const handleSaveConfirm = async () => {
     } catch (error) {
         if (error?.response) {
             console.error('Error saving quotation:', error.response.status, error.response.data);
-            try { alert('Failed to save: ' + (error.response.data?.message || JSON.stringify(error.response.data))); } catch(e){}
+            toast.apiError(error, 'ไม่สามารถบันทึกใบเสนอราคาได้');
         } else {
             console.error("Error saving quotation:", error);
+            toast.error('เกิดข้อผิดพลาดในการบันทึก');
         }
     }
 };

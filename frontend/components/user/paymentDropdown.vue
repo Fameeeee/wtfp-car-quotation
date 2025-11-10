@@ -141,6 +141,7 @@
 import { ref, reactive, watch, onMounted, computed } from "vue";
 import { useApi } from "~/composables/useApi";
 import { useQuotationStore } from "~/stores/quotation";
+import { useNotification } from '~/composables/useNotification';
 
 const props = defineProps({
     label: String,
@@ -154,6 +155,7 @@ const selectedMethod = ref(null);
 const config = useRuntimeConfig();
 const api = useApi();
 const store = useQuotationStore();
+const toast = useNotification();
 
 const carDetails = reactive({
     price: 0,
@@ -246,6 +248,7 @@ const fetchQuotationData = async () => {
         emit("update", { paymentMethod: selectedMethod.value, installmentPlans: installmentPlans.value, cashPlans: cashPlans.value });
     } catch (err) {
         console.error("Error fetching data", err);
+        toast.error('ไม่สามารถโหลดข้อมูลการชำระเงินได้');
     } finally {
         loading.value = false;
     }
@@ -261,6 +264,9 @@ const selectMethod = (method) => {
     // keep store in sync
     if (typeof store.setPaymentMethod === 'function') store.setPaymentMethod(selectedMethod.value);
     else store.paymentMethod = selectedMethod.value;
+    
+    toast.info(method === 'cash' ? 'เปลี่ยนเป็นชำระเงินสด' : 'เปลี่ยนเป็นชำระเงินผ่อน');
+    
     if (method === 'cash') {
         // clear installment
         installmentPlans.value = [];
@@ -372,6 +378,9 @@ const addPlan = () => {
             planDetails: periods.value.map(period => ({ period, interestRate: null })),
         });
         activePlanIndex.value = installmentPlans.value.length - 1;
+        toast.success('เพิ่มแผนการผ่อนชำระแล้ว');
+    } else {
+        toast.warning('สามารถเพิ่มได้สูงสุด 2 แผน');
     }
     store.setInstallmentPlans(JSON.parse(JSON.stringify(installmentPlans.value)));
     emit("update", { paymentMethod: selectedMethod.value, installmentPlans: installmentPlans.value });
@@ -381,6 +390,9 @@ const deleteLastPlan = () => {
     if (installmentPlans.value.length > 1) {
         installmentPlans.value.pop();
         activePlanIndex.value = Math.max(0, activePlanIndex.value - 1);
+        toast.info('ลบแผนการผ่อนชำระแล้ว');
+    } else {
+        toast.warning('ต้องมีอย่างน้อย 1 แผน');
     }
     store.setInstallmentPlans(JSON.parse(JSON.stringify(installmentPlans.value)));
     emit("update", { paymentMethod: selectedMethod.value, installmentPlans: installmentPlans.value });

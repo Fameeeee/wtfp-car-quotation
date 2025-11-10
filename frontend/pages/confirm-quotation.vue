@@ -162,8 +162,10 @@ import { useRouter } from 'vue-router';
 import { useQuotationStore } from '~/stores/quotation';
 import { getMe, getStaffIdAsync } from '~/composables/useAuth.ts'
 import { data } from 'autoprefixer';
+import { useNotification } from '~/composables/useNotification';
 
 const api = useApi();
+const toast = useNotification();
 
 const router = useRouter();
 const quotationStore = useQuotationStore();
@@ -277,10 +279,12 @@ const confirm = async () => {
 
 
     try {
+        toast.info('กำลังสร้างใบเสนอราคา...');
         const response = await api.post('/quotation/create', dataToSend);
         // New response structure: { statusCode, message, data: { quotationId, ... } }
         const quotationId = response.data.data?.quotationId;
         showModal.value = false;
+        toast.success('สร้างใบเสนอราคาสำเร็จ!');
         router.push(`/quotation-success/${quotationId}`);
     } catch (error) {
         if (error && error.response) {
@@ -289,7 +293,7 @@ const confirm = async () => {
             console.error('Error creating quotation:', error);
         }
         showModal.value = false;
-        try { alert('Failed to create quotation: ' + (error?.response?.data?.message || error?.message || 'Unknown error')); } catch(e){}
+        toast.apiError(error, 'ไม่สามารถสร้างใบเสนอราคาได้');
     }
 }
 
@@ -402,6 +406,7 @@ const selectTemplate = (templateKey) => {
     selectedTemplate.value = templateKey;
 
     quotationStore.selectedTemplate = templateKey;
+    toast.info('เปลี่ยนรูปแบบใบเสนอราคา');
     generatePdfPreview();
 };
 

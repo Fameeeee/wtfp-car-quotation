@@ -47,6 +47,7 @@
 <script setup>
 import { ref, onMounted, watch } from "vue";
 import { useApi } from "~/composables/useApi";
+import { useNotification } from '~/composables/useNotification';
 
 const props = defineProps({
     label: String,
@@ -63,6 +64,7 @@ const customer = ref({
 const errors = ref({});
 const config = useRuntimeConfig();
 const api = useApi();
+const toast = useNotification();
 const emit = defineEmits(['update']);
 
 const localData = ref({ ...props.modelValue });
@@ -92,6 +94,7 @@ onMounted(async () => {
             }
         } catch (err) {
             console.error("Error fetching customer data:", err);
+            toast.error('ไม่สามารถโหลดข้อมูลลูกค้าได้');
         }
     }
 });

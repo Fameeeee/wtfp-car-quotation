@@ -2,7 +2,10 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineNuxtConfig({
   modules: ["@pinia/nuxt","@nuxt/ui"],
-  css: ["~/public/assets/css/main.css"],
+  css: [
+    "~/public/assets/css/main.css",
+    "~/public/assets/css/toast.css"
+  ],
   compatibilityDate: "2024-04-03",
   devtools: { enabled: true },
   app: {

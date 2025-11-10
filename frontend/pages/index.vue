@@ -53,10 +53,12 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApi } from '~/composables/useApi'
+import { useNotification } from '~/composables/useNotification'
 import { setToken } from '~/composables/useAuth.ts'
 
 const config = useRuntimeConfig()
 const api = useApi();
+const toast = useNotification();
 
 const form = ref({ email: '', password: '' });
 const emailError = ref(false);
@@ -70,24 +72,28 @@ const handleLogin = async () => {
   passwordError.value = !form.value.password;
   errorMessage.value = '';
 
-  if (emailError.value || passwordError.value) return;
+  if (emailError.value || passwordError.value) {
+    toast.warning('กรุณากรอกอีเมลและรหัสผ่านให้ครบถ้วน');
+    return;
+  }
 
   isLoading.value = true;
 
-  const api = useApi();
   try {
     const response = await api.post('/auth/login', form.value);
-    // New response structure: { statusCode, message, data: { access_token } }
     if (response.status >= 200 && response.status < 300 && response.data?.data?.access_token) {
       setToken(response.data.data.access_token);
-      router.push('/home');
-      alert('เข้าสู่ระบบสำเร็จ');
+      toast.success('เข้าสู่ระบบสำเร็จ! กำลังนำคุณไปหน้าหลัก...');
+      setTimeout(() => {
+        router.push('/home');
+      }, 1000);
     } else {
       errorMessage.value = 'Login failed: No token received.';
+      toast.error('เข้าสู่ระบบล้มเหลว กรุณาลองใหม่อีกครั้ง');
     }
   } catch (error) {
     errorMessage.value = error?.response?.data?.message || 'การเข้าสู่ระบบล้มเหลว กรุณาลองใหม่';
-    alert(errorMessage.value);
+    toast.apiError(error, 'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
   } finally {
     isLoading.value = false;
   }

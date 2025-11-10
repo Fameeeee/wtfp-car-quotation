@@ -50,10 +50,12 @@ import modalDiscard from '~/components/user/modalDiscard.vue';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuotationStore } from '~/stores/quotation';
+import { useNotification } from '~/composables/useNotification';
 import { isValidPhone, sanitizePhone } from '~/utils/validators';
 
 const router = useRouter();
 const quotationStore = useQuotationStore();
+const toast = useNotification();
 const showModal = ref(false);
 
 const customer = ref({
@@ -109,7 +111,10 @@ const goBack = () => {
 
 const goNext = () => {
     if (validateForm()) {
+        toast.success('บันทึกข้อมูลลูกค้าสำเร็จ');
         router.push('/confirm-quotation');
+    } else {
+        toast.warning('กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง');
     }
 };
 

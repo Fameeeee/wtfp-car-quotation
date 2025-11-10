@@ -65,9 +65,11 @@
 import { useRouter, useRoute } from 'vue-router';
 import { useApi } from '~/composables/useApi';
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { useNotification } from '~/composables/useNotification';
 
 const config = useRuntimeConfig()
 const api = useApi();
+const toast = useNotification();
 
 const route = useRoute();
 const quotationId = route.params.id;
@@ -90,6 +92,7 @@ onMounted(async () => {
         pdfUrl.value = URL.createObjectURL(blob);
     } catch (e) {
         console.error('Failed to load final PDF', e);
+        toast.error('ไม่สามารถโหลด PDF ได้');
     } finally {
         pdfLoading.value = false;
     }
@@ -121,22 +124,29 @@ const saveAsPdf = async () => {
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
+        toast.success('ดาวน์โหลด PDF สำเร็จ');
     } catch (e) {
         console.error('Failed to save PDF', e);
+        toast.error('ไม่สามารถดาวน์โหลด PDF ได้');
     }
 };
 
 const openInNewTab = () => {
     if (pdfUrl.value) {
         window.open(pdfUrl.value, '_blank', 'noopener,noreferrer');
+        toast.info('เปิด PDF ในแท็บใหม่');
         return;
     }
     const directUrl = `${api.defaults.baseURL.replace(/\/$/, '')}/quotation/${quotationId}/pdf`;
     window.open(directUrl, '_blank', 'noopener,noreferrer');
+    toast.info('เปิด PDF ในแท็บใหม่');
 };
 
 const goBack = () => router.push('/history');
-const goModify = () => router.push(`/modify/${quotationId}`);
+const goModify = () => {
+    toast.info('กำลังเปิดหน้าแก้ไขใบเสนอราคา');
+    router.push(`/modify/${quotationId}`);
+};
 
 
 </script>

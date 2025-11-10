@@ -67,10 +67,12 @@ import axios from 'axios';
 import { useApi } from '~/composables/useApi';
 import debounce from 'lodash/debounce';
 import { getStaffIdAsync } from '~/composables/useAuth.ts'
+import { useNotification } from '~/composables/useNotification';
 
 
 const config = useRuntimeConfig()
 const api = useApi();
+const toast = useNotification();
 
 
 const currentPage = ref(1);
@@ -94,6 +96,7 @@ const fetchQuotations = async () => {
     const staffId = await getStaffIdAsync();
     if (!staffId) {
         console.error("Staff ID is not available");
+        toast.error('ไม่พบข้อมูลพนักงาน');
         return;
     }
 
@@ -135,6 +138,7 @@ const fetchQuotations = async () => {
         } else if (error?.name === 'CanceledError' || error?.code === 'ERR_CANCELED') {
         } else {
             console.error("Error fetching quotations:", error);
+            toast.error('ไม่สามารถโหลดประวัติใบเสนอราคาได้');
         }
     } finally {
         loading.value = false;

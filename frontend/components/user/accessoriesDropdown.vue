@@ -52,6 +52,7 @@
 import { ref, onMounted, computed, watch } from "vue";
 import { useApi } from '~/composables/useApi'
 import { useExternalApi } from '~/composables/useExternalApi'
+import { useNotification } from '~/composables/useNotification';
 
 const props = defineProps({
     label: String,
@@ -68,6 +69,7 @@ const api = useApi();
 const externalApi = useExternalApi();
 const config = useRuntimeConfig();
 const apiUrl = config.public.apiUrl;
+const toast = useNotification();
 
 const toggle = () => (open.value = !open.value);
 
@@ -121,11 +123,13 @@ onMounted(async () => {
                         }
                     } catch (e) {
                         console.error('Error fetching accessories list:', e);
+                        toast.error('ไม่สามารถโหลดรายการอุปกรณ์ได้');
                     }
                 }
             }
         } catch (error) {
             console.error('Error fetching data:', error);
+            toast.error('ไม่สามารถโหลดข้อมูลอุปกรณ์ได้');
         }
     }
 });
@@ -151,13 +155,18 @@ const addAccessory = (item) => {
     const exists = accessories.value.some(a => `${(a.assName||'').toString()}::${(a.assType||'').toString()}` === key);
     if (!exists) {
         accessories.value.push(normalized);
+        toast.success(`เพิ่ม ${item.assName} แล้ว`);
+    } else {
+        toast.warning('อุปกรณ์นี้ถูกเพิ่มแล้ว');
     }
     // clear search after adding, like a picker UX
     searchQuery.value = '';
 };
 
 const removeAccessory = (index) => {
+    const item = accessories.value[index];
     accessories.value.splice(index, 1);
+    toast.info(`ลบ ${item.assName} แล้ว`);
 };
 
 const totalPrice = computed(() =>

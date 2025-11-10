@@ -2,7 +2,8 @@
     <div class="flex flex-col items-center w-full p-4">
         <div class="w-full max-w-md space-y-4">
             <!-- Validation summary (only after confirm click) -->
-            <div v-if="showErrors && (errors.downPayment || errors.interestRates)" class="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700">
+            <div v-if="showErrors && (errors.downPayment || errors.interestRates)"
+                class="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700">
                 <ul class="list-disc pl-5 space-y-1">
                     <li v-if="errors.downPayment">{{ errors.downPayment }}</li>
                     <li v-if="errors.interestRates">{{ errors.interestRates }}</li>
@@ -20,16 +21,16 @@
                 </ClientOnly>
             </div>
 
-        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-4">
                 <span class="font-semibold w-1/3 text-black">ส่วนลด</span>
                 <input v-model.number="activePlan.specialDiscount" type="number" placeholder="ส่วนลดราคารถ"
-            class="w-2/3 p-2 border rounded-lg text-gray-700 placeholder-gray-400" />
+                    class="w-2/3 p-2 border rounded-lg text-gray-700 placeholder-gray-400" />
             </div>
 
-        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-4">
                 <span class="font-semibold w-1/3 text-black">ส่วนเพิ่ม</span>
                 <input v-model.number="activePlan.additionPrice" type="number" placeholder="ส่วนเพิ่มราคารถ"
-            class="w-2/3 p-2 border rounded-lg text-gray-700 placeholder-gray-400" />
+                    class="w-2/3 p-2 border rounded-lg text-gray-700 placeholder-gray-400" />
             </div>
 
             <div class="flex items-center gap-4">
@@ -41,15 +42,16 @@
             <div>
                 <span class="font-semibold text-black">จำนวนเงินดาวน์</span>
                 <div class="flex items-center gap-4 mt-2 w-full">
-                    <input v-model.number="activePlan.downPaymentPercent" type="number" placeholder="%" min="0" max="100"
-                        @input="updateDownPayment"
+                    <input v-model.number="activePlan.downPaymentPercent" type="number" placeholder="%" min="0"
+                        max="100" @input="updateDownPayment"
                         :class="['w-1/2 p-2 border rounded-lg text-black placeholder-gray-400', showErrors && errors.downPayment ? 'border-red-500 focus:ring-red-500' : 'border-black']" />
                     <span class="text-black">หรือ</span>
                     <input v-model.number="activePlan.downPayment" type="number" placeholder="บาท"
                         @input="updateDownPaymentPercent"
                         :class="['w-1/2 p-2 border rounded-lg text-black placeholder-gray-400', showErrors && errors.downPayment ? 'border-red-500 focus:ring-red-500' : 'border-black']" />
                 </div>
-                <p v-if="showErrors && errors.downPayment" class="mt-1 text-sm text-red-600">{{ errors.downPayment }}</p>
+                <p v-if="showErrors && errors.downPayment" class="mt-1 text-sm text-red-600">{{ errors.downPayment }}
+                </p>
             </div>
 
             <div class="grid grid-cols-3 gap-4">
@@ -63,13 +65,13 @@
                 <div v-if="activePlan?.planDetails?.length">
                     <p class="text-center font-semibold text-sm text-black">อัตราดอกเบี้ย</p>
                     <div v-for="(plan, index) in activePlan.planDetails" :key="index" class="mt-2">
-                        <input v-model.number="plan.interestRate"
-                            @blur="handleInterestRateBlur(plan, index)"
+                        <input v-model.number="plan.interestRate" @blur="handleInterestRateBlur(plan, index)"
                             type="number"
                             :class="['w-full p-2 border rounded-lg text-center text-black placeholder-gray-400', (showErrors && errors.interestRates && isInterestRateEmpty(plan.interestRate)) ? 'border-red-500 focus:ring-red-500' : 'border-black']"
                             placeholder="%" />
                     </div>
-                    <p v-if="showErrors && errors.interestRates" class="mt-2 text-center text-sm text-red-600">{{ errors.interestRates }}</p>
+                    <p v-if="showErrors && errors.interestRates" class="mt-2 text-center text-sm text-red-600">{{
+                        errors.interestRates }}</p>
                 </div>
                 <div v-if="activePlan?.planDetails?.length">
                     <p class="text-center font-semibold text-sm text-black">ค่างวดต่อเดือน</p>
@@ -104,8 +106,10 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useQuotationStore } from '~/stores/quotation';
+import { useNotification } from '~/composables/useNotification';
 
 const emit = defineEmits(['validity']);
+const toast = useNotification();
 
 const periods = ref([36, 48, 60, 72, 84]);
 const quotationStore = useQuotationStore();
@@ -146,6 +150,17 @@ const validateOnSubmit = () => {
     showErrors.value = true;
     const ok = validate();
     emit('validity', ok);
+    
+    // Show toast for validation errors
+    if (!ok) {
+        if (errors.value.downPayment) {
+            toast.error(errors.value.downPayment);
+        }
+        if (errors.value.interestRates) {
+            toast.error(errors.value.interestRates);
+        }
+    }
+    
     return ok;
 };
 defineExpose({ validateOnSubmit });
@@ -261,7 +276,7 @@ const calculateMonthlyPayments = () => {
 
 const handleInterestRateBlur = (plan, index) => {
     if (plan.interestRate === '') {
-        plan.interestRate = null;  
+        plan.interestRate = null;
     }
     validate();
 };

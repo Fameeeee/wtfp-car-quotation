@@ -52,8 +52,10 @@ import { useRouter, useRoute } from 'vue-router';
 import { useApi } from '~/composables/useApi'
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useQuotationStore } from '~/stores/quotation'
+import { useNotification } from '~/composables/useNotification';
 
 const api = useApi();
+const toast = useNotification();
 
 const route = useRoute();
 const quotationId = route.params.id;
@@ -77,6 +79,7 @@ onMounted(async () => {
         pdfUrl.value = URL.createObjectURL(blob);
     } catch (e) {
         console.error('Failed to load final PDF', e);
+        toast.error('ไม่สามารถโหลด PDF ได้');
     } finally {
         pdfLoading.value = false;
     }
@@ -112,8 +115,10 @@ const saveAsPdf = async () => {
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
+        toast.success('ดาวน์โหลด PDF สำเร็จ');
     } catch (e) {
         console.error('Failed to save PDF', e);
+        toast.error('ไม่สามารถดาวน์โหลด PDF ได้');
     }
 };
 
@@ -121,11 +126,13 @@ const openInNewTab = () => {
     // Prefer the already-fetched Blob URL (fast, no re-download)
     if (pdfUrl.value) {
         window.open(pdfUrl.value, '_blank', 'noopener,noreferrer');
+        toast.info('เปิด PDF ในแท็บใหม่');
         return;
     }
     // Fallback: open the backend PDF endpoint directly
     const directUrl = api.defaults.baseURL + `/quotation/${quotationId}/pdf`;
     window.open(directUrl, '_blank', 'noopener,noreferrer');
+    toast.info('เปิด PDF ในแท็บใหม่');
 };
 
 
@@ -133,6 +140,7 @@ const openInNewTab = () => {
 const goHome = () => {
     const store = useQuotationStore()
     store.clearAll()
+    toast.success('กลับสู่หน้าหลัก');
     router.push('/home')
 }
 </script>
