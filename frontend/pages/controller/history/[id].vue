@@ -60,11 +60,13 @@
 <script setup>
 import { useRouter, useRoute } from 'vue-router'
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
+import { useNotification } from '~/composables/useNotification';
 
 const config = useRuntimeConfig()
 const api = useApi();
 const route = useRoute()
 const router = useRouter()
+const toast = useNotification();
 const quotationId = route.params.id
 
 const historyData = ref(null)
@@ -82,6 +84,7 @@ const fetchHistoryData = async () => {
     await fetchPdf()
   } catch (error) {
     console.error('Error fetching history data:', error)
+    toast.error('ไม่สามารถโหลดข้อมูลใบเสนอราคาได้')
   } finally {
     loading.value = false
   }
@@ -92,11 +95,17 @@ const goBack = () => {
 }
 
 const goModify = () => {
+  toast.info('กำลังเปิดหน้าแก้ไขใบเสนอราคา');
   router.push(`/controller/history/modify/${quotationId}`)
 }
 
 const openInNewTab = () => {
-  if (pdfUrl.value) window.open(pdfUrl.value, '_blank')
+  if (pdfUrl.value) {
+    window.open(pdfUrl.value, '_blank');
+    toast.info('เปิด PDF ในแท็บใหม่');
+  } else {
+    toast.warning('ยังไม่มี PDF ให้แสดง');
+  }
 }
 
 onMounted(() => {
@@ -131,6 +140,7 @@ async function fetchPdf () {
   } catch (e) {
     console.error('Error fetching PDF:', e)
     pdfUrl.value = ''
+    toast.error('ไม่สามารถโหลด PDF ได้')
   }
 }
 

@@ -103,6 +103,48 @@
       />
     </div>
   </div>
+
+  <!-- Confirmation Modal for Role Change -->
+  <div v-if="showRoleModal" class="fixed inset-0 flex justify-center items-center bg-black/50 z-50">
+    <div class="bg-white p-6 rounded-xl shadow-lg max-w-md w-full mx-4">
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">ยืนยันการเปลี่ยนตำแหน่ง</h3>
+      <p class="text-sm text-gray-600 mb-4">
+        คุณต้องการเปลี่ยนตำแหน่งของ <span class="font-semibold">{{ pendingChange?.staff?.firstName }} {{ pendingChange?.staff?.lastName }}</span> 
+        เป็น <span class="font-semibold text-blue-600">{{ getRoleLabel(pendingChange?.newValue) }}</span> ใช่หรือไม่?
+      </p>
+      <div class="flex gap-3 justify-end">
+        <button @click="cancelRoleChange"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors">
+          ยกเลิก
+        </button>
+        <button @click="confirmRoleChange"
+          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+          ยืนยัน
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal for Status Change -->
+  <div v-if="showStatusModal" class="fixed inset-0 flex justify-center items-center bg-black/50 z-50">
+    <div class="bg-white p-6 rounded-xl shadow-lg max-w-md w-full mx-4">
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">ยืนยันการเปลี่ยนสถานะ</h3>
+      <p class="text-sm text-gray-600 mb-4">
+        คุณต้องการเปลี่ยนสถานะของ <span class="font-semibold">{{ pendingChange?.staff?.firstName }} {{ pendingChange?.staff?.lastName }}</span> 
+        เป็น <span class="font-semibold text-blue-600">{{ getStatusLabel(pendingChange?.newValue) }}</span> ใช่หรือไม่?
+      </p>
+      <div class="flex gap-3 justify-end">
+        <button @click="cancelStatusChange"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors">
+          ยกเลิก
+        </button>
+        <button @click="confirmStatusChange"
+          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+          ยืนยัน
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -111,6 +153,7 @@ import { useRouter } from 'vue-router';
 import { useApi } from '~/composables/useApi'
 import _ from 'lodash';
 import { isManager } from '~/composables/useAuth.ts'
+import { useNotification } from '~/composables/useNotification';
 const { $axios } = useNuxtApp();
 import Pagination from "~/components/common/Pagination.vue";
 
@@ -121,6 +164,7 @@ definePageMeta({
 
 const router = useRouter();
 const api = useApi();
+const toast = useNotification();
 
 const searchQuery = ref("");
 const staffList = ref([]);
@@ -129,6 +173,9 @@ const currentPage = ref(1);
 const totalPages = ref(1);
 const total = ref(0);
 const loading = ref(false);
+const showRoleModal = ref(false);
+const showStatusModal = ref(false);
+const pendingChange = ref(null);
 
 
 const debouncedSearch = _.debounce(() => {
@@ -151,6 +198,7 @@ const fetchData = async () => {
     total.value = response.data.pagination?.total || 0;
   } catch (error) {
     console.error("Error fetching staff data:", error);
+    toast.error('ไม่สามารถโหลดข้อมูลพนักงานได้');
   } finally {
     loading.value = false;
   }
@@ -200,29 +248,99 @@ const isManagerUser = isManager();
 
 const onChangeRole = async (event, staff) => {
   const newRole = event.target.value;
-  const prev = staff.role;
-  staff.role = newRole;
+  if (newRole === staff.role) return;
+  
+  // Store pending change and show modal
+  pendingChange.value = {
+    staff: staff,
+    newValue: newRole,
+    oldValue: staff.role,
+  };
+  showRoleModal.value = true;
+  
+  // Reset select to old value (will update on confirm)
+  event.target.value = staff.role;
+};
+
+const confirmRoleChange = async () => {
+  const { staff, newValue, oldValue } = pendingChange.value;
+  staff.role = newValue;
+  showRoleModal.value = false;
+  
   try {
-  await api.patch(`/staff/${staff.id}/role`, { role: newRole });
+    await api.patch(`/staff/${staff.id}/role`, { role: newValue });
+    toast.success(`เปลี่ยนตำแหน่งเป็น ${getRoleLabel(newValue)} แล้ว`);
+    await fetchData();
   } catch (e) {
     console.error('Failed to update role', e);
-    staff.role = prev; 
-    alert('ไม่สามารถอัปเดตตำแหน่งได้');
+    staff.role = oldValue;
+    toast.apiError(e, 'ไม่สามารถอัปเดตตำแหน่งได้');
+  } finally {
+    pendingChange.value = null;
   }
-}
+};
+
+const cancelRoleChange = () => {
+  showRoleModal.value = false;
+  pendingChange.value = null;
+};
 
 const onChangeStatus = async (event, staff) => {
   const newStatus = event.target.value;
-  const prev = staff.status;
-  staff.status = newStatus;
+  if (newStatus === staff.status) return;
+  
+  // Store pending change and show modal
+  pendingChange.value = {
+    staff: staff,
+    newValue: newStatus,
+    oldValue: staff.status,
+  };
+  showStatusModal.value = true;
+  
+  // Reset select to old value (will update on confirm)
+  event.target.value = staff.status;
+};
+
+const confirmStatusChange = async () => {
+  const { staff, newValue, oldValue } = pendingChange.value;
+  staff.status = newValue;
+  showStatusModal.value = false;
+  
   try {
-  const res = await api.patch(`/staff/${staff.id}/status`, { status: newStatus });
-  await fetchData();
+    await api.patch(`/staff/${staff.id}/status`, { status: newValue });
+    toast.success(`เปลี่ยนสถานะเป็น ${getStatusLabel(newValue)} แล้ว`);
+    await fetchData();
   } catch (e) {
     console.error('Failed to update status', e);
-    staff.status = prev;
-  const msg = e?.response?.data?.message || e?.message || 'ไม่สามารถอัปเดตสถานะได้';
-  alert(msg);
+    staff.status = oldValue;
+    toast.apiError(e, 'ไม่สามารถอัปเดตสถานะได้');
+  } finally {
+    pendingChange.value = null;
   }
-}
+};
+
+const cancelStatusChange = () => {
+  showStatusModal.value = false;
+  pendingChange.value = null;
+};
+
+const getRoleLabel = (role) => {
+  const labels = {
+    staff: 'พนักงาน',
+    manager: 'ผู้จัดการ',
+    admin: 'แอดมิน'
+  };
+  return labels[role] || role;
+};
+
+const getStatusLabel = (status) => {
+  const labels = {
+    active: 'Active',
+    inactive: 'Inactive',
+    suspended: 'Suspended',
+    terminated: 'Terminated',
+    unemployed: 'Unemployed'
+  };
+  return labels[status] || status;
+};
 </script>

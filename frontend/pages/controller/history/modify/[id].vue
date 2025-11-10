@@ -200,6 +200,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { useApi } from '~/composables/useApi';
 import { ref, reactive, onMounted } from 'vue';
 import { getStaffIdAsync } from '~/composables/useAuth.ts'
+import { useNotification } from '~/composables/useNotification';
 
 import paymentDropdown from '~/components/user/paymentDropdown.vue';
 import accessoriesDropdown from '~/components/user/accessoriesDropdown.vue';
@@ -210,6 +211,7 @@ const config = useRuntimeConfig()
 const api = useApi();
 const route = useRoute()
 const router = useRouter()
+const toast = useNotification();
 const quotationId = route.params.id
 
 const showSaveModal = ref(false);
@@ -290,6 +292,7 @@ api
     })
     .catch((error) => {
         console.error("Error fetching quotation data:", error);
+        toast.error('ไม่สามารถโหลดข้อมูลใบเสนอราคาได้');
     });
 
 const goBack = () => {
@@ -303,6 +306,7 @@ const goNext = () => {
 
 const selectTemplate = (template) => {
     selectedTemplate.value = template;
+    toast.info('เปลี่ยนรูปแบบใบเสนอราคา');
 };
 
 const handleSaveConfirm = async (saveAsNew) => {
@@ -472,16 +476,17 @@ const handleSaveConfirm = async (saveAsNew) => {
             const { ok, errors, payload: cleaned } = coerceAndValidateForCreate(JSON.parse(JSON.stringify(payload)));
             if (!ok) {
                 console.warn('Create prevented due to validation errors:', errors, payload);
-                alert('ไม่สามารถบันทึกได้: ' + errors.join('; '));
+                toast.error('ไม่สามารถบันทึกได้: ' + errors.join('; '));
                 return;
             }
 
+            toast.info('กำลังสร้างใบเสนอราคาใหม่...');
             const res = await api.post('/quotation/create', cleaned);
             // New response structure: { statusCode, message, data: { quotationId, ... } }
             const d = res?.data?.data || {};
             const newId = d.quotationId || d.id || null;
             console.log('create response data:', d, 'resolved newId=', newId);
-            alert("บันทึกข้อมูลเรียบร้อยแล้ว");
+            toast.success('สร้างใบเสนอราคาใหม่สำเร็จ!');
             if (newId) {
                 await router.push(`/controller/history/${newId}`);
             } else {
@@ -489,18 +494,16 @@ const handleSaveConfirm = async (saveAsNew) => {
             }
         } else {
             await api.put(`/quotation/${Number(quotationId)}`, payload);
-            alert("อัปเดตข้อมูลเรียบร้อยแล้ว");
+            toast.success('อัปเดตข้อมูลเรียบร้อยแล้ว');
             router.push(`/controller/history/${quotationId}`);
         }
     } catch (error) {
         if (error?.response) {
             console.error('Save failed:', error.response.status, error.response.data);
-            const body = error.response.data;
-            const serverMsg = body?.message || body?.error || body;
-            alert('พบข้อผิดพลาดจากเซิร์ฟเวอร์: ' + JSON.stringify(serverMsg));
+            toast.apiError(error, 'ไม่สามารถบันทึกได้');
         } else {
             console.error('Error saving quotation:', error);
-            alert('พบข้อผิดพลาด: ' + (error?.message || 'Unknown'));
+            toast.error('พบข้อผิดพลาด: ' + (error?.message || 'Unknown'));
         }
     }
 };
