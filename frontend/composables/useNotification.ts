@@ -2,12 +2,14 @@ export const useNotification = () => {
   // Access toast instance from Nuxt app context
   const nuxtApp = useNuxtApp() as any
   
-  // Try multiple ways to get the toast instance
-  const toast = nuxtApp.$toast || nuxtApp.vueApp?.config?.globalProperties?.$toast
+  // Try to get the toast instance
+  const getToast = () => {
+    return nuxtApp.$toast || nuxtApp.vueApp?.config?.globalProperties?.$toast
+  }
 
-  // Return methods that safely call toast
   return {
     success: (message: string, options: any = {}) => {
+      const toast = getToast()
       if (toast && typeof toast.success === 'function') {
         toast.success(message, {
           timeout: 3000,
@@ -19,6 +21,7 @@ export const useNotification = () => {
     },
     
     error: (message: string, options: any = {}) => {
+      const toast = getToast()
       if (toast && typeof toast.error === 'function') {
         toast.error(message, {
           timeout: 4000,
@@ -30,6 +33,7 @@ export const useNotification = () => {
     },
     
     warning: (message: string, options: any = {}) => {
+      const toast = getToast()
       if (toast && typeof toast.warning === 'function') {
         toast.warning(message, {
           timeout: 3500,
@@ -41,6 +45,7 @@ export const useNotification = () => {
     },
     
     info: (message: string, options: any = {}) => {
+      const toast = getToast()
       if (toast && typeof toast.info === 'function') {
         toast.info(message, {
           timeout: 3000,
@@ -53,6 +58,7 @@ export const useNotification = () => {
 
     // Custom method for API errors
     apiError: (error: any, fallbackMessage = 'เกิดข้อผิดพลาด') => {
+      const toast = getToast()
       const message = error?.response?.data?.message || error?.message || fallbackMessage
       if (toast && typeof toast.error === 'function') {
         toast.error(message, {
