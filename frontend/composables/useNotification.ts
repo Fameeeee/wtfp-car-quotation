@@ -1,55 +1,66 @@
 export const useNotification = () => {
   // Access toast instance from Nuxt app context
   const nuxtApp = useNuxtApp() as any
-  const toast = nuxtApp.$toast
+  
+  // Try multiple ways to get the toast instance
+  const toast = nuxtApp.$toast || nuxtApp.vueApp?.config?.globalProperties?.$toast
 
-  // Fallback if toast is not available
-  if (!toast) {
-    console.warn('Toast plugin not available')
-    return {
-      success: (message: string) => console.log('SUCCESS:', message),
-      error: (message: string) => console.error('ERROR:', message),
-      warning: (message: string) => console.warn('WARNING:', message),
-      info: (message: string) => console.info('INFO:', message),
-      apiError: (error: any, fallback: string) => console.error('API ERROR:', error, fallback),
-    }
-  }
-
+  // Return methods that safely call toast
   return {
     success: (message: string, options: any = {}) => {
-      toast.success(message, {
-        timeout: 3000,
-        ...options,
-      })
+      if (toast && typeof toast.success === 'function') {
+        toast.success(message, {
+          timeout: 3000,
+          ...options,
+        })
+      } else {
+        console.log('✅ SUCCESS:', message)
+      }
     },
     
     error: (message: string, options: any = {}) => {
-      toast.error(message, {
-        timeout: 4000,
-        ...options,
-      })
+      if (toast && typeof toast.error === 'function') {
+        toast.error(message, {
+          timeout: 4000,
+          ...options,
+        })
+      } else {
+        console.error('❌ ERROR:', message)
+      }
     },
     
     warning: (message: string, options: any = {}) => {
-      toast.warning(message, {
-        timeout: 3500,
-        ...options,
-      })
+      if (toast && typeof toast.warning === 'function') {
+        toast.warning(message, {
+          timeout: 3500,
+          ...options,
+        })
+      } else {
+        console.warn('⚠️ WARNING:', message)
+      }
     },
     
     info: (message: string, options: any = {}) => {
-      toast.info(message, {
-        timeout: 3000,
-        ...options,
-      })
+      if (toast && typeof toast.info === 'function') {
+        toast.info(message, {
+          timeout: 3000,
+          ...options,
+        })
+      } else {
+        console.info('ℹ️ INFO:', message)
+      }
     },
 
     // Custom method for API errors
     apiError: (error: any, fallbackMessage = 'เกิดข้อผิดพลาด') => {
       const message = error?.response?.data?.message || error?.message || fallbackMessage
-      toast.error(message, {
-        timeout: 4000,
-      })
+      if (toast && typeof toast.error === 'function') {
+        toast.error(message, {
+          timeout: 4000,
+        })
+      } else {
+        console.error('❌ API ERROR:', message)
+      }
     },
   }
 }
