@@ -2,7 +2,7 @@ import Toast from 'vue-toastification'
 import 'vue-toastification/dist/index.css'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  nuxtApp.vueApp.use(Toast, {
+  const toastInstance = nuxtApp.vueApp.use(Toast, {
     position: 'top-right',
     timeout: 3000,
     closeOnClick: true,
@@ -19,4 +19,11 @@ export default defineNuxtPlugin((nuxtApp) => {
     maxToasts: 3,
     newestOnTop: true,
   })
+
+  // Make toast available globally via $toast
+  return {
+    provide: {
+      toast: nuxtApp.vueApp.config.globalProperties.$toast
+    }
+  }
 })
