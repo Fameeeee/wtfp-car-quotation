@@ -280,7 +280,7 @@ export class PdfService {
   }
 
   private buildSharedCss(): string {
-    return `@page{size:A4;margin:15mm;}body{font-family:'Sarabun',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:12px;color:#111;}h1{font-size:22px;text-align:center;margin:8px 0 10px;}table{width:100%;border-collapse:collapse;font-size:11px;}th,td{border:1px solid #d1d5db;padding:4px 5px;text-align:center;}th{background:#f3f4f6;font-weight:600;}.header{display:flex;justify-content:space-between;align-items:flex-start;}.brand{display:flex;gap:10px;align-items:flex-start;}.logo{height:50px;}.company-text{line-height:1.25;}.company-name{font-weight:700;font-size:16px;}.company-addr,.company-tel{font-size:11px;color:#444;}.right-meta{text-align:right;font-size:12px;}.date-line{font-weight:600;margin-bottom:4px;}.car-section{display:flex;gap:16px;align-items:flex-start;margin-bottom:8px;}.car-photo{width:120px;height:120px;border:1px solid #e5e7eb;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;background:#fafafa;}.car-photo img{width:100%;height:100%;object-fit:contain;}.car-info{flex:1;font-size:13px;line-height:1.4;display:grid;gap:4px;}.qr-block{width:120px;text-align:center;display:flex;flex-direction:column;gap:6px;}.qr-box{width:120px;height:120px;border:1px solid #e5e7eb;border-radius:4px;display:flex;align-items:center;justify-center;background:#fff;}.qr-img{width:100%;height:100%;object-fit:contain;}.qr-label{font-size:11px;font-weight:600;line-height:1.2;}.section{margin-top:10px;}.section-title{font-weight:600;margin:0 0 6px;font-size:13px;}.note-box{border:1px solid #e5e7eb;background:#fafafa;border-radius:4px;padding:8px 10px;}.note-list{margin:0;padding-left:18px;line-height:1.5;}.muted{color:#666;}.thanks{margin-top:14px;font-size:11px;line-height:1.55;text-indent:2em;text-align:justify;}.staff-footer{position:fixed;bottom:0;right:0;text-align:right;font-size:12px;line-height:1.3;}.content{position:relative;padding-bottom:70px;}`;
+    return `@page{size:A4;margin:15mm;}body{font-family:'Sarabun',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:12px;color:#111;}h1{font-size:22px;text-align:center;margin:24px 0 10px;}table{width:100%;border-collapse:collapse;font-size:11px;}th,td{border:1px solid #d1d5db;padding:4px 5px;text-align:center;}th{background:#f3f4f6;font-weight:600;}.header{display:flex;justify-content:space-between;align-items:flex-start;}.brand{display:flex;gap:10px;align-items:flex-start;}.logo{height:50px;}.company-text{line-height:1.25;}.company-name{font-weight:700;font-size:16px;}.company-addr,.company-tel{font-size:11px;color:#444;}.right-meta{text-align:right;font-size:12px;}.date-line{font-weight:600;margin-bottom:4px;}.car-section{display:flex;gap:16px;align-items:flex-start;margin-bottom:8px;}.car-photo{width:120px;height:120px;border:1px solid #e5e7eb;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;background:#fafafa;}.car-photo img{width:100%;height:100%;object-fit:contain;}.car-info{flex:1;font-size:13px;line-height:1.4;display:grid;gap:4px;}.qr-block{width:120px;text-align:center;display:flex;flex-direction:column;gap:6px;}.qr-box{width:120px;height:120px;border:1px solid #e5e7eb;border-radius:4px;display:flex;align-items:center;justify-center;background:#fff;}.qr-img{width:100%;height:100%;object-fit:contain;}.qr-label{font-size:11px;font-weight:600;line-height:1.2;}.section{margin-top:10px;}.section-title{font-weight:600;margin:0 0 6px;font-size:13px;}.note-box{border:1px solid #e5e7eb;background:#fafafa;border-radius:4px;padding:8px 10px;}.note-list{margin:0;padding-left:18px;line-height:1.5;}.muted{color:#666;}.thanks{margin-top:14px;font-size:11px;line-height:1.55;text-indent:2em;text-align:justify;}.staff-footer{position:fixed;bottom:0;right:0;text-align:right;font-size:12px;line-height:1.3;}.content{position:relative;padding-bottom:70px;}`;
   }
 
   /**
@@ -466,8 +466,8 @@ export class PdfService {
         align-items: center;
       }
       .t1-logo-wrap {
-        width: 65px;
-        height: 65px;
+        width: 85px;
+        height: 85px;
       }
       .t1-logo {
         width: 100%;
@@ -1184,7 +1184,7 @@ export class PdfService {
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #333;
+        color: #1a1a1a;
         font-weight: 600;
         font-size: 10px;
         background: #fff;
@@ -1201,7 +1201,7 @@ export class PdfService {
       }
       .t2-doc-date {
         font-size: 9.5px;
-        color: #333;
+        color: #1a1a1a;
       }
       .t2-company {
         text-align: center;
@@ -1216,21 +1216,21 @@ export class PdfService {
       .t2-company-addr,
       .t2-company-tel {
         font-size: 8.5px;
-        color: #333;
+        color: #1a1a1a;
         line-height: 1.2;
       }
       .t2-customer {
         margin-bottom: 6px;
         background: #fafafa;
         padding: 6px 10px;
-        border-left: 2px solid #666;
+        border-left: 2px solid #444;
         border-radius: 0;
       }
       .t2-customer-label {
         font-size: 11px;
         font-weight: 700;
         margin-bottom: 2px;
-        color: #333;
+        color: #1a1a1a;
       }
       .t2-customer-to {
         font-size: 10.5px;
@@ -1325,7 +1325,7 @@ export class PdfService {
       .t2-disclaimer {
         font-size: 8.5px;
         line-height: 1.4;
-        color: #333;
+        color: #1a1a1a;
         text-align: justify;
       }
       .t2-container {
@@ -1347,7 +1347,7 @@ export class PdfService {
         font-weight: 600;
         border: 0.5px solid #ddd;
         font-size: 8px;
-        color: #333;
+        color: #1a1a1a;
       }
       .t2-table tbody tr {
         background: #fff;
@@ -1358,6 +1358,7 @@ export class PdfService {
       .t2-table td {
         padding: 3px 4px;
         border: 0.5px solid #ddd;
+        text-align: center;
       }
       .t2-total-row {
         background: #f5f5f5 !important;
