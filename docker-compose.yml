@@ -48,6 +48,9 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        API_URL: ${API_URL}
+        BACKEND_URL: ${BACKEND_URL}
     container_name: wtfp-frontend
     restart: unless-stopped
     ports:

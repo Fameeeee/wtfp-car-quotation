@@ -317,18 +317,25 @@ const fetchStaffData = async () => {
 
 const filteredQuotations = computed(() => {
     if (!staffData.value?.quotations) return [];
-    if (!searchQuery.value) return staffData.value.quotations;
-
-    const q = searchQuery.value.toLowerCase();
-    return staffData.value.quotations.filter(qu => {
-        return (
-            String(qu.id).includes(q) ||
-            qu.customer?.firstName?.toLowerCase().includes(q) ||
-            qu.customer?.lastName?.toLowerCase().includes(q) ||
-            qu.carDetails?.modelClass?.toLowerCase().includes(q) ||
-            (qu.customer?.firstName + ' ' + qu.customer?.lastName)?.toLowerCase().includes(q)
-        );
-    });
+    
+    let quotations = [...staffData.value.quotations];
+    
+    // Filter by search query
+    if (searchQuery.value) {
+        const q = searchQuery.value.toLowerCase();
+        quotations = quotations.filter(qu => {
+            return (
+                String(qu.id).includes(q) ||
+                qu.customer?.firstName?.toLowerCase().includes(q) ||
+                qu.customer?.lastName?.toLowerCase().includes(q) ||
+                qu.carDetails?.modelClass?.toLowerCase().includes(q) ||
+                (qu.customer?.firstName + ' ' + qu.customer?.lastName)?.toLowerCase().includes(q)
+            );
+        });
+    }
+    
+    // Sort by latest first (by ID descending)
+    return quotations.sort((a, b) => b.id - a.id);
 });
 
 const paginatedQuotations = computed(() => {

@@ -1,16 +1,24 @@
 # Frontend Dockerfile (Nuxt 3)
 FROM node:20-alpine AS builder
 
+# Accept build arguments
+ARG API_URL
+ARG BACKEND_URL
+
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm install
 
 # Copy source code
 COPY . .
+
+# Set environment variables for build
+ENV API_URL=${API_URL}
+ENV BACKEND_URL=${BACKEND_URL}
 
 # Build the application
 RUN npm run build
@@ -26,7 +34,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install only production dependencies
-RUN npm ci --only=production
+RUN npm install --omit=dev
 
 # Copy built application from builder
 COPY --from=builder /app/.output ./.output
