@@ -6,6 +6,7 @@ import { Brackets, Repository } from 'typeorm';
 import { CustomerService } from 'src/customer/customer.service';
 import { StaffService } from 'src/staff/staff.service';
 import { AuditService } from 'src/audit/audit.service';
+import { LogLevel, AuditCategory } from 'src/audit/audit.entity';
 
 @Injectable()
 export class QuotationService {
@@ -41,8 +42,8 @@ export class QuotationService {
           0,
           dto.staffId || null,
           { reason: 'Staff not found', dto },
-          'ERROR',
-          'quotation',
+          LogLevel.ERROR,
+          AuditCategory.DATA_MODIFICATION,
         );
       } catch (e) {}
       throw new BadRequestException('Staff not found');
@@ -98,8 +99,8 @@ export class QuotationService {
         quotation.id,
         dto.staffId,
         { createdFrom: null, dto },
-  'INFO',
-        'quotation',
+        LogLevel.INFO,
+        AuditCategory.DATA_MODIFICATION,
       );
     } catch (e) {
       this.logger.warn('Failed to record audit for createQuotation', e?.message || e);

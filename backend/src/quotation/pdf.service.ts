@@ -11,6 +11,7 @@ import puppeteer from 'puppeteer';
 import * as QRCode from 'qrcode';
 import { QuotationService } from './quotation.service';
 import { AuditService } from 'src/audit/audit.service';
+import { LogLevel, AuditCategory } from 'src/audit/audit.entity';
 import { BROCHURE_MAPPINGS } from './brochure-map';
 
 type QuotationData = any;
@@ -37,8 +38,8 @@ export class PdfService {
           id,
           null,
           { reason: 'Quotation not found', id },
-          'ERROR',
-          'pdf',
+          LogLevel.ERROR,
+          AuditCategory.SYSTEM,
         );
       } catch (e) {}
       throw new NotFoundException('Quotation not found');
@@ -50,8 +51,8 @@ export class PdfService {
         id,
         data.staffId || null,
         { id },
-        'INFO',
-        'pdf',
+        LogLevel.INFO,
+        AuditCategory.BUSINESS,
       );
     } catch (e) {}
     return this.renderPdf(data, opts);

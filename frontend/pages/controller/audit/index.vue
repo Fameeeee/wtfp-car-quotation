@@ -177,29 +177,9 @@ const fetchLogs = async () => {
 }
 
 
-let socket = null
 onMounted(() => {
     fetchLogs()
-    if (typeof window !== 'undefined') {
-        import('socket.io-client').then(({ io }) => {
-            const wsUrl = (config.public?.backendUrl || '').replace(/^http/, 'ws') || window.location.origin.replace(/^http/, 'ws')
-            socket = io(wsUrl + '/logs', { transports: ['websocket'] })
-            socket.on('connect', () => { /* connected */ })
-            socket.on('log', (log) => {
-                if (
-                    (!entity.value || log.entity === entity.value) &&
-                    (!level.value || log.level === level.value)
-                ) {
-                    logs.value.unshift(log)
-                    if (logs.value.length > limit.value) logs.value.pop()
-                    totalItems.value++
-                }
-            })
-        })
-    }
 })
-
-onUnmounted(() => { if (socket) { socket.disconnect(); socket = null } })
 const exportCsv = async () => {
     try {
         const params = { entity: entity.value }

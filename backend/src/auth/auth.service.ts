@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { Staff } from 'src/staff/entities/staff.entity';
 import { AuditService } from 'src/audit/audit.service';
+import { LogLevel, AuditCategory } from 'src/audit/audit.entity';
 
 @Injectable()
 export class AuthService {
@@ -25,8 +26,8 @@ export class AuthService {
       staff?.id || 0,
       staff?.id || null,
       { email: staffData.email },
-      'INFO',
-      'auth',
+      LogLevel.INFO,
+      AuditCategory.AUTHENTICATION,
     );
     return { message: 'Registration Successful' };
   }
@@ -44,8 +45,8 @@ export class AuthService {
         0,
         null,
         { email },
-        'WARN',
-        'auth',
+        LogLevel.WARN,
+        AuditCategory.AUTHENTICATION,
       );
       throw new UnauthorizedException('Invalid email or password');
     }
@@ -58,8 +59,8 @@ export class AuthService {
         staff.id,
         staff.id,
         { email },
-        'WARN',
-        'auth',
+        LogLevel.WARN,
+        AuditCategory.AUTHENTICATION,
       );
       throw new UnauthorizedException('Invalid email or password');
     }
@@ -71,8 +72,8 @@ export class AuthService {
         staff.id,
         staff.id,
         { email, reason: 'inactive' },
-        'WARN',
-        'auth',
+        LogLevel.WARN,
+        AuditCategory.AUTHENTICATION,
       );
       throw new UnauthorizedException('Account is not active');
     }
@@ -91,8 +92,8 @@ export class AuthService {
       staff.id,
       staff.id,
       { email },
-      'INFO',
-      'auth',
+      LogLevel.INFO,
+      AuditCategory.AUTHENTICATION,
     );
 
     return { access_token };
