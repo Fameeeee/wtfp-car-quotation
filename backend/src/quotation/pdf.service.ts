@@ -933,7 +933,7 @@ export class PdfService {
             }
           }
 
-          const downPaymentText = `${downPercent}% หรือ บท ${this.thFormatNumber(down)} บาท`;
+          const downPaymentText = `${downPercent}% หรือ บาท ${this.thFormatNumber(down)} บาท`;
 
           installmentRows += `<tr>${i === 0 ? `<td rowspan="${plans.length}" style="border-right:1px solid #ddd">${orderIndex}</td>` : ''}<td style="border-right:1px solid #ddd">${downPaymentText}</td><td style="border-right:1px solid #ddd">${this.thFormatNumber(loan)}</td><td style="border-right:1px solid #ddd;text-align:center">${period ?? '-'}</td><td style="border-right:1px solid #ddd;text-align:center">${rate == null ? '-' : rate + '%'}</td><td style="text-align:right;font-weight:600">${monthly == null ? '-' : this.thFormatNumber(monthly)}</td></tr>`;
         });
