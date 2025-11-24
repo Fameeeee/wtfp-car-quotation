@@ -936,7 +936,7 @@ export class PdfService {
 
           const downPaymentText = `${downPercent}% หรือ บาท ${this.thFormatNumber(down)} บาท`;
 
-          installmentRows += `<tr>${i === 0 ? `<td rowspan="${plans.length}" style="border-right:1px solid #ddd">${orderIndex}</td>` : ''}<td style="border-right:1px solid #ddd">${downPaymentText}</td><td style="border-right:1px solid #ddd">${this.thFormatNumber(loan)}</td><td style="border-right:1px solid #ddd;text-align:center">${period ?? '-'}</td><td style="border-right:1px solid #ddd;text-align:center">${rate == null ? '-' : rate + '%'}</td><td style="text-align:right;font-weight:600">${monthly == null ? '-' : this.thFormatNumber(monthly)}</td></tr>`;
+          installmentRows += `<tr>${i === 0 ? `<td rowspan="${plans.length}" style="border-right:1px solid #ddd">${orderIndex}</td>` : ''}<td style="border-right:1px solid #ddd">${downPaymentText}</td><td style="border-right:1px solid #ddd">${this.thFormatNumber(loan)}</td><td style="border-right:1px solid #ddd">${period ?? '-'}</td><td style="border-right:1px solid #ddd">${rate == null ? '-' : rate + '%'}</td><td style="font-weight:600">${monthly == null ? '-' : this.thFormatNumber(monthly)}</td></tr>`;
         });
       });
     }
@@ -979,10 +979,10 @@ export class PdfService {
         <tbody>
           <tr>
             <td>NEW ISUZU D-MAX 2024</td>
-            <td style="text-align:right">${this.thFormatNumber(car?.price)} ฿</td>
-            <td style="text-align:right">${this.thFormatNumber(cash?.specialDiscount)} ฿</td>
-            <td style="text-align:right">${this.thFormatNumber(cashAddition)} ฿</td>
-            <td style="text-align:right;font-weight:700">${this.thFormatNumber(cash?.totalPrice)} บาท</td>
+            <td>${this.thFormatNumber(car?.price)} ฿</td>
+            <td>${this.thFormatNumber(cash?.specialDiscount)} ฿</td>
+            <td>${this.thFormatNumber(cashAddition)} ฿</td>
+            <td style="font-weight:700">${this.thFormatNumber(cash?.totalPrice)} บาท</td>
           </tr>
         </tbody>
       </table>`;
@@ -1360,6 +1360,9 @@ export class PdfService {
         padding: 3px 4px;
         border: 0.5px solid #ddd;
         text-align: center;
+      }
+      .t2-table td[style*="text-align:right"] {
+        text-align: center !important;
       }
       .t2-total-row {
         background: #f5f5f5 !important;
